@@ -31,3 +31,4 @@ node_modules/
 data/features/
 data/processed/
 data/models/
+data/raw/
