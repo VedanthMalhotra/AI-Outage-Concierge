@@ -251,7 +251,7 @@ At each step the risk and estimate update, events are labelled **Confirmed (simu
 | Tools | `get_my_context(premise_id)` → circuit area, service type, data-coverage level<br>`get_outage_risk(premise_id, storm_severity)` → band, probability, confidence, top factors<br>`estimate_restoration(premise_id, crews, storm_severity, start_delay_h, access_issues, extra_damage, switching_available, failed_upstream_device, prioritize_critical)` → P10/P50/P90, drivers, assumptions<br>`compare_scenarios(premise_id, baseline, changed)` → before/after range and the main reason for the difference (answers "what if…?" and "what changed?")<br>`get_preparation_guidance(premise_id, declared_needs)` → checklist + safety items<br>`check_alert_eligibility(premise_id, declared_needs)` → rules met, channel, timing, escalations<br>`draft_message(premise_id, message_type)` → message text<br>`explain_assumptions()` → assumptions and limitations list |
 | System prompt rules | Plain language at about an 8th-grade reading level · **only state numbers that came from a tool** · always label estimates and give the range plus confidence · name the main reasons · never reveal other customers, addresses, Life Support flags, crew data or exact sensitive-facility locations · emergency / downed line → 911 and stop · if a tool returns a fallback, say so honestly · stay on topic (storm outages) |
 | Scope of chat | The four brief questions plus "why?", "what if more crews?" and "what changed?". Scenario questions call the tool with new parameters, so the chat and the sliders stay consistent. |
-| Audit trail | Every turn logged (JSON lines): question, tools called, tool outputs, final answer, timestamp. Viewable on a hidden "Audit" tab during judging. |
+| Audit trail | Every turn logged (JSON lines) with **personal details removed**: random session ID (not the premise ID), question with phone numbers / emails / addresses stripped, tools called, sanitized tool outputs, final answer, timestamp. Declared needs are logged only as yes/no. Logs are deleted automatically after 7 days (or right after judging). Viewable on a hidden "Audit" tab during judging. See §9b. |
 | Offline fallback | No API key or network → a simple intent matcher maps the four questions to the same tools and answers from templates. The demo never depends on the network. |
 
 ---
@@ -298,6 +298,7 @@ At each step the risk and estimate update, events are labelled **Confirmed (simu
 │ ☐ I use medical eqp. │ [feed of 4 messages]   │                      │
 └──────────────────────┴────────────────────────┴──────────────────────┘
   Footer: "Model estimates, not official AEP information" · Assumptions ⓘ
+          "Your location and needs are used only for this session" · [Clear my data]
 ```
 
 - Never plots other customers' points. Other areas appear only as aggregated zones.
@@ -317,8 +318,32 @@ At each step the risk and estimate update, events are labelled **Confirmed (simu
 | No inferring sensitive attributes (medical only if declared) | Guidance, alerts |
 | Emergency handling → 911 | Guidance, chat, alerts (E3) |
 | Human escalation | E1, E2 rules |
-| Audit trail | Chat log |
+| Audit trail (personal details removed, auto-deleted after 7 days) | Chat log |
+| Session-only data + "Clear my data" button | API session store, UI (§9b) |
 | Input validation (premise IDs, slider bounds, prompt-injection-resistant system prompt) | API + chat |
+
+---
+
+## 9b. Data handling and retention
+
+**Principle:** collect the minimum, keep it only as long as the session needs it, and never store health information.
+
+| Data | Where it lives | Retention |
+|---|---|---|
+| Provided challenge data (anonymized AEP extracts) | `data/raw/`; extracted and processed files gitignored | Kept for the hackathon. Use afterwards follows AEP / HackOHI/O terms. |
+| Selected premise / location | Server memory, keyed by a random session ID | Cleared when the session ends, after 30 min of inactivity, or on **Clear my data** |
+| Declared medical / accessibility needs | Server memory only, **never written to disk** | Same as the session. Logged only as "declared need: yes/no". |
+| Scenario settings (sliders, change history) | Browser memory + server session | Same as the session |
+| Chat messages | Server memory for the conversation | Same as the session. Personal details stripped before any logging. |
+| Audit log | Local JSON-lines file | Personal details removed (§6). Auto-deleted after 7 days or right after judging. |
+| Requests to Claude | Sent to the Anthropic API | Only the user's question (personal details stripped) and sanitized tool outputs are sent. Covered by Anthropic's API data-retention policy. |
+
+**What users see**
+- Footer note: *"Your location and any needs you share are used only for this session and are not stored."*
+- **Clear my data** button: ends the session, wipes server memory for it, resets the UI.
+- An assumptions-panel entry explaining what the audit log keeps, for how long, and that it holds no personal details.
+
+**Out of scope:** a production AEP deployment would follow AEP's own legal and regulatory retention requirements. This prototype doesn't claim to set them.
 
 ---
 
@@ -361,7 +386,7 @@ docs/          scope, data usage, this plan, demo script
 4. **Tick medical equipment** → guidance and escalation change (MVD 4).
 5. **Play storm** → 4 messages appear in sequence (MVD 5).
 6. **Chat:** "Will I lose power?", "Why will it take so long?", "What if more crews come?"
-7. **Guardrails:** "Who else on my street has life support?" → refused. "Where's the nearest hospital, I'm having chest pains" → 911. A premise with missing data → fallback (MVD 6).
+7. **Guardrails:** "Who else on my street has life support?" → refused. "Where's the nearest hospital, I'm having chest pains" → 911. A premise with missing data → fallback. Press **Clear my data** and show the session is wiped (MVD 6).
 8. **Close:** show the assumptions panel and the held-out-storm validation score.
 
 ---
