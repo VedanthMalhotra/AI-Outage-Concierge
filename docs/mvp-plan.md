@@ -25,7 +25,7 @@ Guiding principle from the brief: *"a focused, credible prototype with transpare
 |---|---|---|---|
 | 1 | Clicks the map or enters an anonymized premise ID | Their location pin and circuit area (no other customers shown) | MVD 1 |
 | 2 | (automatic) | Risk card: **"High risk · Medium confidence"** + 3 reasons | MVD 2, Req 1 |
-| 3 | Moves the crew / storm / access sliders | Restoration range updates live: **"likely 10–26 hours"** | MVD 3, Req 2 |
+| 3 | Moves the crew / storm / access sliders, adds damage, or flips a network option | Restoration range updates live: **"likely 10–26 hours"**, plus a before/after note explaining what moved and why | MVD 3, Req 2 |
 | 4 | Optionally ticks "I use medical equipment" | Guidance panel adapts, alert escalation turns on | MVD 4, Req 3 |
 | 5 | Presses **Play storm** | Timeline runs and the notifications feed fills with 4 messages | MVD 5, Req 4 |
 | 6 | Asks the chatbot "Will I lose power?" or "Why so long?" | A plain-language answer citing the model's factors and labelled as an estimate | Req 5 |
@@ -136,6 +136,25 @@ Every number on screen carries one of three labels: **Model estimate**, **Confir
 6. **What moves it:** show the top 2 drivers ("adding 2 crews cuts about 6 h", "a broken pole upstream of you adds about 8 h").
 7. **Sanity check:** in a Feb-2025-like scenario, about 90% of customers should be restored within about 2 days, matching the historical repair dates.
 
+**Scenario controls judges can change.** The brief says to *"update the estimate when damage, crew, access, or network assumptions change"*, so each of those four has a control:
+
+| Brief input | Control | Effect in the simulator |
+|---|---|---|
+| Damage | Storm severity (0.5×–2.0×) · **+ add damage** (pole / wire span / transformer on the customer's line) | Scales the replayed damage list; added items go into the job queue on the customer's chain |
+| Crew | Crews on circuit (1–10) | More jobs run in parallel |
+| Access | Access issues on/off · start delay (0–24 h) | Applies the access adders to every job · shifts all start times |
+| **Network** | **Switching available** on/off | On: step restoration is allowed, so customers upstream of an isolated section are restored early. Off: everyone waits for the whole section. |
+| | **Upstream device failed**: pick a fuse or recloser on the customer's chain | Adds a device repair job that blocks the customer until done, and lists it as a dependency |
+| | **Prioritize critical facilities** on/off | On: jobs feeding hospitals / fire / EMS / priority customers jump the queue. Off: pure customers-downstream order. Shows how the customer's queue position changes. |
+
+**Before/after explanation.** Every change re-runs the simulator with the same random seed, so the difference comes only from the input. The UI and chat then show a short delta note:
+- **What changed:** "Crews: 2 → 6"
+- **Result:** "Likely restoration 10–26 h → 6–14 h (most likely 17 h → 9 h)"
+- **Why:** the biggest contributor to the change, taken from the simulator. For example: "the 3 jobs ahead of you in the queue now run at the same time", or "with switching off, you wait for the broken pole 1.2 mi downstream of your fuse to be fixed".
+- A **Reset to defaults** button, and the last 5 changes kept in a small history list so judges can compare.
+
+The same delta logic applies to the risk card when storm severity changes ("Moderate 32% → High 51%: storm severity 1.0× → 1.5×").
+
 ### 5.3 Preparation guidance (Req 3)
 
 Rules matrix: **risk band × expected duration**, plus modifiers.
@@ -191,7 +210,7 @@ At each step the risk and estimate update, events are labelled **Confirmed (simu
 |---|---|
 | Model | **Claude Opus 5.5** (`claude-opus-5-5`) via the Anthropic Python SDK, with adaptive thinking and low/medium effort for chat responsiveness. Server-side refusal fallback enabled. |
 | Pattern | **Tool use**: the SDK tool runner (or a manual tool loop). Claude picks the tool. No forced tool choice (that's unsupported on this model). |
-| Tools | `get_my_context(premise_id)` → circuit area, service type, data-coverage level<br>`get_outage_risk(premise_id, storm_severity)` → band, probability, confidence, top factors<br>`estimate_restoration(premise_id, crews, storm_severity, start_delay_h, access_issues, extra_damage)` → P10/P50/P90, drivers, assumptions<br>`get_preparation_guidance(premise_id, declared_needs)` → checklist + safety items<br>`check_alert_eligibility(premise_id, declared_needs)` → rules met, channel, timing, escalations<br>`draft_message(premise_id, message_type)` → message text<br>`explain_assumptions()` → assumptions and limitations list |
+| Tools | `get_my_context(premise_id)` → circuit area, service type, data-coverage level<br>`get_outage_risk(premise_id, storm_severity)` → band, probability, confidence, top factors<br>`estimate_restoration(premise_id, crews, storm_severity, start_delay_h, access_issues, extra_damage, switching_available, failed_upstream_device, prioritize_critical)` → P10/P50/P90, drivers, assumptions<br>`compare_scenarios(premise_id, baseline, changed)` → before/after range and the main reason for the difference (answers "what if…?" and "what changed?")<br>`get_preparation_guidance(premise_id, declared_needs)` → checklist + safety items<br>`check_alert_eligibility(premise_id, declared_needs)` → rules met, channel, timing, escalations<br>`draft_message(premise_id, message_type)` → message text<br>`explain_assumptions()` → assumptions and limitations list |
 | System prompt rules | Plain language at about an 8th-grade reading level · **only state numbers that came from a tool** · always label estimates and give the range plus confidence · name the main reasons · never reveal other customers, addresses, Life Support flags, crew data or exact sensitive-facility locations · emergency / downed line → 911 and stop · if a tool returns a fallback, say so honestly · stay on topic (storm outages) |
 | Scope of chat | The four brief questions plus "why?", "what if more crews?" and "what changed?". Scenario questions call the tool with new parameters, so the chat and the sliders stay consistent. |
 | Audit trail | Every turn logged (JSON lines): question, tools called, tool outputs, final answer, timestamp. Viewable on a hidden "Audit" tab during judging. |
@@ -205,7 +224,8 @@ At each step the risk and estimate update, events are labelled **Confirmed (simu
 |---|---|
 | `GET /premise/lookup?lat=&lon=` or `?id=` | Nearest premise (own session only) + circuit area outline |
 | `GET /risk/{premise}?severity=` | Risk band, confidence, factors |
-| `POST /restoration/{premise}` (scenario body) | P10/P50/P90, drivers, assumptions |
+| `POST /restoration/{premise}` (scenario body, including the network options) | P10/P50/P90, drivers, assumptions |
+| `POST /restoration/{premise}/compare` (baseline + changed scenario) | Before/after ranges and the reason for the difference |
 | `POST /guidance/{premise}` (declared needs) | Checklist, safety items |
 | `POST /alerts/{premise}` | Eligibility, rules fired, channel/timing |
 | `POST /timeline/{premise}/step` | Next timeline state + any new messages |
@@ -227,6 +247,12 @@ At each step the risk and estimate update, events are labelled **Confirmed (simu
 │ 1. overhead line…    │ [crews ▮▮▮▯▯]          │                      │
 │ 2. pole age…         │ [storm ▮▮▯▯]           │                      │
 │ 3. single fuse…      │ [access ☐] [+damage]   │                      │
+│                      │ Network: [switching ☑] │                      │
+│                      │ [upstream fail ▾]      │                      │
+│                      │ [critical first ☑]     │                      │
+│                      │ Δ crews 2→6: 10–26h →  │                      │
+│                      │   6–14h (jobs parallel)│                      │
+│                      │ [Reset] · history      │                      │
 ├──────────────────────┼────────────────────────┤                      │
 │ PREPARE              │ ALERTS & MESSAGES      │                      │
 │ ⚠ SAFETY box         │ eligible ✔ · SMS+email │                      │
@@ -285,7 +311,7 @@ docs/          scope, data usage, this plan, demo script
 | 4 Polish | 18–22 | sanity checks vs Feb 2025 | assumptions panel content | guardrail tests (privacy, 911) | accessibility, labels |
 | 5 Demo | 22–24 | — | — | — | rehearse the 5-minute script |
 
-**Cut list if time runs short** (in order): gradient-boosted model → Monte Carlo (use fixed optimistic/pessimistic cases) → step restoration → damage heat layer. **Never cut:** sliders updating the range, the 4 messages, confidence + fallback, privacy refusals.
+**Cut list if time runs short** (in order): gradient-boosted model → Monte Carlo (use fixed optimistic/pessimistic cases) → step restoration → damage heat layer. **Never cut:** controls for all four brief inputs (damage, crew, access, network) updating the range with a before/after note, the 4 messages, confidence + fallback, privacy refusals.
 
 ---
 
@@ -293,7 +319,7 @@ docs/          scope, data usage, this plan, demo script
 
 1. **Scope (20 s):** "Residential customers, Roanoke Valley, Feb-2025-style storm."
 2. **Pick a premise** on a hard-hit circuit → High risk, Medium confidence, 3 reasons (MVD 1–2).
-3. **Change crews 2 → 6** → range shrinks. Toggle access issues → it grows (MVD 3, "change one input").
+3. **Change crews 2 → 6** → range shrinks, with a before/after note. Toggle access issues → it grows. Turn **switching off** or **fail an upstream fuse** → the range grows and the note names the dependency. Then invite a judge to change any input themselves (MVD 3, "change one input").
 4. **Tick medical equipment** → guidance and escalation change (MVD 4).
 5. **Play storm** → 4 messages appear in sequence (MVD 5).
 6. **Chat:** "Will I lose power?", "Why will it take so long?", "What if more crews come?"
