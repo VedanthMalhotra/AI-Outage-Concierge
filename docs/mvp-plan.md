@@ -48,9 +48,10 @@ Every number on screen carries one of three labels: **Model estimate**, **Confir
    processed store (SQLite / parquet)
            │
  ┌─────────┴──────────────────────────────────────────┐
- │ 2. Analytics engine (deterministic Python)         │
- │   risk model · restoration simulator · guidance    │
- │   rules · alert rules · message templates          │
+ │ 2. Analytics engine (Python)                       │
+ │   trained: risk · expected damage · access chance  │
+ │   rules: restoration simulator · guidance · alerts │
+ │          · message templates                       │
  └─────────┬──────────────────────────────┬───────────┘
            │                              │ same functions exposed as tools
            ▼                              ▼
@@ -109,6 +110,43 @@ Every number on screen carries one of three labels: **Model estimate**, **Confir
 | Explanation | Top 3 feature contributions converted to plain-language templates, for example "Your power comes through about 2 miles of overhead line" or "Poles near you average 55 years old" |
 | Fallback | No upstream chain (about 40 premises missing from the file), or Low confidence with a borderline score → *"We can't give a reliable estimate for your location"* + general guidance |
 
+### 5.1b Supporting models that feed the simulator
+
+Restoration time itself is **not** a trained model. The data has no crew counts, no network details and only day-level repair dates, so a trained model couldn't respond to judges' changes or explain itself. Instead, two trained models supply the simulator's **inputs**, where the data does record the outcome:
+
+```
+ trained models (learned from data)        simulator (labor workbook + rules)
+   outage risk  ───────────────────────►  risk card
+   expected damage per zone  ──────────►  damage list ─┐
+   access-problem chance per zone  ────►  job adders  ─┼► crews, order, delay → time range
+```
+
+**Expected-damage model**
+
+| Item | Plan |
+|---|---|
+| Unit | Protective-device zone: the area downstream of each fuse or recloser. Pooled up to the circuit where zones have too little data. |
+| Target | Count of damage items per zone, **by type**: pole, primary wire, transformer, fuse/recloser/switch, secondary/service. Uses quantity (`Media`) where valid, otherwise 1 per record. |
+| Model | **Poisson regression** (a count model) per damage type. Negative binomial if the counts are too spread out for Poisson. |
+| Features | overhead primary length in zone · pole count, average age and wood share · number of transformers · overhead vs underground share · damage history in *other* events |
+| Training / validation | Train on Feb 2025 zone counts, test on Sep 2024 (rank correlation of zones + error on total counts). Report both in the assumptions panel. |
+| Storm severity | The slider multiplies expected counts (0.5×–2.0×) |
+| Output to simulator | An expected count per type for every zone on the customer's circuit. Each Monte Carlo run **samples** the actual counts from those expectations, which is a main source of the P10–P90 spread. |
+| Explanation | "We expect about 3 broken poles and 5 downed wire spans on your circuit in a storm like this, mainly because of 14 mi of overhead line with 1960s wood poles." |
+
+**Access-problem model**
+
+| Item | Plan |
+|---|---|
+| Unit | Damage record (1,658 labelled with `Access_Iss` yes/no, 32% yes) |
+| Model | **Logistic regression** (yes/no) |
+| Features | local customer density (rural vs town) · asset type · overhead vs underground · pole density and age in the area · distance to the nearest circuit main line. **`Special_Eq` is excluded:** it's written on the same report, so it would leak the answer. |
+| Training / validation | Train on Feb 2025, test on Sep 2024 + other events (AUC) |
+| Output to simulator | An access-problem probability per zone. In each Monte Carlo run, each job gets the access adder (+0.5 h × ILM) with that probability. |
+| Stretch | Same approach for **special equipment needed** (backyard bucket / track hoe → +0.5 h / +1.31 h adders) |
+
+**Judge overrides.** Model outputs are defaults, never locks. Damage has a **"Model expected / Replay Feb 2025"** switch plus "+ add damage". Access is a three-way control: **Auto (model) / Force on / Force off**. The before/after note says which one changed: "Access: Auto (38% chance) → Force on: 10–26 h → 13–31 h".
+
 ### 5.2 Restoration-time simulator (Req 2)
 
 **Per-damage repair bundles.** The structure drawings say which parts are involved, and the labor workbook gives the hours (install + removal):
@@ -128,7 +166,7 @@ Every number on screen carries one of three labels: **Model estimate**, **Confir
 **Formula for one job:** `crew-hours = (bundle hours × quantity + adders) × ILM (4.5)`
 
 **Simulating the customer's restoration time:**
-1. **Damage scenario** for the customer's circuit: replay that circuit's actual Feb 2025 damage, scaled by the storm-severity slider. Judges can also add or remove damage directly ("+1 broken pole on your line").
+1. **Damage scenario** for the customer's circuit: by default, sampled from the **expected-damage model** (§5.1b) at the chosen storm severity, with access adders drawn from the **access-problem model**. Alternative mode: replay that circuit's actual Feb 2025 damage. Judges can also add or remove damage directly ("+1 broken pole on your line").
 2. **Crews** (slider, for example 1–10 on the circuit) work jobs in **priority order**: (1) circuit breaker / main line, (2) devices serving hospitals, fire, EMS or priority customers, (3) devices with the most customers downstream, (4) everything else.
 3. **Start delay** (slider): no climbing in high winds plus assessment time, default 6 h.
 4. **Dependencies:** the customer is restored when **every job on their chain** is done. **Step restoration:** where a switch can isolate a damaged section further down the line, upstream customers are restored when their own section is clear.
@@ -140,9 +178,9 @@ Every number on screen carries one of three labels: **Model estimate**, **Confir
 
 | Brief input | Control | Effect in the simulator |
 |---|---|---|
-| Damage | Storm severity (0.5×–2.0×) · **+ add damage** (pole / wire span / transformer on the customer's line) | Scales the replayed damage list; added items go into the job queue on the customer's chain |
+| Damage | Storm severity (0.5×–2.0×) · **Model expected / Replay Feb 2025** switch · **+ add damage** (pole / wire span / transformer on the customer's line) | Scales the expected (or replayed) damage; added items go into the job queue on the customer's chain |
 | Crew | Crews on circuit (1–10) | More jobs run in parallel |
-| Access | Access issues on/off · start delay (0–24 h) | Applies the access adders to every job · shifts all start times |
+| Access | Access **Auto (model) / Force on / Force off** · start delay (0–24 h) | Auto: each job gets the access adder with the model's probability · Force: every job or no job · delay shifts all start times |
 | **Network** | **Switching available** on/off | On: step restoration is allowed, so customers upstream of an isolated section are restored early. Off: everyone waits for the whole section. |
 | | **Upstream device failed**: pick a fuse or recloser on the customer's chain | Adds a device repair job that blocks the customer until done, and lists it as a dependency |
 | | **Prioritize critical facilities** on/off | On: jobs feeding hospitals / fire / EMS / priority customers jump the queue. Off: pure customers-downstream order. Shows how the customer's queue position changes. |
@@ -306,12 +344,12 @@ docs/          scope, data usage, this plan, demo script
 |---|---|---|---|---|---|
 | 0 Setup | 0–1 | env, extract data | env | repo skeleton, API stubs | UI wireframe |
 | 1 Core | 1–6 | joins, topology, damage→zone, labels | labor bundles, restoration formula | tool definitions, system prompt | map + panels on mock JSON |
-| 2 Models | 6–12 | features | risk model + validation; Monte Carlo restoration | real endpoints, chat with tools | sliders, risk card, guidance |
+| 2 Models | 6–12 | features; zone damage counts + access labels | risk, expected-damage and access models + validation; Monte Carlo restoration | real endpoints, chat with tools | sliders, risk card, guidance |
 | 3 Integrate | 12–18 | timeline replay data | alert rules, guidance matrix, messages | audit log, offline fallback | timeline player, notifications, chat panel |
 | 4 Polish | 18–22 | sanity checks vs Feb 2025 | assumptions panel content | guardrail tests (privacy, 911) | accessibility, labels |
 | 5 Demo | 22–24 | — | — | — | rehearse the 5-minute script |
 
-**Cut list if time runs short** (in order): gradient-boosted model → Monte Carlo (use fixed optimistic/pessimistic cases) → step restoration → damage heat layer. **Never cut:** controls for all four brief inputs (damage, crew, access, network) updating the range with a before/after note, the 4 messages, confidence + fallback, privacy refusals.
+**Cut list if time runs short** (in order): gradient-boosted model → special-equipment model → access model (use the 32% historical rate everywhere) → expected-damage model (use Feb 2025 replay only) → Monte Carlo (use fixed optimistic/pessimistic cases) → step restoration → damage heat layer. **Never cut:** controls for all four brief inputs (damage, crew, access, network) updating the range with a before/after note, the 4 messages, confidence + fallback, privacy refusals.
 
 ---
 
@@ -348,6 +386,8 @@ docs/          scope, data usage, this plan, demo script
 |---|---|
 | Spatial matching of damage to the network is noisy | Use the provided `NEAR_FID` / `NEAR_DIST` where valid, and cap the match distance. Report the match rate. |
 | Weak risk model (few events) | Present it honestly with a validation score and confidence. Fall back to transparent weighted scoring if logistic regression underperforms. |
+| Sparse zone damage counts (65 circuits hit in Feb 2025, many zones with 0) | Pool zones up to the circuit level, use a count model that handles many zeros, and fall back to Feb 2025 replay where the model fits poorly |
+| Access model learns little (no terrain or road data) | Report its AUC honestly. If it's near chance, use the 32% base rate and say so. |
 | Restoration numbers look unrealistic | Sanity-check against Feb 2025. Show the assumptions and let judges adjust them. |
 | API or network down during judging | Offline chat fallback + template messages |
 | Geospatial packages fail to install | Python 3.12 virtual environment. pyshp needs no compiled dependencies. |
