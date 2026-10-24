@@ -72,24 +72,86 @@ Every number on screen carries one of three labels: **Model estimate**, **Confir
 
 ---
 
-## 4. Data prep (component 1)
+## 4. Data prep (component 1): one data owner
 
 **Inputs:** all files in `data/raw/`, plus the labor workbook and the structure drawings. Field-level detail is in [data-usage-and-scope.md](data-usage-and-scope.md).
 
-**Steps**
-1. **Read** every shapefile directly from the zips (geometry + attributes). Convert the hospital / fire / EMS files from Web Mercator to latitude/longitude (all other files already use latitude/longitude).
-2. **Normalize circuit IDs:** customer / device `circuit_id` `0000060` ↔ ARCOS `CIR60`.
-3. **Parse `matched_upstream.txt`** into a premise → ordered chain: transformer → fuse(s) / recloser(s) → circuit breaker. Build a **topology graph** (device → downstream devices → premises).
-4. **Assign each damage record to the network.** Match the damage point to its nearest transformer (spatial nearest-neighbour), then:
-   - transformer / secondary damage → the outage zone is **that transformer**
-   - pole / primary wire / fuse / recloser / switch damage → the outage zone is the **first protective device upstream** of that transformer
-   - light and capacitor damage → ignored (no customer outage)
-5. **Label outages per event:** a premise was "out" in an event if any damage record's outage zone is on its chain. This gives labels for **Feb 2025** (training) and **Sep 2024 + other dates** (validation).
-6. **Build features** per transformer (premises inherit them). See §5.1.
-7. **Load the labor tables** (per-unit hours, adders, ILM = 4.5) into a lookup.
-8. **Privacy pass:** drop addresses and road names from anything the API serves. Keep the Life Support flag only in an internal aggregate (count of priority customers per device).
+**One person (the data owner) cleans all the data.** The work is ordered so the **ML teammate gets what they need as early as possible**. Cleaning runs **on AWS** (SageMaker Studio, §10b). Raw files go into S3, and each batch writes its cleaned tables back to S3 as soon as it's done, where the ML teammate reads them:
 
-**Output tables:** `premise` (id, location, transformer, circuit, service type), `chain` (premise → ordered devices), `device` (type, location, circuit, downstream premise count, priority flag), `damage` (event, type, quantity, access, special equipment, zone), `features`, `labor`.
+```
+ 0:00–0:30  shared contract (§4.0) + API/data contract with ML and dashboard teammates
+ 0:30–3:00  Batch 1: customers, equipment chains, transformers, devices      → upload
+            (+ one-circuit sample upload at ~1:30 so ML can build its pipeline)
+ 3:00–5:00  Batch 2: damage reports → match to network → LABELS              → upload
+ 5:00–6:30  Batch 3: poles + lines, assigned to areas (feature inputs)       → upload
+ 6:30–8:00  Batch 4: facilities, labor workbook, repair bundles, priority    (app only)
+```
+
+The data owner hands over **clean, linked tables and labels**. **Feature engineering** (turning those tables into model inputs) belongs to the ML teammate.
+
+### 4.0 Shared contract (agree in the first 30 minutes)
+
+| Rule | Value |
+|---|---|
+| Coordinates | Latitude/longitude (WGS 84, EPSG:4326) everywhere. Columns are named `lat`, `lon`. |
+| Circuit ID | `CIR<number>` with no leading zeros. Customer/device `0000060` → `CIR60`. ARCOS already uses `CIR60`. |
+| Device IDs | The numeric IDs from `matched_upstream.txt` (e.g. `107301290`), stored as **text** to keep leading zeros. Premise IDs (`premise_nu`) are also text. |
+| Column names | Rename the truncated shapefile names to readable snake_case (`Inform_Wor` → `damage_type`, `Access_Iss` → `access_issue`, `kind_of_se` → `service_type`, …). Keep the rename map in one shared file. |
+| Missing values | Real nulls, not `'Unknown'`, `'N/A'`, `'??'` or blank strings. Add a `*_known` flag where it matters (e.g. pole height). |
+| Output | Parquet files in `data/processed/` (gitignored), one per table, plus a short `data/processed/README.md` with row counts. |
+| Privacy | Addresses, road names and street codes never leave the prep step. The Life Support flag stays internal only (§4.3). |
+| Shared code | `prep/common.py`: circuit-ID conversion, rename map, null handling, shapefile reader, coordinate conversion |
+| Scripts | One script per batch (`prep/batch1_network.py` … `prep/batch4_reference.py`) so each batch can be re-run and uploaded on its own |
+| Data dictionary | `data/processed/README.md`: every table, its columns, row count and known gaps. **Written for the ML teammate**, who didn't clean the data. |
+
+### 4.1 Batch 1 (customers, chains, devices) + facilities in Batch 4
+
+**Files:** `Customer_Clip`, `matched_upstream.txt`, `Transformer_Clip`, `Fuse_Bank_Clip`, `Recloser_Bank_Clip`, `Switch_Clip` (Batch 1) · `Hospitals_*`, `Fire_Stations_*`, `Ambulance_Servi_*` (Batch 4). Batch 1 also builds the **protective-device areas** (`zone`: each fuse / recloser → downstream transformers and premises, with customer counts).
+
+| Step | Work | Known data issues to handle |
+|---|---|---|
+| 1 | Customers → `premise` (id, lat, lon, circuit, transformer, service type, life_support flag kept **internal only**) | 22 rows with state `??`; 399 with service type `Unknown`; drop address, road and street-code fields |
+| 2 | `matched_upstream.txt` → `chain` (premise → ordered device list: transformer → fuses / reclosers → circuit breaker, with device type per step) | 117,599 lines vs 117,642 customers: flag the ~40 missing premises (they get the risk-model fallback) |
+| 3 | Transformers → `transformer` (id, lat, lon, circuit, kVA, phase, mounting) | Normalize circuit IDs; parse kVA to a number |
+| 4 | Fuses, reclosers, switches → `device` (id, type, lat, lon, circuit, rating, normal state, automation) | Normalize circuit IDs; standardize device-type names |
+| 5 | Hospitals, fire stations, ambulance → `facility` (name, type, town, lat, lon, is_general_er) | **Convert from Web Mercator to lat/lon.** Catawba (psychiatric) and Salem VA are not general emergency rooms. |
+| 6 | Self-checks: every chain device ID exists in `transformer` / `device`; list devices that appear in no chain | — |
+
+**Delivers:** `premise`, `chain`, `transformer`, `device`, `zone` (Batch 1) · `facility` (Batch 4).
+
+### 4.2 Batch 2 (damage), Batch 3 (poles, lines), Batch 4 (labor)
+
+**Files:** `arcos_prod_damage_09_28_Clip` (Batch 2) · `Pole_Clip`, `Primary_ExportFeatures`, `Secondary_ExportFeatures` (Batch 3) · `Install_Labor_HackOHIO.xlsx`, `structure_drawings.pdf` (Batch 4). Damage steps 1–3 here come first in Batch 2, before the matching and labels in §4.3.
+
+| Step | Work | Known data issues to handle |
+|---|---|---|
+| 1 | Damage reports → `damage` (report date, repaired flag, repaired date, circuit, asset type, damage type, quantity, access issue, special equipment, lat, lon, `near_fid`, `near_dist`) | `Event`, `District`, `Status`, crew columns all blank → drop. 1 blank asset type, 1 blank access value. **The 76 unrepaired records still have repair dates** (mostly Oct–Dec 2025, some in 2026; likely scheduled or placeholder dates), so set them to null for unrepaired rows. |
+| 2 | **Tag events**: Feb 2025 (13–20 Feb, 1,254 records) · Sep 2024 (25 Sep – 5 Oct, 194) · other (211) | Confirm the cluster boundaries with a quick histogram |
+| 3 | `Media` → quantity (0–6) | 328 zeros: treat as 1 and flag. Confirm with mentors. |
+| 4 | Poles → `pole` (lat, lon, install year, age, material group, height ft, class) | 19,195 unknown heights and ~24k unknown / N/A classes: null + flag. Group materials (pine / wood / cedar / fir → wood). |
+| 5 | Primary and secondary lines → `line` (circuit, length, overhead/underground, voltage, phase, midpoint lat/lon) | Large files (secondary ~106 MB): process in chunks |
+| 6 | Labor workbook → `labor_unit` (part, size band, install h, removal h), `labor_adder`, `ilm` = 4.5 | Size-banded tables (pole by height, transformer by kVA) |
+| 7 | Structure drawings → **`repair_bundle`**: damage type → parts list → direct hours (§5.2 table) | Wire-span hours are an assumption (no conductor hours in the workbook) |
+
+**Delivers:** `damage` (Batch 2) · `pole`, `line` (Batch 3) · `labor_unit`, `labor_adder`, `repair_bundle` (Batch 4).
+
+### 4.3 Linking steps (inside Batches 2–4)
+
+These steps connect the tables. They're what turns cleaned files into something the models can learn from.
+
+| Batch | Linking work | Output (→ S3 for ML) |
+|---|---|---|
+| **2** | **Match damage to the network**: nearest transformer (cap the distance, e.g. 300 m; use `near_fid` where valid) → outage area (transformer for transformer / secondary damage; first upstream protective device otherwise; lights and capacitors ignored). Report the match rate. Build **labels**: per-event outage labels (risk model), per-area damage counts by type (expected-damage model), per-record access labels (access model). | `damage` (with `zone_id`), `outage_labels`, `zone_damage_counts`, `access_labels` |
+| **3** | Assign every pole and line segment to an area (`zone_id`) by nearest transformer / circuit. **No aggregation here.** Computing features is the ML teammate's job. | `pole` (with `zone_id`), `line` (with `zone_id`) |
+| **4** | Facilities → nearest device / circuit. Internal **priority aggregate** (Life Support counts + critical facilities per device). **Stays local, never uploaded.** | `device_priority` (app only) |
+
+### 4.4 Done checklist (before models start)
+
+- Row counts match the source (customers 117,642; damage 1,659; poles 107,013; …) or the difference is explained
+- Every `premise` has a circuit, and every chain device exists in `device`
+- Damage match rate reported, and Feb 2025 labels produce a sensible outage share
+- No address or road fields in any processed file, and no premise-level Life Support flag
+- `data/processed/README.md` lists every table, its row count and any known gaps
 
 ---
 
@@ -363,16 +425,77 @@ docs/          scope, data usage, this plan, demo script
 
 ---
 
-## 11. Build plan (assuming a ~24 h hackathon, team of 4)
+## 10b. AWS setup (data cleaning + model training)
 
-| Phase | Hours | Person A (data) | Person B (models) | Person C (backend + AI) | Person D (frontend) |
-|---|---|---|---|---|---|
-| 0 Setup | 0–1 | env, extract data | env | repo skeleton, API stubs | UI wireframe |
-| 1 Core | 1–6 | joins, topology, damage→zone, labels | labor bundles, restoration formula | tool definitions, system prompt | map + panels on mock JSON |
-| 2 Models | 6–12 | features; zone damage counts + access labels | risk, expected-damage and access models + validation; Monte Carlo restoration | real endpoints, chat with tools | sliders, risk card, guidance |
-| 3 Integrate | 12–18 | timeline replay data | alert rules, guidance matrix, messages | audit log, offline fallback | timeline player, notifications, chat panel |
-| 4 Polish | 18–22 | sanity checks vs Feb 2025 | assumptions panel content | guardrail tests (privacy, 911) | accessibility, labels |
-| 5 Demo | 22–24 | — | — | — | rehearse the 5-minute script |
+**One AWS account, one region, one S3 bucket, one SageMaker Studio domain**, shared by the data owner and the ML teammate.
+
+```
+ S3 bucket  aep-outage-concierge-<team>
+ ├── raw/          the 3 zips, labor xlsx, drawings pdf (uploaded once)
+ ├── processed/    cleaned parquet tables, one folder per batch (data owner writes)
+ ├── features/     model-ready feature tables (ML teammate writes)
+ └── models/       trained model files + metrics.json + feature list (ML writes)
+
+ SageMaker Studio (JupyterLab spaces)
+   data owner: prep notebooks/scripts  →  reads raw/, writes processed/
+   ML teammate: feature + training notebooks → reads processed/, writes features/, models/
+```
+
+**Data cleaning on AWS**
+
+| Option | Verdict |
+|---|---|
+| **SageMaker Studio JupyterLab** (Python: pandas, geopandas / pyshp, pyarrow) | ✅ **Use this.** The same Python cleaning code runs as-is, it handles shapefiles and spatial matching, and it's the same tool the ML teammate uses. A mid-size CPU instance (e.g. `ml.m5.xlarge`) is enough for these files. |
+| SageMaker Processing job | Optional: re-run the final cleaning scripts as one repeatable job once they're stable |
+| AWS Glue / Glue DataBrew | ❌ Built for big tabular data. No native shapefile support, and spatial joins and the equipment-chain parsing are awkward. Overkill at this size (~32 MB compressed). |
+| Athena (SQL) | Optional: quick SQL checks on the cleaned parquet. Not for the cleaning itself. |
+
+**Model training on AWS (ML teammate)**
+
+| Item | Plan |
+|---|---|
+| Where | SageMaker Studio notebooks with scikit-learn (logistic regression, Poisson regression). Small data, so no GPU and no distributed training needed. |
+| Tracking | SageMaker Experiments (or a simple `metrics.json` per run): AUC / calibration on Sep 2024, feature list, run date |
+| Output | `models/<model>/model.joblib` + `metrics.json` + `features.json` + coefficient table (for explanations) |
+| Serving | **The app downloads the model files from S3 and predicts locally.** No always-on SageMaker endpoint: cheaper, faster, and the demo still works if AWS is slow. A live endpoint is an optional stretch to show off. |
+| Hand-off contract to the app | Agree on day 1: a `predict_risk(features) → {probability, band, top_factors}` style interface, plus the same for expected damage and access probability |
+
+**Claude for the chatbot (open decision):** the same Python SDK works either directly against the Anthropic API or through **Amazon Bedrock** (Claude Opus 5.5 is on Bedrock; only the client setup differs). Bedrock keeps everything in one AWS account.
+
+**Rules**
+- **Check first** that the organizers allow uploading the challenge data to a cloud account. Add this to the mentor questions.
+- **Upload only what's needed:** no addresses or road names, and no premise-level Life Support flag. The `device_priority` aggregate stays off AWS (§4.3).
+- **Access:** one IAM role per teammate, scoped to this bucket; bucket encryption on, public access blocked.
+- **Cost:** stop JupyterLab spaces when idle, delete any endpoint after the demo, set a billing alert.
+- **Retention:** delete `processed/` and `features/` after the hackathon per §9b (keep only the code).
+
+---
+
+## 11. Build plan (assuming a ~24 h hackathon, team of 3)
+
+| Role | Owns |
+|---|---|
+| **Data owner (you)** | All data cleaning and linking on AWS (§4, §10b) → then, by default, the **backend API, restoration simulator and chatbot** (open decision, see below) |
+| **ML teammate** | AWS setup for training, **feature engineering**, the three trained models (risk, expected damage, access), validation, model files + predict interface (§5.1, §5.1b, §10b) |
+| **Dashboard teammate** | The whole UI (§8): map, panels, scenario controls, before/after notes, timeline player, notifications, chat panel, accessibility |
+
+| Phase | Hours | Data owner (you) | ML teammate | Dashboard teammate |
+|---|---|---|---|---|
+| 0 Setup | 0–0.5 | S3 bucket + raw upload, `prep/common.py`; agree data contract with ML and API contract with dashboard | SageMaker Studio domain, IAM roles, billing alert | UI wireframe from the API contract |
+| 1 Cleaning | 0.5–3 | **Batch 1**: customers, chains, transformers, devices, areas → S3 (one-circuit sample at ~1.5 h) | training pipeline skeleton on the sample; baseline features | map + panels on mock JSON |
+| 1b | 3–5 | **Batch 2**: damage → matching → **labels** → S3 | first risk model on labels + simple features | risk card, restoration panel, sliders (mock) |
+| 1c | 5–8 | **Batch 3**: poles + lines with area IDs → S3 · **Batch 4**: facilities, labor, repair bundles, priority (local) · done checklist (§4.4) | feature engineering from poles / lines / areas; expected-damage + access models | network controls, before/after note, guidance panel (mock) |
+| 2 Build | 8–13 | restoration simulator (bundles + ILM + crews + order + Monte Carlo); API endpoints | validation on Sep 2024, calibration, coefficient → plain-language factor templates | timeline player, notifications feed, chat panel (mock) |
+| 3 Integrate | 13–18 | load model files from S3 into the API; chatbot with tools, guardrails, audit log, offline fallback | export final model files + `metrics.json`; support API integration | switch UI from mock JSON to the real API |
+| 4 Polish | 18–22 | guardrail tests (privacy, 911), sanity checks vs Feb 2025 | assumptions-panel metrics, model limitations text | accessibility, labels, layout fixes |
+| 5 Demo | 22–24 | rehearse | rehearse | rehearse the 5-minute script |
+
+**Contracts agreed at hour 0 so nobody waits:**
+- **Data owner → ML:** table names and columns in S3 (the data dictionary, §4.0), plus the upload order Batch 1 → 2 → 3
+- **ML → app:** model file layout in `models/` and the predict interface (§10b)
+- **App → dashboard:** API endpoints and JSON shapes (§7). The dashboard builds against mock JSON with exactly those shapes.
+
+**Open decision: who builds the backend + chatbot?** The default above is you, from hour 8. You'll know the data best by then, and the restoration simulator uses tables you cleaned. That makes your load the heaviest, so if the dashboard teammate finishes early they can take the audit log and offline fallback.
 
 **Cut list if time runs short** (in order): gradient-boosted model → special-equipment model → access model (use the 32% historical rate everywhere) → expected-damage model (use Feb 2025 replay only) → Monte Carlo (use fixed optimistic/pessimistic cases) → step restoration → damage heat layer. **Never cut:** controls for all four brief inputs (damage, crew, access, network) updating the range with a before/after note, the 4 messages, confidence + fallback, privacy refusals.
 
@@ -402,6 +525,7 @@ docs/          scope, data usage, this plan, demo script
 4. Is ILM 4.5 right for this area, and does it include storm-wait / assessment time?
 5. **New:** how many hours should we use to re-string a span of primary conductor? It isn't in the workbook.
 6. Can the Life Support flag be used in aggregate for prioritization?
+7. **New:** are we allowed to upload the challenge data to our own AWS account (S3 / SageMaker)?
 
 ---
 
