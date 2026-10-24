@@ -54,7 +54,7 @@ aws s3 sync s3://sagemaker-aep-outage-indiansassemble/processed/ ~/processed/
 | Customers out in Feb 2025 / Sep 2024 / other | **18.9% / 3.7% / 6.5%** |
 | Damage reports matched to a transformer (≤ 300 m) | **99.2%** (median distance 46 m) |
 | Chain devices found in device tables | 97.5% |
-| Pole install year known | **only 50.2%**, so pole age is a weak or partial feature. Treat it as optional and add a "year known" flag. |
+| Pole install year known | **only ~50%**, so pole age is a weak or partial feature. Treat it as optional and add a "year known" flag. **80 placeholder years (1900, 1800) were set to unknown** after the first upload. Re-download `pole.parquet` if you have the earlier copy. |
 | Poles with a zone | 77.5%. The rest are > 1 km from any customer transformer (not on lines serving our customers). |
 | Lines with a zone | 100% |
 | Customers with no fuse/recloser above them | 7,041 → grouped as `BREAKER_CIRxx` zones |

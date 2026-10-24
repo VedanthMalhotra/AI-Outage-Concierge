@@ -354,6 +354,7 @@ Switch the space to **ml.m5.xlarge** first (stop space → change instance → r
 ```python
 p = clean_nulls(add_latlon(read_shp("Pole_Clip")))
 year = pd.to_datetime(p["date_insta"], errors="coerce").dt.year
+year = year.where(year > 1900)             # 1900-01-01 (79) and 1800 (1) are placeholder dates, not real install years
 WOOD = ["Pine", "Wood", "Cedar", "Ponderosa Pine", "Douglas Fir"]
 pole = pd.DataFrame({
     "pole_id": as_id(p["id"]), "lat": p["lat"], "lon": p["lon"],

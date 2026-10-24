@@ -106,6 +106,16 @@ Each entry follows the same shape: **what we tried → what we found (evidence) 
 | **Chose** | **SageMaker Studio notebooks** (CPU) for cleaning and training. **The app downloads the model files from S3 and predicts itself.** Budget alerts, idle shutdown, CPU-only permissions. Expected spend ~$40–80. |
 | **Better because** | Fits the budget with room to spare, and the demo still works if AWS is slow. |
 
+### 11. Feature review caught placeholder pole dates
+| | |
+|---|---|
+| **When** | Build day, after feature engineering · data owner + ML teammate |
+| **Tried** | Computed pole age from the raw install dates. |
+| **Found** | Reviewing the feature table showed a maximum zone pole age of **126 years**. The raw data has **80 poles dated 1900 or 1800**, which are placeholders for "unknown", not real dates. |
+| **Alternatives** | Keep them · cap ages · treat as unknown |
+| **Chose** | Set install years of 1900 and earlier to unknown (the 3 poles dated 1906–1909 look real and were kept), re-uploaded `pole.parquet`, recomputed pole features |
+| **Better because** | Removes a false "very old poles" signal that would have pushed risk up in a few zones. **Lesson:** review feature distributions (min/max), not just row counts. |
+
 ---
 
 ## Lessons learned (summary)
