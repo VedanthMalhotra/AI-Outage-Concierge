@@ -290,11 +290,8 @@ a:hover { text-decoration: underline; }
   background: #e9f6ee; color: #15803d; border: 1px solid #a6d8ba; border-radius: 6px; padding: 0.05rem 0.4rem;
 }
 
-/* Leaflet attribution: keep it small and above the bottom-right zoom control */
-.map-wrap .leaflet-control-attribution {
-  font-size: 0.62rem; background: rgba(255,255,255,0.8); border-radius: 3px 0 0 0;
-  margin-bottom: 76px;
-}
+/* Attribution hidden per request (keep in mind Esri's terms ask for it when public) */
+.map-wrap .leaflet-control-attribution { display: none; }
 
 /* home pin phase styling (applied to the Leaflet marker via a class) */
 .pin-dot {

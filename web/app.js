@@ -194,8 +194,6 @@ function initMap() {
     "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}";
 
   const imagery = L.tileLayer(ESRI_IMAGERY, {
-    attribution:
-      'Imagery &copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics, and the GIS community',
     maxZoom: 19,
     crossOrigin: true,
   }).addTo(map);
