@@ -1,26 +1,47 @@
 /* =============================================================================
- * AI Outage Concierge — dashboard (mock-data build)
+ * AI Outage Concierge — dashboard (mock-data build), TypeScript + Tailwind.
  *
- * Reads the sample JSON in ../mock/api/*. Every shape here matches MVP plan §7,
- * so swapping fetch('../mock/api/x.json') for the real endpoint is the only
+ * Reads the sample JSON in ../mock/api/*. Every shape here matches MVP plan §7
+ * (see types.ts), so swapping the mock fetch for the real endpoint is the only
  * change needed when the backend exists.
  *
  * NOTE: all figures are illustrative sample data, never model output.
  * ========================================================================== */
 
+import L from "leaflet";
+import "./styles.css";
+import { $, el, getJSON, toast } from "./dom";
+import {
+  DEFAULT_PREMISE_ID,
+  apiHealthy,
+  fetchDamageHeat,
+  fetchPremiseLookup,
+} from "./api";
+import type {
+  AppData,
+  AppState,
+  Band,
+  GridRow,
+  Phase,
+  Risk,
+  Scenario,
+  TimelineStep,
+} from "./types";
+
+/* Mock API base, relative to web/index.html. */
 const API = "../mock/api";
 
 /* Severity slider index -> multiplier used by the mock files. */
-const SEVERITIES = [0.5, 1.0, 1.5, 2.0];
-const SEVERITY_LABELS = {
+const SEVERITIES = [0.5, 1.0, 1.5, 2.0] as const;
+const SEVERITY_LABELS: Record<number, string> = {
   0.5: "Minor (0.5×)",
   1.0: "Feb-2025-like (1.0×)",
   1.5: "Severe (1.5×)",
   2.0: "Extreme (2.0×)",
 };
 
-/* Band -> css modifier + plain-text so colour is never used alone. */
-const BAND_CLASS = {
+/* Band -> css modifier so colour is never used alone. */
+const BAND_CLASS: Record<Band, string> = {
   Low: "band-low",
   Moderate: "band-moderate",
   High: "band-high",
@@ -30,8 +51,8 @@ const BAND_CLASS = {
 /* ---------------------------------------------------------------------------
  * Global state (session only — mirrors the privacy promise in the footer).
  * ------------------------------------------------------------------------- */
-const state = {
-  premiseId: "858810648",
+const state: AppState = {
+  premiseId: DEFAULT_PREMISE_ID,
   severity: 1.0,
   scenario: {
     crews: 2,
@@ -43,14 +64,14 @@ const state = {
     start_delay_h: 6,
   },
   declaredNeeds: [],
-  lastRestoration: null, // last P10/P50/P90 for before/after notes
+  lastRestoration: null,
   history: [],
   timelineStep: -1,
   playTimer: null,
 };
 
 /* Loaded mock data caches */
-const data = {
+const data: AppData = {
   lookup: null,
   circuit: null,
   heat: null,
@@ -64,38 +85,24 @@ const data = {
   assumptions: null,
 };
 
-/* small DOM helpers */
-const $ = (sel) => document.querySelector(sel);
-const el = (tag, cls, html) => {
-  const n = document.createElement(tag);
-  if (cls) n.className = cls;
-  if (html != null) n.innerHTML = html;
-  return n;
-};
-async function getJSON(name) {
-  const res = await fetch(`${API}/${name}`);
-  if (!res.ok) throw new Error(`Failed to load ${name}: ${res.status}`);
-  return res.json();
-}
-function toast(msg) {
-  const t = $("#toast");
-  t.textContent = msg;
-  t.hidden = false;
-  clearTimeout(toast._t);
-  toast._t = setTimeout(() => (t.hidden = true), 2600);
-}
+/* remembers the previous risk sample for the before/after delta note */
+let prevRisk: Risk | null = null;
 
 /* =============================================================================
  * BOOT
  * ========================================================================== */
-let map, pinLayer, circuitLayer, heatLayer;
+let map: L.Map;
+let pinLayer: L.Marker;
+let circuitLayer: L.GeoJSON;
+let heatLayer: L.LayerGroup;
 
-async function boot() {
+async function boot(): Promise<void> {
   try {
+    // The mock pieces the backend does not yet serve (circuit outline, risk,
+    // restoration grid, guidance, alerts, timeline, chat, assumptions). These
+    // always load; the backend has no equivalents yet.
     [
-      data.lookup,
       data.circuit,
-      data.heat,
       data.riskBySeverity,
       data.riskFallback,
       data.grid,
@@ -105,27 +112,51 @@ async function boot() {
       data.chat,
       data.assumptions,
     ] = await Promise.all([
-      getJSON("premise_lookup.json"),
-      getJSON("circuit_area.geojson"),
-      getJSON("damage_heat.json"),
-      getJSON("risk_by_severity.json"),
-      getJSON("risk_fallback.json"),
-      getJSON("restoration_grid.json"),
-      getJSON("guidance.json"),
-      getJSON("alerts.json"),
-      getJSON("timeline.json"),
-      getJSON("chat_examples.json"),
-      getJSON("assumptions.json"),
+      getJSON<AppData["circuit"]>(API, "circuit_area.geojson"),
+      getJSON<AppData["riskBySeverity"]>(API, "risk_by_severity.json"),
+      getJSON<AppData["riskFallback"]>(API, "risk_fallback.json"),
+      getJSON<AppData["grid"]>(API, "restoration_grid.json"),
+      getJSON<AppData["guidance"]>(API, "guidance.json"),
+      getJSON<AppData["alerts"]>(API, "alerts.json"),
+      getJSON<AppData["timeline"]>(API, "timeline.json"),
+      getJSON<AppData["chat"]>(API, "chat_examples.json"),
+      getJSON<AppData["assumptions"]>(API, "assumptions.json"),
     ]);
+
+    // Premise lookup + damage heat come from the live backend when it is
+    // reachable, otherwise fall back to the mock JSON so the page still works.
+    const live = await apiHealthy();
+    if (live) {
+      try {
+        [data.lookup, data.heat] = await Promise.all([
+          fetchPremiseLookup(state.premiseId),
+          fetchDamageHeat("feb2025"),
+        ]);
+      } catch (liveErr) {
+        console.warn("Live API call failed, falling back to mock:", liveErr);
+      }
+    }
+    if (!data.lookup) {
+      data.lookup = await getJSON<AppData["lookup"]>(API, "premise_lookup.json");
+    }
+    if (!data.heat) {
+      data.heat = await getJSON<AppData["heat"]>(API, "damage_heat.json");
+    }
+
+    // Keep state in sync with whatever premise the lookup settled on.
+    state.premiseId = data.lookup!.premise_id;
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
     document.body.innerHTML =
-      `<p style="padding:2rem;font-family:sans-serif">Could not load mock data. ` +
-      `Serve this folder over http (e.g. <code>python -m http.server</code>) and open ` +
-      `<code>web/index.html</code>.<br><br>${err.message}</p>`;
+      `<p style="padding:2rem;font-family:sans-serif">Could not load data. ` +
+      `Start the backend (<code>uv run uvicorn app.main:app --port 8000</code>) ` +
+      `or serve the mock folder over http (e.g. <code>npm run dev</code>) and open ` +
+      `<code>web/index.html</code>.<br><br>${msg}</p>`;
     return;
   }
 
-  $("#area-label").textContent = data.lookup.area_label;
+  const src = data.lookup!.is_mock === false ? "live API" : "sample data";
+  $("#area-label").textContent = `${data.lookup!.area_label} · ${src}`;
 
   buildPremisePicker();
   initMap();
@@ -145,10 +176,10 @@ async function boot() {
 /* =============================================================================
  * PREMISE PICKER (dev-only; real app uses map clicks / ID entry)
  * ========================================================================== */
-function buildPremisePicker() {
-  const sel = $("#premise-select");
+function buildPremisePicker(): void {
+  const sel = $<HTMLSelectElement>("#premise-select");
   sel.innerHTML = "";
-  data.lookup.demo_premises.forEach((p) => {
+  data.lookup!.demo_premises.forEach((p) => {
     const o = el("option");
     o.value = p.premise_id;
     o.textContent = `${p.premise_id} · ${p.service_type}`;
@@ -157,13 +188,11 @@ function buildPremisePicker() {
   sel.value = state.premiseId;
   sel.addEventListener("change", () => {
     state.premiseId = sel.value;
-    const p = data.lookup.demo_premises.find((x) => x.premise_id === sel.value);
+    const p = data.lookup!.demo_premises.find((x) => x.premise_id === sel.value);
     if (p && map) {
       pinLayer.setLatLng([p.lat, p.lon]);
       map.panTo([p.lat, p.lon]);
     }
-    // In the mock, only premise 858810648 has full risk/restoration samples.
-    // Other picks reuse the same shapes so the UI stays live.
     renderRisk();
     renderRestoration({ silent: true });
     toast(`Selected premise ${sel.value}`);
@@ -173,8 +202,8 @@ function buildPremisePicker() {
 /* =============================================================================
  * MAP (Leaflet) — own pin + circuit outline + aggregated damage heat only
  * ========================================================================== */
-function initMap() {
-  const { lat, lon } = data.lookup;
+function initMap(): void {
+  const { lat, lon } = data.lookup!;
   map = L.map("map", {
     zoomControl: false,
     scrollWheelZoom: false,
@@ -183,9 +212,7 @@ function initMap() {
   L.control.zoom({ position: "bottomright" }).addTo(map);
   L.control.attribution({ position: "bottomright", prefix: false }).addTo(map);
 
-  // Basemap: Esri World Imagery (satellite) — keyless, shows real rooftops so
-  // "your home" is tangible. A light street/place label layer sits on top so
-  // roads and town names stay readable over the imagery.
+  // Basemap: Esri World Imagery (satellite) — keyless, shows real rooftops.
   const ESRI_IMAGERY =
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
   const ESRI_LABELS =
@@ -209,24 +236,23 @@ function initMap() {
     swappedTiles = true;
     map.removeLayer(imagery);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
       crossOrigin: true,
     }).addTo(map);
   });
 
   // Circuit area (shaded). Kept on a ref so the storm can recolor it.
-  circuitLayer = L.geoJSON(data.circuit, {
+  circuitLayer = L.geoJSON(data.circuit as GeoJSON.GeoJsonObject, {
     style: { color: "#ff5a52", weight: 3, fillColor: "#c22823", fillOpacity: 0.12 },
   }).addTo(map);
 
-  // Aggregated damage heat — graduated circles per ~1 km cell (never individual
-  // points). Built now but NOT added to the map until damage "arrives" in the
-  // storm timeline, so the storm visibly deposits damage as it plays.
-  const counts = data.heat.cells.map((c) => c.count);
+  // Aggregated damage heat — graduated circles per ~1 km cell.
+  const counts = data.heat!.cells.map((c) => c.count);
   const maxCount = Math.max(...counts, 1);
   heatLayer = L.layerGroup();
-  data.heat.cells.forEach((c) => {
+  data.heat!.cells.forEach((c) => {
     const t = c.count / maxCount;
     L.circle([c.lat, c.lon], {
       radius: 450,
@@ -239,21 +265,27 @@ function initMap() {
   });
   heatLayer.addTo(map); // shown at rest; the storm hides then re-reveals it
 
-  // The customer's own pin (the only point we ever plot). A divIcon lets us
-  // restyle it (normal / out / restored) as the storm progresses.
+  // The customer's own pin (the only point we ever plot).
   pinLayer = L.marker([lat, lon], {
     title: "Your home",
     icon: makePinIcon("normal"),
   })
     .addTo(map)
-    .bindPopup(`<strong>Your home</strong><br>${data.lookup.area_label}<br>Service: ${data.lookup.service_type}`);
+    .bindPopup(
+      `<strong>Your home</strong><br>${data.lookup!.area_label}<br>Service: ${data.lookup!.service_type}`
+    );
 
   setTimeout(() => map.invalidateSize(), 200);
 }
 
-/* Build the home-pin icon for a given state: "normal" | "out" | "restored". */
-function makePinIcon(stateName) {
-  const mod = stateName === "out" ? " pin-dot--out" : stateName === "restored" ? " pin-dot--restored" : "";
+type PinState = "normal" | "out" | "restored";
+function makePinIcon(stateName: PinState): L.DivIcon {
+  const mod =
+    stateName === "out"
+      ? " pin-dot--out"
+      : stateName === "restored"
+        ? " pin-dot--restored"
+        : "";
   return L.divIcon({
     className: "pin-icon",
     html: `<div class="pin-dot${mod}"></div>`,
@@ -266,12 +298,15 @@ function makePinIcon(stateName) {
 /* =============================================================================
  * RISK CARD (Req 1)
  * ========================================================================== */
-function renderRisk() {
-  const key = String(state.severity.toFixed(1)).replace(".0", ".0");
-  // risk_by_severity keys are "0.5" / "1.0" / "1.5" / "2.0"
-  const sevKey = state.severity === 1 ? "1.0" : state.severity === 2 ? "2.0" : String(state.severity);
-  const prev = renderRisk._prev;
-  const r = data.riskBySeverity[sevKey];
+function renderRisk(): void {
+  const sevKey =
+    state.severity === 1
+      ? "1.0"
+      : state.severity === 2
+        ? "2.0"
+        : String(state.severity);
+  const prev = prevRisk;
+  const r = data.riskBySeverity![sevKey];
 
   const body = $("#risk-body");
   const fb = $("#risk-fallback");
@@ -279,7 +314,8 @@ function renderRisk() {
   if (!r || r.fallback) {
     body.hidden = true;
     fb.hidden = false;
-    $("#risk-fallback-msg").textContent = (r && r.fallback && r.fallback.message) || data.riskFallback.fallback.message;
+    $("#risk-fallback-msg").textContent =
+      (r && r.fallback && r.fallback.message) || data.riskFallback!.fallback.message;
     return;
   }
   body.hidden = false;
@@ -314,14 +350,14 @@ function renderRisk() {
   } else {
     deltaEl.hidden = true;
   }
-  renderRisk._prev = r;
+  prevRisk = r;
 }
 
 /* =============================================================================
  * RESTORATION (Req 2) — live via the mock lookup grid
  * ========================================================================== */
-function findGridRow(sc) {
-  return data.grid.results.find(
+function findGridRow(sc: Scenario): GridRow | undefined {
+  return data.grid!.results.find(
     (r) =>
       r.crews === sc.crews &&
       r.storm_severity === sc.storm_severity &&
@@ -332,7 +368,11 @@ function findGridRow(sc) {
   );
 }
 
-function renderRestoration({ silent = false, changeLabel = null } = {}) {
+interface RenderRestorationOpts {
+  silent?: boolean;
+  changeLabel?: string | null;
+}
+function renderRestoration({ silent = false, changeLabel = null }: RenderRestorationOpts = {}): void {
   const sc = state.scenario;
   const row = findGridRow(sc);
 
@@ -345,7 +385,6 @@ function renderRestoration({ silent = false, changeLabel = null } = {}) {
   rangeEl.textContent = `Likely ${Math.round(row.p10)}–${Math.round(row.p90)} hours (most likely about ${Math.round(row.p50)})`;
   $("#rest-confidence").textContent = "Model estimate · Medium confidence";
 
-  // Drivers + jobs come from the default-scenario sample (illustrative).
   renderDriversAndJobs();
 
   // before/after note
@@ -368,8 +407,12 @@ function renderRestoration({ silent = false, changeLabel = null } = {}) {
   state.lastRestoration = { p10: row.p10, p50: row.p50, p90: row.p90, scenario: { ...sc } };
 }
 
-/* Pull a plausible "why" from compare_examples shapes where we can, else a rule. */
-function whyFor(changeLabel, prev, now) {
+/* Plausible "why" for the before/after note. */
+function whyFor(
+  changeLabel: string,
+  prev: { p50: number },
+  now: { p50: number }
+): string {
   const grew = now.p50 > prev.p50;
   if (changeLabel.startsWith("Crews")) {
     return grew
@@ -377,7 +420,9 @@ function whyFor(changeLabel, prev, now) {
       : "The jobs ahead of you in the queue can now run at the same time.";
   }
   if (changeLabel.startsWith("Access")) {
-    return grew ? "Every repair job now includes extra time for restricted access." : "Repair jobs no longer carry the access delay.";
+    return grew
+      ? "Every repair job now includes extra time for restricted access."
+      : "Repair jobs no longer carry the access delay.";
   }
   if (changeLabel.startsWith("Switching")) {
     return grew
@@ -385,20 +430,24 @@ function whyFor(changeLabel, prev, now) {
       : "Switching lets crews isolate the damaged section so your part comes back sooner.";
   }
   if (changeLabel.startsWith("Upstream")) {
-    return grew ? "Your fuse must be replaced before power can return; it is now a dependency." : "Removing the upstream failure clears a dependency on your line.";
+    return grew
+      ? "Your fuse must be replaced before power can return; it is now a dependency."
+      : "Removing the upstream failure clears a dependency on your line.";
   }
   if (changeLabel.startsWith("Prioritize")) {
-    return grew ? "Critical-facility jobs now jump ahead of you in the queue." : "Without critical-first ordering, your queue position improves.";
+    return grew
+      ? "Critical-facility jobs now jump ahead of you in the queue."
+      : "Without critical-first ordering, your queue position improves.";
   }
   if (changeLabel.startsWith("Storm")) {
-    return grew ? "More expected damage on your circuit means a longer repair queue." : "Less expected damage shortens the repair queue.";
+    return grew
+      ? "More expected damage on your circuit means a longer repair queue."
+      : "Less expected damage shortens the repair queue.";
   }
   return "";
 }
 
-function renderDriversAndJobs() {
-  // Static illustrative detail from restoration.json shape (kept inline to avoid
-  // an extra fetch; same fields the real POST /restoration returns).
+function renderDriversAndJobs(): void {
   const drivers = [
     { text: "Number of crews: adding more crews cuts the queue time", impact_h: -6.2 },
     { text: "A broken pole on your line adds about 8 hours", impact_h: 8.0 },
@@ -422,9 +471,11 @@ function renderDriversAndJobs() {
   });
 }
 
-function pushHistory(text) {
-  state.history.unshift(text);
-  state.history = state.history.slice(0, 5);
+function pushHistory(text?: string): void {
+  if (text) {
+    state.history.unshift(text);
+    state.history = state.history.slice(0, 5);
+  }
   const ol = $("#change-history");
   ol.innerHTML = "";
   if (!state.history.length) {
@@ -437,14 +488,13 @@ function pushHistory(text) {
 /* =============================================================================
  * GUIDANCE (Req 3)
  * ========================================================================== */
-function guidanceVariantKey() {
-  // The mock only ships a few variants; map current state to the closest one.
+function guidanceVariantKey(): string {
   const medical = state.declaredNeeds.includes("medical_equipment");
   return medical ? "high_4-24h_medical" : "high_4-24h_no-needs";
 }
 
-function renderGuidance() {
-  const v = data.guidance.variants[guidanceVariantKey()];
+function renderGuidance(): void {
+  const v = data.guidance!.variants[guidanceVariantKey()];
   if (!v) return;
 
   $("#prep-label").textContent = v.label;
@@ -471,9 +521,9 @@ function renderGuidance() {
 /* =============================================================================
  * ALERTS (Req 4)
  * ========================================================================== */
-function renderAlerts() {
+function renderAlerts(): void {
   const medical = state.declaredNeeds.includes("medical_equipment");
-  const v = data.alerts.variants[medical ? "medical" : "no-needs"];
+  const v = data.alerts!.variants[medical ? "medical" : "no-needs"];
 
   const chip = $("#alerts-eligible");
   chip.textContent = v.eligible ? "Eligible ✓" : "Not eligible";
@@ -483,7 +533,8 @@ function renderAlerts() {
   list.innerHTML = "";
   v.rules.forEach((rule) => {
     const li = el("li");
-    const statusTxt = rule.met === true ? "✓ Active" : rule.met === false ? "— Not met" : "• Conditional";
+    const statusTxt =
+      rule.met === true ? "✓ Active" : rule.met === false ? "— Not met" : "• Conditional";
     const statusCls = rule.met === true ? "rule-status--met" : "rule-status--maybe";
     const head = el("div", "rule-head");
     head.appendChild(el("span", `rule-status ${statusCls}`, statusTxt));
@@ -511,29 +562,22 @@ function renderAlerts() {
 /* =============================================================================
  * TIMELINE (Req 4 / §5.6)
  * ========================================================================== */
-function buildTimelineTrack() {
+function buildTimelineTrack(): void {
   const track = $("#timeline-track");
   track.innerHTML = "";
-  data.timeline.steps.forEach(() => track.appendChild(el("span", "step")));
+  data.timeline!.steps.forEach(() => track.appendChild(el("span", "step")));
   updateTimelineTrack();
 }
-function updateTimelineTrack() {
+function updateTimelineTrack(): void {
   const steps = $("#timeline-track").children;
   for (let i = 0; i < steps.length; i++) {
     steps[i].className =
-      "step" + (i < state.timelineStep ? " is-done" : i === state.timelineStep ? " is-current" : "");
+      "step" +
+      (i < state.timelineStep ? " is-done" : i === state.timelineStep ? " is-current" : "");
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Drive the MAP visuals from the current timeline step.
- *   - weather tint + rain via data-phase on .map-wrap
- *   - phase badge (top-left)
- *   - home pin state (normal -> out -> restored)
- *   - circuit outline recolor
- *   - damage heat revealed when damage arrives
- * ------------------------------------------------------------------------- */
-const PHASE_LABEL = {
+const PHASE_LABEL: Record<Phase, string> = {
   pre_storm: "Pre-storm",
   storm: "Storm peak",
   outage: "Outage",
@@ -542,7 +586,7 @@ const PHASE_LABEL = {
   restored: "Power restored",
 };
 
-function applyMapPhase(step) {
+function applyMapPhase(step: TimelineStep | null): void {
   const phase = step ? step.phase : null;
   const wrap = $("#map-wrap");
   const badge = $("#map-phase");
@@ -551,7 +595,8 @@ function applyMapPhase(step) {
   if (!phase) {
     wrap.removeAttribute("data-phase");
     badge.hidden = true;
-    if (circuitLayer) circuitLayer.setStyle({ color: "#ff5a52", weight: 3, fillColor: "#c22823", fillOpacity: 0.12 });
+    if (circuitLayer)
+      circuitLayer.setStyle({ color: "#ff5a52", weight: 3, fillColor: "#c22823", fillOpacity: 0.12 });
     if (pinLayer) pinLayer.setIcon(makePinIcon("normal"));
     if (heatLayer && map && !map.hasLayer(heatLayer)) heatLayer.addTo(map);
     return;
@@ -564,18 +609,22 @@ function applyMapPhase(step) {
   badge.hidden = false;
   badge.innerHTML =
     `<span class="map-phase__dot"></span>${PHASE_LABEL[phase] || phase}` +
-    `<span class="map-phase__t">${step.t}</span>`;
+    `<span class="map-phase__t">${step!.t}</span>`;
 
   // pin state
-  const pinState =
-    phase === "restored" ? "restored" : ["outage", "assessing", "repairing"].includes(phase) ? "out" : "normal";
+  const pinState: PinState =
+    phase === "restored"
+      ? "restored"
+      : (["outage", "assessing", "repairing"] as Phase[]).includes(phase)
+        ? "out"
+        : "normal";
   if (pinLayer) pinLayer.setIcon(makePinIcon(pinState));
 
-  // circuit recolor: amber while out, green once restored, red otherwise
+  // circuit recolor
   if (circuitLayer) {
     if (phase === "restored") {
       circuitLayer.setStyle({ color: "#4ade80", weight: 3, fillColor: "#16a34a", fillOpacity: 0.14 });
-    } else if (["outage", "assessing", "repairing"].includes(phase)) {
+    } else if ((["outage", "assessing", "repairing"] as Phase[]).includes(phase)) {
       circuitLayer.setStyle({ color: "#fbbf24", weight: 3, fillColor: "#b45309", fillOpacity: 0.14 });
     } else {
       circuitLayer.setStyle({ color: "#ff5a52", weight: 3, fillColor: "#c22823", fillOpacity: 0.12 });
@@ -584,28 +633,26 @@ function applyMapPhase(step) {
 
   // damage heat: hidden before/at the peak, deposited once reports arrive
   if (heatLayer && map) {
-    const showHeat = ["outage", "assessing", "repairing", "restored"].includes(phase);
+    const showHeat = (["outage", "assessing", "repairing", "restored"] as Phase[]).includes(phase);
     if (showHeat && !map.hasLayer(heatLayer)) heatLayer.addTo(map);
     if (!showHeat && map.hasLayer(heatLayer)) map.removeLayer(heatLayer);
   }
 }
 
-function stepStorm() {
-  if (state.timelineStep >= data.timeline.steps.length - 1) {
+function stepStorm(): void {
+  if (state.timelineStep >= data.timeline!.steps.length - 1) {
     stopPlay();
     return;
   }
   state.timelineStep++;
-  const step = data.timeline.steps[state.timelineStep];
+  const step = data.timeline!.steps[state.timelineStep];
   updateTimelineTrack();
 
-  // Update the "now" line
   const now = $("#timeline-now");
   now.innerHTML =
     `<strong>${step.t}</strong> — ${step.title}` +
     (step.confirmed_event ? `<span class="confirmed">${step.confirmed_event.label}</span>` : "");
 
-  // Reflect risk/restoration updates on the cards where present
   if (step.restoration) {
     $("#rest-range").textContent =
       `Likely ${Math.round(step.restoration.p10)}–${Math.round(step.restoration.p90)} hours ` +
@@ -619,14 +666,12 @@ function stepStorm() {
     $("#risk-prob").textContent = `about ${Math.round(step.risk.probability * 100)}%`;
   }
 
-  // Push any message into the notifications feed
   if (step.message) addNotification(step.message, step.t);
 
-  // Drive the map visuals for this phase
   applyMapPhase(step);
 }
 
-function addNotification(message, t) {
+function addNotification(message: NonNullable<TimelineStep["message"]>, t: string): void {
   const feed = $("#notifications");
   if (feed.querySelector(".muted")) feed.innerHTML = "";
   const li = el("li", "msg");
@@ -639,7 +684,7 @@ function addNotification(message, t) {
   feed.prepend(li);
 }
 
-function playStorm() {
+function playStorm(): void {
   if (state.playTimer) {
     stopPlay();
     return;
@@ -648,21 +693,21 @@ function playStorm() {
   stepStorm();
   state.playTimer = setInterval(() => {
     stepStorm();
-    if (state.timelineStep >= data.timeline.steps.length - 1) stopPlay();
+    if (state.timelineStep >= data.timeline!.steps.length - 1) stopPlay();
   }, 1600);
 }
-function stopPlay() {
-  clearInterval(state.playTimer);
+function stopPlay(): void {
+  if (state.playTimer) clearInterval(state.playTimer);
   state.playTimer = null;
   $("#play-storm").textContent = "▶ Play storm";
 }
-function resetStorm() {
+function resetStorm(): void {
   stopPlay();
   state.timelineStep = -1;
   updateTimelineTrack();
   $("#timeline-now").textContent = "Press play to simulate the storm on the map.";
   $("#notifications").innerHTML = '<li class="muted">Messages appear as the storm plays.</li>';
-  applyMapPhase(null); // clear weather tint, badge, pin/circuit/heat state
+  applyMapPhase(null);
   renderRisk();
   renderRestoration({ silent: true });
 }
@@ -670,10 +715,13 @@ function resetStorm() {
 /* =============================================================================
  * CHAT (Req 5) — intent matcher over the sample exchanges + tool-style replies
  * ========================================================================== */
-function seedChat() {
-  addBubble("bot", "Hi! Ask me about your outage risk, restoration time, how to prepare, or alerts. I only use this session's data.");
+function seedChat(): void {
+  addBubble(
+    "bot",
+    "Hi! Ask me about your outage risk, restoration time, how to prepare, or alerts. I only use this session's data."
+  );
 }
-function buildChatSuggestions() {
+function buildChatSuggestions(): void {
   const wrap = $("#chat-suggestions");
   const prompts = [
     "Will I lose power?",
@@ -690,9 +738,16 @@ function buildChatSuggestions() {
   });
 }
 
-function addBubble(role, text, opts = {}) {
+interface BubbleOpts {
+  tools?: string[];
+  emergency?: boolean;
+}
+function addBubble(role: "user" | "bot", text: string, opts: BubbleOpts = {}): void {
   const log = $("#chat-log");
-  const b = el("div", `bubble bubble--${role === "user" ? "user" : opts.emergency ? "emergency" : "bot"}`);
+  const b = el(
+    "div",
+    `bubble bubble--${role === "user" ? "user" : opts.emergency ? "emergency" : "bot"}`
+  );
   b.appendChild(document.createTextNode(text));
   if (opts.tools && opts.tools.length) {
     b.appendChild(el("span", "tools", `tools used: ${opts.tools.join(", ")}`));
@@ -701,27 +756,26 @@ function addBubble(role, text, opts = {}) {
   log.scrollTop = log.scrollHeight;
 }
 
-function matchExample(q) {
-  const norm = (s) => s.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim();
+function matchExample(q: string) {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim();
   const nq = norm(q);
-  // exact-ish match first
-  let ex = data.chat.examples.find((e) => norm(e.user) === nq);
+  const examples = data.chat!.examples;
+  let ex = examples.find((e) => norm(e.user) === nq);
   if (ex) return ex;
-  // keyword routing
   if (/life support|neighbou?r|someone else|other customer|my street/.test(nq))
-    return data.chat.examples.find((e) => e.tools_called.length === 0 && !e.emergency);
+    return examples.find((e) => e.tools_called.length === 0 && !e.emergency);
   if (/chest pain|911|emergency|downed line|fire|hurt/.test(nq))
-    return data.chat.examples.find((e) => e.emergency);
+    return examples.find((e) => e.emergency);
   if (/more crew|what if|what changed|extra crew/.test(nq))
-    return data.chat.examples.find((e) => e.tools_called.includes("compare_scenarios"));
+    return examples.find((e) => e.tools_called.includes("compare_scenarios"));
   if (/how long|restoration|power back|get power/.test(nq))
-    return data.chat.examples.find((e) => e.tools_called.includes("estimate_restoration"));
+    return examples.find((e) => e.tools_called.includes("estimate_restoration"));
   if (/lose power|risk|will i/.test(nq))
-    return data.chat.examples.find((e) => e.tools_called.includes("get_outage_risk"));
+    return examples.find((e) => e.tools_called.includes("get_outage_risk"));
   return null;
 }
 
-function handleChat(q) {
+function handleChat(q: string): void {
   addBubble("user", q);
   const ex = matchExample(q);
   if (ex) {
@@ -737,20 +791,23 @@ function handleChat(q) {
 /* =============================================================================
  * CONTROLS WIRING
  * ========================================================================== */
-function wireControls() {
+function wireControls(): void {
   // Severity (risk)
-  const sev = $("#severity");
+  const sev = $<HTMLInputElement>("#severity");
   sev.addEventListener("input", () => {
     state.severity = SEVERITIES[Number(sev.value)];
     state.scenario.storm_severity = state.severity;
     $("#severity-value").textContent = SEVERITY_LABELS[state.severity];
     const prevP50 = state.lastRestoration ? state.lastRestoration.p50 : null;
     renderRisk();
-    renderRestoration({ changeLabel: `Storm severity: ${(state.scenario.storm_severity).toFixed(1)}×`, silent: prevP50 === null });
+    renderRestoration({
+      changeLabel: `Storm severity: ${state.scenario.storm_severity.toFixed(1)}×`,
+      silent: prevP50 === null,
+    });
   });
 
   // Crews
-  const crews = $("#crews");
+  const crews = $<HTMLInputElement>("#crews");
   crews.addEventListener("input", () => {
     $("#crews-value").textContent = crews.value;
   });
@@ -761,36 +818,40 @@ function wireControls() {
   });
 
   // Access segmented control
-  document.querySelectorAll(".segmented button").forEach((btn) => {
+  document.querySelectorAll<HTMLButtonElement>(".segmented button").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".segmented button").forEach((b) => {
+      document.querySelectorAll<HTMLButtonElement>(".segmented button").forEach((b) => {
         b.classList.remove("is-active");
         b.setAttribute("aria-checked", "false");
       });
       btn.classList.add("is-active");
       btn.setAttribute("aria-checked", "true");
       const old = state.scenario.access;
-      state.scenario.access = btn.dataset.access;
-      renderRestoration({ changeLabel: `Access: ${labelAccess(old)} → ${labelAccess(btn.dataset.access)}` });
+      const next = (btn.dataset.access || "auto") as Scenario["access"];
+      state.scenario.access = next;
+      renderRestoration({ changeLabel: `Access: ${labelAccess(old)} → ${labelAccess(next)}` });
     });
   });
 
   // Switching
-  $("#switching").addEventListener("change", (e) => {
-    state.scenario.switching_available = e.target.checked;
-    renderRestoration({ changeLabel: `Switching available: ${e.target.checked ? "off → on" : "on → off"}` });
+  $<HTMLInputElement>("#switching").addEventListener("change", (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    state.scenario.switching_available = checked;
+    renderRestoration({ changeLabel: `Switching available: ${checked ? "off → on" : "on → off"}` });
   });
 
   // Prioritize critical
-  $("#critical").addEventListener("change", (e) => {
-    state.scenario.prioritize_critical = e.target.checked;
-    renderRestoration({ changeLabel: `Prioritize critical: ${e.target.checked ? "off → on" : "on → off"}` });
+  $<HTMLInputElement>("#critical").addEventListener("change", (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    state.scenario.prioritize_critical = checked;
+    renderRestoration({ changeLabel: `Prioritize critical: ${checked ? "off → on" : "on → off"}` });
   });
 
   // Failed upstream fuse
-  $("#failed-fuse").addEventListener("change", (e) => {
+  $<HTMLInputElement>("#failed-fuse").addEventListener("change", (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
     const old = state.scenario.failed_upstream_device;
-    state.scenario.failed_upstream_device = e.target.checked ? "fuse" : null;
+    state.scenario.failed_upstream_device = checked ? "fuse" : null;
     renderRestoration({ changeLabel: `Upstream device failed: ${old ? "fuse → none" : "none → your fuse"}` });
   });
 
@@ -798,11 +859,12 @@ function wireControls() {
   $("#reset-scenario").addEventListener("click", resetScenario);
 
   // Prepare — medical toggle
-  $("#medical").addEventListener("change", (e) => {
-    state.declaredNeeds = e.target.checked ? ["medical_equipment"] : [];
+  $<HTMLInputElement>("#medical").addEventListener("change", (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    state.declaredNeeds = checked ? ["medical_equipment"] : [];
     renderGuidance();
     renderAlerts();
-    toast(e.target.checked ? "Medical needs on — guidance & alerts updated" : "Medical needs cleared");
+    toast(checked ? "Medical needs on — guidance & alerts updated" : "Medical needs cleared");
   });
 
   // Timeline
@@ -814,9 +876,9 @@ function wireControls() {
   $("#reset-storm").addEventListener("click", resetStorm);
 
   // Chat
-  $("#chat-form").addEventListener("submit", (e) => {
+  $<HTMLFormElement>("#chat-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    const inp = $("#chat-input");
+    const inp = $<HTMLInputElement>("#chat-input");
     const q = inp.value.trim();
     if (!q) return;
     handleChat(q);
@@ -827,7 +889,8 @@ function wireControls() {
   $("#open-assumptions").addEventListener("click", () => ($("#assumptions-modal").hidden = false));
   $("#close-assumptions").addEventListener("click", () => ($("#assumptions-modal").hidden = true));
   $("#assumptions-modal").addEventListener("click", (e) => {
-    if (e.target.id === "assumptions-modal") $("#assumptions-modal").hidden = true;
+    if ((e.target as HTMLElement).id === "assumptions-modal")
+      $("#assumptions-modal").hidden = true;
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") $("#assumptions-modal").hidden = true;
@@ -837,11 +900,11 @@ function wireControls() {
   $("#clear-data").addEventListener("click", clearMyData);
 }
 
-function labelAccess(a) {
+function labelAccess(a: Scenario["access"]): string {
   return a === "auto" ? "Auto" : a === "on" ? "Force on" : "Force off";
 }
 
-function resetScenario() {
+function resetScenario(): void {
   state.scenario = {
     crews: 2,
     storm_severity: 1.0,
@@ -853,20 +916,20 @@ function resetScenario() {
   };
   state.severity = 1.0;
 
-  $("#crews").value = 2;
+  $<HTMLInputElement>("#crews").value = "2";
   $("#crews-value").textContent = "2";
-  $("#severity").value = 1;
+  $<HTMLInputElement>("#severity").value = "1";
   $("#severity-value").textContent = SEVERITY_LABELS[1.0];
-  $("#switching").checked = true;
-  $("#critical").checked = true;
-  $("#failed-fuse").checked = false;
-  document.querySelectorAll(".segmented button").forEach((b) => {
+  $<HTMLInputElement>("#switching").checked = true;
+  $<HTMLInputElement>("#critical").checked = true;
+  $<HTMLInputElement>("#failed-fuse").checked = false;
+  document.querySelectorAll<HTMLButtonElement>(".segmented button").forEach((b) => {
     const on = b.dataset.access === "auto";
     b.classList.toggle("is-active", on);
     b.setAttribute("aria-checked", String(on));
   });
 
-  renderRisk._prev = null;
+  prevRisk = null;
   state.lastRestoration = null;
   $("#rest-delta").hidden = true;
   $("#risk-delta").hidden = true;
@@ -875,11 +938,11 @@ function resetScenario() {
   toast("Scenario reset to defaults");
 }
 
-function clearMyData() {
+function clearMyData(): void {
   stopPlay();
   state.declaredNeeds = [];
   state.history = [];
-  $("#medical").checked = false;
+  $<HTMLInputElement>("#medical").checked = false;
   pushHistory();
   resetScenario();
   resetStorm();
@@ -891,10 +954,10 @@ function clearMyData() {
 /* =============================================================================
  * ASSUMPTIONS PANEL
  * ========================================================================== */
-function renderAssumptions() {
+function renderAssumptions(): void {
   const ul = $("#assumptions-list");
   ul.innerHTML = "";
-  data.assumptions.items.forEach((item) => ul.appendChild(el("li", null, item)));
+  data.assumptions!.items.forEach((item) => ul.appendChild(el("li", null, item)));
 }
 
 /* go */
