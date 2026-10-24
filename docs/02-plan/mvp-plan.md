@@ -1,6 +1,6 @@
 # AI Outage Concierge: MVP plan
 
-Companion to [data-usage-and-scope.md](data-usage-and-scope.md), which covers the scope statement and the full data inventory. This document covers **what we build, how each part works, and how we demo it**. No code yet.
+Companion to [data-usage-and-scope.md](../01-overview/scope-and-data-usage.md), which covers the scope statement and the full data inventory. This document covers **what we build, how each part works, and how we demo it**. No code yet.
 
 ---
 
@@ -74,7 +74,7 @@ Every number on screen carries one of three labels: **Model estimate**, **Confir
 
 ## 4. Data prep (component 1): one data owner
 
-**Inputs:** all files in `data/raw/`, plus the labor workbook and the structure drawings. Field-level detail is in [data-usage-and-scope.md](data-usage-and-scope.md).
+**Inputs:** all files in `data/raw/`, plus the labor workbook and the structure drawings. Field-level detail is in [data-usage-and-scope.md](../01-overview/scope-and-data-usage.md).
 
 **One person (the data owner) cleans all the data.** The work is ordered so the **ML teammate gets what they need as early as possible**. Cleaning runs **on AWS** (SageMaker Studio, §10b). Raw files go into S3, and each batch writes its cleaned tables back to S3 as soon as it's done, where the ML teammate reads them:
 

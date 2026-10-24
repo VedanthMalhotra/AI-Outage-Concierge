@@ -143,7 +143,7 @@ Six criteria in three categories, each scored **1 to 5 points**, for **30 points
 
 A checklist for every piece of work on the AI Outage Concierge:
 
-- [ ] **Innovation:** keep a written analysis of existing outage tools (utility outage maps, ETR systems, alert programs, academic models) with strengths, weaknesses and how we differ. See `docs/existing-solutions.md`.
+- [ ] **Innovation:** keep a written analysis of existing outage tools (utility outage maps, ETR systems, alert programs, academic models) with strengths, weaknesses and how we differ. See [existing-solutions.md](../03-research/existing-solutions.md).
 - [ ] **Curiosity:** log the questions the team asked, the plan to answer each, and what we did. Show one clever or unique feature in the demo.
 - [ ] **Communication:** ship a working prototype of the full customer journey, plus an architecture diagram and a slide deck or video.
 - [ ] **Breadth and complexity:** name the domains combined (power engineering, geospatial/GIS, graph topology, ML/statistics, LLMs, crisis communication and human factors, accessibility, privacy and ethics). Have a "10x scale" answer ready.

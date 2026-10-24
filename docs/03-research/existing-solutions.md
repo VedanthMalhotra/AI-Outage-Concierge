@@ -1,6 +1,6 @@
 # Existing solutions: analysis for the AI Outage Concierge
 
-Purpose: evidence for the **Innovation** criterion in [JUDGING_CRITERIA.md](../JUDGING_CRITERIA.md) (research accepted solutions, find their strengths and weaknesses, then explore a better alternative). It also feeds **Impact** (research-backed justification) and **Breadth** (domains we draw on).
+Purpose: evidence for the **Innovation** criterion in [JUDGING_CRITERIA.md](../05-judging/judging-criteria.md) (research accepted solutions, find their strengths and weaknesses, then explore a better alternative). It also feeds **Impact** (research-backed justification) and **Breadth** (domains we draw on).
 
 Researched 2026-10-24 from public sources (linked at the end). Vendor claims are as reported by the vendor and were not independently tested.
 

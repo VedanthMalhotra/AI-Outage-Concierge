@@ -141,7 +141,7 @@ Owner:   DATA = data owner   ML = ML teammate   DASH = dashboard teammate   ALL 
 
 [OPTIONAL] Amazon CloudWatch Logs
     - App logs and the audit log, with log retention set to 7 days
-      (matches the data-retention policy in docs/mvp-plan.md section 9b).
+      (matches the data-retention policy in docs/02-plan/mvp-plan.md section 9b).
     - Cost: cents at this volume
 
 [OPTIONAL] Amazon S3 static website + Amazon CloudFront, or AWS Amplify Hosting

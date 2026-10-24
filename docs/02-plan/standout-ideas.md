@@ -1,8 +1,8 @@
 # Ideas to make the AI Outage Concierge stand out
 
-The current [MVP plan](../mvp-plan.md) is solid, but it maps one-to-one onto the brief: every team will show a risk card, a restoration range, a checklist and four messages. Judges score **beyond-the-brief thinking** (Innovation, Curiosity, Breadth). These ideas build on the same engine and data, so none of them is a rewrite.
+The current [MVP plan](mvp-plan.md) is solid, but it maps one-to-one onto the brief: every team will show a risk card, a restoration range, a checklist and four messages. Judges score **beyond-the-brief thinking** (Innovation, Curiosity, Breadth). These ideas build on the same engine and data, so none of them is a rewrite.
 
-Each idea lists the gap it fills (from [existing-solutions.md](../existing-solutions.md)), the data it uses, a rough build effort, and the [rubric](../../JUDGING_CRITERIA.md) criteria it targets.
+Each idea lists the gap it fills (from [existing-solutions.md](../03-research/existing-solutions.md)), the data it uses, a rough build effort, and the [rubric](../05-judging/judging-criteria.md) criteria it targets.
 
 ## Recommended: pick these four
 

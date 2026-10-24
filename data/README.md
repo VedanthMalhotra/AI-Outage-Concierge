@@ -10,7 +10,7 @@ Datasets supplied for the AEP HackOHI/O 2026 AI Outage Concierge challenge.
 | `raw/Data2.zip` | GIS shapefiles for secondary lines, transformers, switches, and recloser banks | 12.1 MiB |
 | `raw/matched_upstream.zip` | `matched_upstream.txt`: upstream/topology relationships described in the challenge | 1.4 MiB |
 
-`Install_Labor_HackOHIO.xlsx` is the supplied installation/labor reference workbook. The challenge brief and structure diagrams are in [`../docs/`](../docs/).
+`Install_Labor_HackOHIO.xlsx` is the supplied installation/labor reference workbook. The challenge brief and structure diagrams are in [`../docs/reference/`](../docs/reference/).
 
 ## Extract locally
 
