@@ -1,6 +1,6 @@
 # Feature specs: Power Path, Time That Matters, Text Concierge
 
-Chosen 2026-10-24 from [standout-ideas.md](standout-ideas.md). Each feature reuses the engine in [mvp-plan.md](../mvp-plan.md). Rubric links refer to [JUDGING_CRITERIA.md](../../JUDGING_CRITERIA.md).
+Chosen 2026-10-24 from [standout-ideas.md](standout-ideas.md). Each feature reuses the engine in [mvp-plan.md](mvp-plan.md). Rubric links refer to [JUDGING_CRITERIA.md](../05-judging/judging-criteria.md).
 
 ---
 

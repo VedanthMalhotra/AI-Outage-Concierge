@@ -1,6 +1,6 @@
 # How to clean the challenge data on AWS: step-by-step guide
 
-For the **data owner**. Follow it top to bottom. It produces the cleaned tables defined in [mvp-plan.md §4](mvp-plan.md) and shown in [data/sample/](../data/sample/README.md), in 4 batches, ordered so the ML teammate gets data early.
+For the **data owner**. Follow it top to bottom. It produces the cleaned tables defined in [mvp-plan.md §4](../02-plan/mvp-plan.md) and shown in [data/sample/](../../data/sample/README.md), in 4 batches, ordered so the ML teammate gets data early.
 
 > The code is written against the field names we inspected in the raw files, but it **hasn't been run end to end yet**. Run each cell, read the printed checks, and fix as you go. Every step says what "looks right" means.
 
@@ -307,7 +307,7 @@ m["outage_loc"] = np.where(m.asset_type.isin(LOCAL), m.transformer_loc, m.xf_zon
 m.loc[m.asset_type.isin(IGNORE), "outage_loc"] = None
 damage = pd.DataFrame(m.drop(columns=["geometry", "index_right"], errors="ignore"))
 ```
-If the match rate is low, look at `match_dist_m` and try 500 m. Log it in [navigating-challenges.md](navigating-challenges.md).
+If the match rate is low, look at `match_dist_m` and try 500 m. Log it in [navigating-challenges.md](../05-judging/navigating-challenges.md).
 
 ### D3. Labels for the three models
 ```python
