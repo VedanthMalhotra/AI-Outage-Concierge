@@ -1,0 +1,38 @@
+{
+  "examples": [
+    {
+      "user": "Will I lose power?",
+      "tools_called": [
+        "get_outage_risk"
+      ],
+      "assistant": "Your outage risk is HIGH (about 46%, medium confidence) for a storm like February 2025. The main reasons: your home is fed by an overhead line, there were 31 damage reports within 1 km of you in that storm, and your branch is protected by a fuse that can't reset itself. This is a model estimate, not a confirmed outage."
+    },
+    {
+      "user": "How long would it take to get power back?",
+      "tools_called": [
+        "estimate_restoration"
+      ],
+      "assistant": "If you lose power, it would likely take 11–29 hours, most likely about 19. The biggest factors are how many crews are available and whether there's damage on your own line. This is a model estimate."
+    },
+    {
+      "user": "What if more crews come?",
+      "tools_called": [
+        "compare_scenarios"
+      ],
+      "assistant": "With 6 crews instead of 2, the estimate drops to about 7–19 hours (most likely about 12), because the repairs ahead of you in the queue can happen at the same time."
+    },
+    {
+      "user": "Who else on my street has life support equipment?",
+      "tools_called": [],
+      "assistant": "I can't share information about other customers. If you use medical equipment yourself, you can tell me and I'll tailor your preparation steps and alerts."
+    },
+    {
+      "user": "I'm having chest pains, where's the nearest hospital?",
+      "tools_called": [],
+      "emergency": true,
+      "assistant": "This is an emergency. Call 911 now. They will send help to you."
+    }
+  ],
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}

@@ -1,0 +1,146 @@
+{
+  "premise_id": "858810648",
+  "steps": [
+    {
+      "t": "T-24h",
+      "title": "Forecast: strong storm expected tomorrow",
+      "phase": "pre_storm",
+      "confirmed_event": null,
+      "risk": {
+        "probability": 0.46,
+        "band": "High"
+      },
+      "restoration": {
+        "p10": 11.4,
+        "p50": 19.0,
+        "p90": 29.4,
+        "label": "Model estimate"
+      },
+      "message": {
+        "type": "pre_storm",
+        "channel": [
+          "sms",
+          "push"
+        ],
+        "text": "AEP: A strong storm may affect your area tomorrow. Your outage risk is HIGH. If you lose power, restoration may take 11–29 hrs (estimate). Charge devices tonight. Stay away from downed lines."
+      }
+    },
+    {
+      "t": "T-6h",
+      "title": "Storm approaching",
+      "phase": "pre_storm",
+      "confirmed_event": null,
+      "risk": {
+        "probability": 0.51,
+        "band": "High"
+      },
+      "restoration": {
+        "p10": 13.0,
+        "p50": 21.6,
+        "p90": 33.5,
+        "label": "Model estimate"
+      },
+      "message": null
+    },
+    {
+      "t": "T0",
+      "title": "Storm peak",
+      "phase": "storm",
+      "confirmed_event": null,
+      "risk": null,
+      "restoration": {
+        "p10": 13.0,
+        "p50": 21.6,
+        "p90": 33.5,
+        "label": "Model estimate"
+      },
+      "message": null
+    },
+    {
+      "t": "T+2h",
+      "title": "Damage reports arriving",
+      "phase": "outage",
+      "confirmed_event": {
+        "text": "Outage confirmed on your line",
+        "label": "Confirmed (simulated)"
+      },
+      "risk": null,
+      "restoration": {
+        "p10": 13.7,
+        "p50": 22.9,
+        "p90": 35.5,
+        "label": "Model estimate"
+      },
+      "message": {
+        "type": "outage_confirmed",
+        "channel": [
+          "sms",
+          "push"
+        ],
+        "text": "AEP: We've confirmed an outage affecting your home. Crews will assess damage after winds ease. Next update by 2 PM."
+      }
+    },
+    {
+      "t": "T+6h",
+      "title": "Damage assessment complete",
+      "phase": "assessing",
+      "confirmed_event": {
+        "text": "Broken pole found behind your fuse",
+        "label": "Confirmed (simulated)"
+      },
+      "risk": null,
+      "restoration": {
+        "p10": 16.7,
+        "p50": 27.9,
+        "p90": 43.2,
+        "label": "Model estimate"
+      },
+      "message": {
+        "type": "estimate_updated",
+        "channel": [
+          "sms",
+          "push"
+        ],
+        "text": "AEP: Updated estimate: power likely back 6 PM–2 AM (was 4–10 PM). Reason: additional damage found upstream of your area."
+      }
+    },
+    {
+      "t": "T+12h",
+      "title": "Crews working on your branch",
+      "phase": "repairing",
+      "confirmed_event": {
+        "text": "Crew assigned to your line",
+        "label": "Confirmed (simulated)"
+      },
+      "risk": null,
+      "restoration": {
+        "p10": 3.0,
+        "p50": 5.0,
+        "p90": 8.0,
+        "label": "Model estimate"
+      },
+      "message": null
+    },
+    {
+      "t": "T+17h",
+      "title": "Power restored",
+      "phase": "restored",
+      "confirmed_event": {
+        "text": "Repairs on your line complete",
+        "label": "Confirmed (simulated)"
+      },
+      "risk": null,
+      "restoration": null,
+      "message": {
+        "type": "restored",
+        "channel": [
+          "sms",
+          "push"
+        ],
+        "text": "AEP: Power should now be restored at your home. Still out? Reply OUT."
+      }
+    }
+  ],
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}

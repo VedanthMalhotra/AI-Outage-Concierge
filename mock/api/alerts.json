@@ -1,0 +1,107 @@
+{
+  "variants": {
+    "no-needs": {
+      "eligible": true,
+      "rules": [
+        {
+          "id": "A0",
+          "name": "Basic outage alerts",
+          "met": true,
+          "why": "Everyone in the service area can opt in."
+        },
+        {
+          "id": "A1",
+          "name": "Pre-storm alert",
+          "met": true,
+          "why": "Your risk is High (≥ Moderate).",
+          "channels": [
+            "sms",
+            "email",
+            "push"
+          ],
+          "timing": [
+            "T-24h",
+            "T-6h"
+          ]
+        },
+        {
+          "id": "A2",
+          "name": "Outage confirmed",
+          "met": null,
+          "why": "Sent if damage is confirmed on your line."
+        },
+        {
+          "id": "A3",
+          "name": "Estimate updated",
+          "met": null,
+          "why": "Sent if the estimate moves by more than 2 hours."
+        },
+        {
+          "id": "A4",
+          "name": "Restored",
+          "met": null,
+          "why": "Sent when the last repair on your line is done."
+        }
+      ],
+      "escalations": []
+    },
+    "medical": {
+      "eligible": true,
+      "rules": [
+        {
+          "id": "A0",
+          "name": "Basic outage alerts",
+          "met": true,
+          "why": "Everyone in the service area can opt in."
+        },
+        {
+          "id": "A1",
+          "name": "Pre-storm alert",
+          "met": true,
+          "why": "Your risk is High (≥ Moderate).",
+          "channels": [
+            "sms",
+            "email",
+            "push"
+          ],
+          "timing": [
+            "T-24h",
+            "T-6h"
+          ]
+        },
+        {
+          "id": "A2",
+          "name": "Outage confirmed",
+          "met": null,
+          "why": "Sent if damage is confirmed on your line."
+        },
+        {
+          "id": "A3",
+          "name": "Estimate updated",
+          "met": null,
+          "why": "Sent if the estimate moves by more than 2 hours."
+        },
+        {
+          "id": "A4",
+          "name": "Restored",
+          "met": null,
+          "why": "Sent when the last repair on your line is done."
+        }
+      ],
+      "escalations": [
+        {
+          "id": "E1",
+          "name": "Medical escalation",
+          "why": "Declared medical equipment and risk High.",
+          "actions": [
+            "Notice at T-48h",
+            "Phone call option",
+            "Flag for human follow-up"
+          ]
+        }
+      ]
+    }
+  },
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}

@@ -1,0 +1,53 @@
+facility_id,name,type,town,lat,lon,is_general_er
+hospital_1,Catawba Hospital,hospital,Catawba,37.391554,-80.110167,False
+hospital_2,LewisGale Medical Center,hospital,Salem,37.263346,-80.031677,True
+hospital_3,Salem Veterans Affairs Medical Center,hospital,Salem,37.274348,-80.018608,False
+hospital_4,Carilion Roanoke Memorial Hospital,hospital,Roanoke,37.251217,-79.942274,True
+hospital_5,Carilion Roanoke Community Hospital,hospital,Roanoke,37.265672,-79.939458,True
+fire_station_6,Roanoke Fire - EMS Station 11,fire_station,Roanoke,37.250625,-79.916599,False
+fire_station_7,Stewartsville - Chamblissburg Volunteer Fire Department,fire_station,Vinton,37.271576,-79.793263,False
+fire_station_8,Roanoke Fire-EMS Station 2,fire_station,Roanoke,37.289334,-79.937287,False
+fire_station_9,Roanoke Fire-EMS Station 14,fire_station,Roanoke,37.294658,-79.900512,False
+fire_station_10,Vinton Volunteer Fire Department,fire_station,Vinton,37.279587,-79.899081,False
+fire_station_11,Salem Fire and Emergency Medical Services Department Station 3,fire_station,Salem,37.279562,-80.063481,False
+fire_station_12,Boones Mill Volunteer Fire Department,fire_station,Boones Mill,37.119678,-79.956378,False
+fire_station_13,Troutville Volunteer Fire Department,fire_station,Troutville,37.418099,-79.875955,False
+fire_station_14,Roanoke Fire-EMS Station 3,fire_station,Roanoke,37.315599,-79.953465,False
+fire_station_15,Salem Fire and EMS Department Station 1,fire_station,Salem,37.291821,-80.056709,False
+fire_station_16,Floyd County Volunteer Fire Department Station 3,fire_station,Check,37.031242,-80.205034,False
+fire_station_17,Salem Fire and EMS Department Station 2,fire_station,Salem,37.288672,-80.030115,False
+fire_station_18,Roanoke Fire-EMS Station 6,fire_station,Roanoke,37.27138,-79.920423,False
+fire_station_19,Hardy Volunteer Fire Department Company 12,fire_station,Hardy,37.23606,-79.810956,False
+fire_station_20,Montvale Volunteer Fire Department Company 9,fire_station,Montvale,37.385016,-79.73042,False
+fire_station_21,Clearbrook Fire and Rescue Department Station 7,fire_station,Roanoke,37.201645,-79.950217,False
+fire_station_22,Blue Ridge Volunteer Fire and Rescue,fire_station,Blue Ridge,37.374922,-79.811031,False
+fire_station_23,Roanoke Fire-EMS Station 8,fire_station,Roanoke,37.246594,-79.947746,False
+fire_station_24,Roanoke County Fire and Rescue Station 4 - Catawba Fire Department,fire_station,Catawba,37.389649,-80.114008,False
+fire_station_25,Roanoke County Fire and Rescue Station 10 - Mason Cove Fire Company,fire_station,Salem,37.371714,-80.075757,False
+fire_station_26,Roanoke Fire-EMS Station 5,fire_station,Roanoke,37.285687,-79.968788,False
+fire_station_27,Elliston Volunteer Fire Department,fire_station,Elliston,37.227913,-80.210109,False
+fire_station_28,Stewartsville - Chamblissburg Volunteer Fire Department Station 2,fire_station,Vinton,37.257624,-79.722382,False
+fire_station_29,Roanoke County Fire and Rescue Station 11,fire_station,Roanoke,37.200806,-80.073357,False
+fire_station_30,Roanoke Fire-EMS Station 1 Headquarters,fire_station,Roanoke,37.267196,-79.945791,False
+fire_station_31,Roanoke County Fire and Rescue Station 1 North County Fire and Rescue,fire_station,Roanoke,37.322497,-79.938474,False
+fire_station_32,Bent Mountain Fire Department,fire_station,Bent Mountain,37.166404,-80.115211,False
+fire_station_33,Roanoke County Fire and Rescue Station 6 - Mount Pleasant Fire Department,fire_station,Roanoke,37.238291,-79.910623,False
+fire_station_34,Roanoke County Fire and Rescue Station 5 - Hollins Fire Company,fire_station,Roanoke,37.346053,-79.96353,False
+fire_station_35,Callaway Volunteer Fire Department,fire_station,Callaway,37.012536,-80.048008,False
+fire_station_36,Roanoke Fire-EMS Station 7,fire_station,Roanoke,37.265979,-79.973935,False
+fire_station_37,Burnt Chimney Fire Department Company 9,fire_station,Wirtz,37.106132,-79.814466,False
+fire_station_38,Shady Grove Volunteer Fire Department,fire_station,Thaxton,37.319719,-79.718547,False
+fire_station_39,Roanoke Fire-EMS Station 13,fire_station,Roanoke,37.307166,-80.006243,False
+fire_station_40,Fort Lewis Fire Department,fire_station,Salem,37.275877,-80.130729,False
+fire_station_41,Cave Spring Volunteer Fire Department,fire_station,Roanoke,37.228767,-80.009751,False
+fire_station_42,Roanoke Fire-EMS Station 4,fire_station,Roanoke,37.267361,-80.010266,False
+ambulance_43,Chamblissburg Volunteer Rescue Squad,ambulance,Goodview,37.253452,-79.711075,False
+ambulance_44,Stewartsville First Aid and Rescue Squad,ambulance,Goodview,37.264743,-79.79167,False
+ambulance_45,Red Valley Rescue Squad,ambulance,Boones Mill,37.133368,-79.855318,False
+ambulance_46,Floyd County Emergency Medical Services Station 3,ambulance,Check,37.035075,-80.212432,False
+ambulance_47,Roanoke Emergency Medical Service,ambulance,Roanoke,37.267667,-79.948177,False
+ambulance_48,Vinton First Aid Crew,ambulance,Vinton,37.279422,-79.898738,False
+ambulance_49,Hardy Life Saving and Rescue Squad,ambulance,Hardy,37.231559,-79.812279,False
+ambulance_50,Cave Spring Rescue Squad - Rescue 3,ambulance,Roanoke,37.234271,-80.005885,False
+ambulance_51,Montvale Rescue Squad,ambulance,Montvale,37.387218,-79.726306,False
+ambulance_52,Salem Rescue Squad,ambulance,Salem,37.29099,-80.05876,False

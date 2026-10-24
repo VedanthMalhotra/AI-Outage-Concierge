@@ -1,0 +1,14 @@
+{
+  "premise_id": "000000000",
+  "probability": null,
+  "band": null,
+  "confidence": "Low",
+  "top_factors": [],
+  "label": "Model estimate",
+  "fallback": {
+    "reason": "missing_network_link",
+    "message": "We can't give a reliable outage estimate for your location because we couldn't link it to the power network. Here is general storm guidance instead."
+  },
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}

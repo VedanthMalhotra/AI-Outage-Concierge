@@ -1,0 +1,14 @@
+{
+  "items": [
+    "Storm severity is a scenario input; no weather data was provided.",
+    "Risk model trained on the February 2025 storm and tested on September 2024.",
+    "Repair hours come from the AEP labor workbook; travel/setup multiplier 4.5.",
+    "Repair hours for re-stringing a wire span are approximate (not in the workbook).",
+    "Damage quantity (Media field) interpreted as count; zeros treated as 1.",
+    "Alert rules are challenge assumptions, not AEP policy.",
+    "Historical repair dates are day-level only and used as a sanity check.",
+    "Your location and any needs you share are used only for this session."
+  ],
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}

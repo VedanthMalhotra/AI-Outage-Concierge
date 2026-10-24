@@ -1,0 +1,57 @@
+{
+  "premise_id": "858810648",
+  "scenario": {
+    "crews": 2,
+    "storm_severity": 1.0,
+    "access": "auto",
+    "switching_available": true,
+    "failed_upstream_device": null,
+    "prioritize_critical": true,
+    "start_delay_h": 6
+  },
+  "p10": 11.4,
+  "p50": 19.0,
+  "p90": 29.4,
+  "unit": "hours",
+  "label": "Model estimate",
+  "confidence": "Medium",
+  "summary": "Likely 11–29 hours (most likely about 19)",
+  "drivers": [
+    {
+      "text": "Number of crews: adding 4 crews cuts about 6 hours",
+      "impact_h": -6.2
+    },
+    {
+      "text": "A broken pole on your line adds about 8 hours",
+      "impact_h": 8.0
+    }
+  ],
+  "jobs_ahead_of_you": [
+    {
+      "order": 1,
+      "what": "Main line repairs on your circuit",
+      "crew_hours": 9.5,
+      "status": "queued"
+    },
+    {
+      "order": 2,
+      "what": "Lines feeding critical facilities",
+      "crew_hours": 6.0,
+      "status": "queued"
+    },
+    {
+      "order": 3,
+      "what": "Broken pole + downed wire behind your fuse (37800347C00049)",
+      "crew_hours": 26.0,
+      "status": "queued",
+      "on_your_line": true
+    }
+  ],
+  "assumptions": [
+    "Storm severity is a scenario input (no weather data).",
+    "Repair hours from AEP labor workbook × 4.5 indirect-labor multiplier.",
+    "Work starts 6 h after the storm peak."
+  ],
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}

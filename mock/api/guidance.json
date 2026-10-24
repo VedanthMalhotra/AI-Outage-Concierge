@@ -1,0 +1,107 @@
+{
+  "variants": {
+    "high_4-24h_no-needs": {
+      "risk_band": "High",
+      "duration_bucket": "4-24h",
+      "declared_needs": [],
+      "safety": [
+        {
+          "level": "emergency",
+          "text": "Medical emergency or someone hurt: call 911 now."
+        },
+        {
+          "level": "safety",
+          "text": "Stay at least 30 feet from downed lines, including the line to your house. Report them to AEP."
+        },
+        {
+          "level": "safety",
+          "text": "Run generators outdoors only, far from windows. Carbon monoxide can kill."
+        },
+        {
+          "level": "safety",
+          "text": "Never refuel a running generator."
+        }
+      ],
+      "checklist": [
+        "Charge phones, power banks and laptops tonight.",
+        "Have flashlights and spare batteries ready (no candles).",
+        "Store 1 gallon of water per person per day for 3 days.",
+        "Stock food that needs no cooking or refrigeration.",
+        "Keep the fridge and freezer closed; food stays cold about 4 hours (fridge) and 48 hours (full freezer).",
+        "Get some cash; card readers may be down.",
+        "Arrange a check-in with a neighbour."
+      ],
+      "label": "Your action"
+    },
+    "high_4-24h_medical": {
+      "risk_band": "High",
+      "duration_bucket": "4-24h",
+      "declared_needs": [
+        "medical_equipment"
+      ],
+      "safety": [
+        {
+          "level": "emergency",
+          "text": "Medical emergency or someone hurt: call 911 now."
+        },
+        {
+          "level": "safety",
+          "text": "Stay at least 30 feet from downed lines, including the line to your house. Report them to AEP."
+        },
+        {
+          "level": "safety",
+          "text": "Run generators outdoors only, far from windows. Carbon monoxide can kill."
+        },
+        {
+          "level": "safety",
+          "text": "Never refuel a running generator."
+        }
+      ],
+      "checklist": [
+        "Check backup batteries for your medical equipment and how long they last.",
+        "Contact your equipment provider about backup options.",
+        "Plan where you will go if power is out longer than your battery life.",
+        "Ask your pharmacist how to store refrigerated medication.",
+        "Charge phones, power banks and laptops tonight.",
+        "Have flashlights and spare batteries ready (no candles).",
+        "Store 1 gallon of water per person per day for 3 days.",
+        "Stock food that needs no cooking or refrigeration.",
+        "Keep the fridge and freezer closed; food stays cold about 4 hours (fridge) and 48 hours (full freezer).",
+        "Get some cash; card readers may be down.",
+        "Arrange a check-in with a neighbour."
+      ],
+      "label": "Your action",
+      "escalation": "Earlier alerts and a phone call option are on."
+    },
+    "low_lt4h_no-needs": {
+      "risk_band": "Low",
+      "duration_bucket": "<4h",
+      "declared_needs": [],
+      "safety": [
+        {
+          "level": "emergency",
+          "text": "Medical emergency or someone hurt: call 911 now."
+        },
+        {
+          "level": "safety",
+          "text": "Stay at least 30 feet from downed lines, including the line to your house. Report them to AEP."
+        },
+        {
+          "level": "safety",
+          "text": "Run generators outdoors only, far from windows. Carbon monoxide can kill."
+        },
+        {
+          "level": "safety",
+          "text": "Never refuel a running generator."
+        }
+      ],
+      "checklist": [
+        "Charge phones, power banks and laptops tonight.",
+        "Have flashlights and spare batteries ready (no candles)."
+      ],
+      "label": "Your action"
+    }
+  },
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}

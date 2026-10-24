@@ -1,0 +1,50 @@
+{
+  "premise_id": "858810648",
+  "lat": 37.199767,
+  "lon": -80.054723,
+  "circuit_id": "CIR72",
+  "area_label": "Roanoke area · circuit CIR72",
+  "service_type": "Overhead",
+  "has_chain": true,
+  "data_coverage": "good",
+  "demo_premises": [
+    {
+      "premise_id": "858810648",
+      "lat": 37.199767,
+      "lon": -80.054723,
+      "service_type": "Overhead"
+    },
+    {
+      "premise_id": "840408754",
+      "lat": 37.21114,
+      "lon": -80.055407,
+      "service_type": "Overhead"
+    },
+    {
+      "premise_id": "934287012",
+      "lat": 37.211492,
+      "lon": -80.056439,
+      "service_type": "Overhead"
+    },
+    {
+      "premise_id": "906593047",
+      "lat": 37.203375,
+      "lon": -80.045935,
+      "service_type": "Overhead"
+    },
+    {
+      "premise_id": "998522028",
+      "lat": 37.214508,
+      "lon": -80.064532,
+      "service_type": "Overhead"
+    },
+    {
+      "premise_id": "716589371",
+      "lat": 37.209796,
+      "lon": -80.044668,
+      "service_type": "Overhead"
+    }
+  ],
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}

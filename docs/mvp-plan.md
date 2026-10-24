@@ -125,10 +125,10 @@ The data owner hands over **clean, linked tables and labels**. **Feature enginee
 
 | Step | Work | Known data issues to handle |
 |---|---|---|
-| 1 | Damage reports → `damage` (report date, repaired flag, repaired date, circuit, asset type, damage type, quantity, access issue, special equipment, lat, lon, `near_fid`, `near_dist`) | `Event`, `District`, `Status`, crew columns all blank → drop. 1 blank asset type, 1 blank access value. **The 76 unrepaired records still have repair dates** (mostly Oct–Dec 2025, some in 2026; likely scheduled or placeholder dates), so set them to null for unrepaired rows. |
+| 1 | Damage reports → `damage` (report date, repaired flag, repaired date, circuit, asset type, damage type, quantity, access issue, special equipment, lat, lon, `near_fid`, `near_dist`) | `Event`, `District`, `Status`, crew columns all blank → drop. 1 blank asset type, 1 blank access value. 14 records use non-standard circuit names (`TINKER`, `PENN FOREST`, `SERVICE CENTER`), so map them to a circuit by location. **The 76 unrepaired records still have repair dates** (mostly Oct–Dec 2025, some in 2026; likely scheduled or placeholder dates), so set them to null for unrepaired rows. |
 | 2 | **Tag events**: Feb 2025 (13–20 Feb, 1,254 records) · Sep 2024 (25 Sep – 5 Oct, 194) · other (211) | Confirm the cluster boundaries with a quick histogram |
 | 3 | `Media` → quantity (0–6) | 328 zeros: treat as 1 and flag. Confirm with mentors. |
-| 4 | Poles → `pole` (lat, lon, install year, age, material group, height ft, class) | 19,195 unknown heights and ~24k unknown / N/A classes: null + flag. Group materials (pine / wood / cedar / fir → wood). |
+| 4 | Poles → `pole` (lat, lon, install year, age, material group, height ft, class) | 19,195 unknown heights and ~24k unknown / N/A classes: null + flag. Group materials (pine / wood / cedar / fir → wood). **Install year is missing for ~74% of poles in the CIR72 sample**, so pole age may be a weak feature. Report coverage per area. |
 | 5 | Primary and secondary lines → `line` (circuit, length, overhead/underground, voltage, phase, midpoint lat/lon) | Large files (secondary ~106 MB): process in chunks |
 | 6 | Labor workbook → `labor_unit` (part, size band, install h, removal h), `labor_adder`, `ilm` = 4.5 | Size-banded tables (pole by height, transformer by kVA) |
 | 7 | Structure drawings → **`repair_bundle`**: damage type → parts list → direct hours (§5.2 table) | Wire-span hours are an assumption (no conductor hours in the workbook) |

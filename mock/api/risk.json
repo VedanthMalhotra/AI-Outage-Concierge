@@ -1,0 +1,35 @@
+{
+  "premise_id": "858810648",
+  "storm_severity": 1.0,
+  "probability": 0.46,
+  "band": "High",
+  "confidence": "Medium",
+  "confidence_reason": "Good data coverage for your area; the model was tested on one held-out storm (Sep 2024).",
+  "top_factors": [
+    {
+      "key": "overhead_exposure",
+      "label": "Overhead power line",
+      "detail": "Your home is fed by an overhead line, which is more exposed to wind, ice and falling trees.",
+      "direction": "raises",
+      "weight": 0.38
+    },
+    {
+      "key": "storm_history",
+      "label": "Storm damage nearby before",
+      "detail": "31 damage reports within 1 km of you in the February 2025 storm.",
+      "direction": "raises",
+      "weight": 0.33
+    },
+    {
+      "key": "protection",
+      "label": "Single fuse on your branch",
+      "detail": "Your branch is protected by 1 fuse(s). A fuse can't reset itself after a temporary fault.",
+      "direction": "raises",
+      "weight": 0.17
+    }
+  ],
+  "label": "Model estimate",
+  "fallback": null,
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}
