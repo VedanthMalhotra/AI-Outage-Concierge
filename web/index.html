@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Outage Concierge · Roanoke area</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="app-header">
+    <div class="app-header__title">
+      <span class="app-header__logo" aria-hidden="true">⚡</span>
+      <div>
+        <h1>AI Outage Concierge</h1>
+        <p class="app-header__sub" id="area-label">Roanoke area · circuit CIR72</p>
+      </div>
+    </div>
+
+    <div class="app-header__controls">
+      <label class="premise-picker">
+        <span class="sr-only">Pick a demo premise</span>
+        <span class="premise-picker__label">Premise</span>
+        <select id="premise-select" aria-label="Select a demo premise"></select>
+      </label>
+      <span class="mock-badge" title="All numbers below are illustrative sample data, not model output.">
+        Sample data
+      </span>
+    </div>
+  </header>
+
+  <!-- ===================== MAIN GRID ===================== -->
+  <main id="main" class="layout">
+    <!-- ---------- MAP ---------- -->
+    <section class="panel panel--map" aria-label="Map of your area">
+      <div class="panel__head">
+        <h2>Your area</h2>
+        <div class="map-legend" aria-hidden="true">
+          <span class="dot dot--pin"></span> Your home
+          <span class="dot dot--heat"></span> Storm damage density
+        </div>
+      </div>
+
+      <div class="map-wrap" id="map-wrap">
+        <div id="map" role="img" aria-label="Map showing your home pin, your circuit area, and aggregated storm-damage density. Other customers are never shown."></div>
+
+        <!-- Weather tint that intensifies as the storm peaks -->
+        <div class="storm-fx" id="storm-fx" aria-hidden="true"></div>
+
+        <!-- Phase badge, top-left -->
+        <div class="map-phase" id="map-phase" aria-hidden="true" hidden></div>
+
+        <!-- Storm timeline overlay, bottom of the map -->
+        <div class="map-timeline" id="map-timeline" role="group" aria-label="Storm timeline player">
+          <div class="map-timeline__top">
+            <p class="map-timeline__now" id="timeline-now">Press play to simulate the storm on the map.</p>
+            <div class="timeline__buttons">
+              <button type="button" id="play-storm" class="btn btn--sm">▶ Play storm</button>
+              <button type="button" id="step-storm" class="btn btn--ghost btn--sm">Step</button>
+              <button type="button" id="reset-storm" class="btn btn--ghost btn--sm">Reset</button>
+            </div>
+          </div>
+          <div class="timeline__track" id="timeline-track" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <p class="privacy-note">
+        Only your own location is shown. Other customers are never plotted. No street addresses are used.
+      </p>
+    </section>
+
+    <!-- ---------- OUTAGE OUTLOOK (risk + restoration combined) ---------- -->
+    <section class="panel panel--outlook" aria-labelledby="outlook-h">
+      <div class="panel__head">
+        <h2 id="outlook-h">Outage outlook</h2>
+      </div>
+
+      <!-- Risk subsection -->
+      <div class="outlook-section" aria-labelledby="risk-h">
+        <div class="outlook-section__head">
+          <h3 class="outlook-q" id="risk-h">Will I lose power?</h3>
+          <span class="label-chip" id="risk-label">Model estimate</span>
+        </div>
+
+        <div id="risk-body">
+          <div class="risk-headline">
+            <span class="band-badge" id="risk-band">—</span>
+            <span class="risk-prob" id="risk-prob"></span>
+            <span class="confidence" id="risk-confidence"></span>
+          </div>
+          <p class="risk-reason" id="risk-confidence-reason"></p>
+
+          <div class="severity-control">
+            <label for="severity">Storm severity
+              <span class="muted" id="severity-value">Feb-2025-like (1.0×)</span>
+            </label>
+            <input type="range" id="severity" min="0" max="3" step="1" value="1"
+                   aria-describedby="severity-value" list="severity-ticks" />
+            <datalist id="severity-ticks">
+              <option value="0" label="0.5×"></option>
+              <option value="1" label="1.0×"></option>
+              <option value="2" label="1.5×"></option>
+              <option value="3" label="2.0×"></option>
+            </datalist>
+          </div>
+
+          <h4 class="subhead">Top reasons</h4>
+          <ol class="factors" id="risk-factors"></ol>
+          <p class="delta-note" id="risk-delta" hidden></p>
+        </div>
+
+        <div id="risk-fallback" class="fallback" hidden>
+          <strong>We can't give a reliable estimate here.</strong>
+          <p id="risk-fallback-msg"></p>
+        </div>
+      </div>
+
+      <hr class="outlook-divider" />
+
+      <!-- Restoration subsection -->
+      <div class="outlook-section" aria-labelledby="rest-h">
+        <div class="outlook-section__head">
+          <h3 class="outlook-q" id="rest-h">How long could restoration take?</h3>
+          <span class="label-chip" id="rest-label">Model estimate</span>
+        </div>
+
+        <p class="range-headline" id="rest-range">—</p>
+        <p class="muted" id="rest-confidence"></p>
+
+        <!-- Scenario controls -->
+        <div class="controls">
+        <div class="control">
+          <label for="crews">Crews on circuit <span class="muted" id="crews-value">2</span></label>
+          <input type="range" id="crews" min="1" max="10" step="1" value="2" />
+        </div>
+
+        <div class="control">
+          <span class="control__label">Road access</span>
+          <div class="segmented" role="radiogroup" aria-label="Road access">
+            <button type="button" data-access="auto" class="is-active" role="radio" aria-checked="true">Auto (model)</button>
+            <button type="button" data-access="on" role="radio" aria-checked="false">Force on</button>
+            <button type="button" data-access="off" role="radio" aria-checked="false">Force off</button>
+          </div>
+        </div>
+
+        <div class="control control--row">
+          <label class="switch">
+            <input type="checkbox" id="switching" checked />
+            <span>Switching available</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="critical" checked />
+            <span>Prioritize critical facilities</span>
+          </label>
+        </div>
+
+        <div class="control control--row">
+          <label class="switch">
+            <input type="checkbox" id="failed-fuse" />
+            <span>Upstream fuse failed on your line</span>
+          </label>
+        </div>
+      </div>
+
+      <p class="delta-note" id="rest-delta" hidden></p>
+
+      <div class="controls-footer">
+        <button type="button" id="reset-scenario" class="btn btn--ghost">Reset to defaults</button>
+      </div>
+
+      <details class="drivers">
+        <summary>What's driving this &amp; jobs ahead of you</summary>
+        <h3 class="subhead">What moves the estimate</h3>
+        <ul id="rest-drivers" class="drivers-list"></ul>
+        <h3 class="subhead">Jobs ahead of you</h3>
+        <ol id="rest-jobs" class="jobs-list"></ol>
+      </details>
+
+      <details class="history">
+        <summary>Recent changes</summary>
+        <ol id="change-history" class="history-list"><li class="muted">No changes yet.</li></ol>
+      </details>
+      </div><!-- /.outlook-section (restoration) -->
+    </section>
+
+    <!-- ---------- PREPARE ---------- -->
+    <section class="panel" aria-labelledby="prep-h">
+      <div class="panel__head">
+        <h2 id="prep-h">What should I do to prepare?</h2>
+        <span class="label-chip label-chip--action" id="prep-label">Your action</span>
+      </div>
+
+      <label class="switch switch--prominent">
+        <input type="checkbox" id="medical" />
+        <span>I use medical equipment that needs power</span>
+      </label>
+      <p class="muted small">We use this only for this session to tailor your steps and alerts. We never guess it from data.</p>
+
+      <div id="prep-safety" class="safety-stack"></div>
+      <p class="escalation-note" id="prep-escalation" hidden></p>
+
+      <h3 class="subhead">Checklist</h3>
+      <ul id="prep-checklist" class="checklist"></ul>
+    </section>
+
+    <!-- ---------- ALERTS & TIMELINE ---------- -->
+    <section class="panel" aria-labelledby="alerts-h">
+      <div class="panel__head">
+        <h2 id="alerts-h">Do I qualify for alerts?</h2>
+        <span class="eligible-chip" id="alerts-eligible">—</span>
+      </div>
+
+      <ul id="alerts-rules" class="rules-list"></ul>
+      <div id="alerts-escalations"></div>
+
+      <h3 class="subhead">Notifications <span class="muted small">(play the storm on the map above)</span></h3>
+      <ul id="notifications" class="notifications"><li class="muted">Messages appear as the storm plays.</li></ul>
+    </section>
+
+    <!-- ---------- CHAT ---------- -->
+    <section class="panel panel--chat" aria-labelledby="chat-h">
+      <div class="panel__head">
+        <h2 id="chat-h">Ask the concierge</h2>
+      </div>
+
+      <div id="chat-log" class="chat-log" aria-live="polite"></div>
+
+      <div class="chat-suggestions" id="chat-suggestions"></div>
+
+      <form id="chat-form" class="chat-form">
+        <label class="sr-only" for="chat-input">Your question</label>
+        <input id="chat-input" type="text" autocomplete="off"
+               placeholder="e.g. Will I lose power?" />
+        <button type="submit" class="btn">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="app-footer">
+    <p class="app-footer__disclaimer">
+      <strong>Model estimates, not official AEP information.</strong>
+      Map locations and damage counts are real (circuit CIR72). Risk and restoration numbers are illustrative sample data.
+    </p>
+    <div class="app-footer__actions">
+      <button type="button" id="open-assumptions" class="btn btn--ghost">Assumptions ⓘ</button>
+      <button type="button" id="clear-data" class="btn btn--ghost">Clear my data</button>
+    </div>
+    <p class="app-footer__privacy">
+      Your location and any needs you share are used only for this session and are not stored.
+    </p>
+  </footer>
+
+  <!-- ===================== ASSUMPTIONS MODAL ===================== -->
+  <div id="assumptions-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="assumptions-title">
+    <div class="modal__box">
+      <div class="modal__head">
+        <h2 id="assumptions-title">Assumptions &amp; limitations</h2>
+        <button type="button" id="close-assumptions" class="modal__close" aria-label="Close">×</button>
+      </div>
+      <ul id="assumptions-list" class="assumptions-list"></ul>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="app.js"></script>
+</body>
+</html>
