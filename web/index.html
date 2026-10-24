@@ -4,38 +4,59 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Outage Concierge · Roanoke area</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
-  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="/web/src/main.ts"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- ===================== HEADER ===================== -->
-  <header class="app-header">
-    <div class="app-header__title">
-      <span class="app-header__logo" aria-hidden="true">⚡</span>
-      <div>
-        <h1>AI Outage Concierge</h1>
-        <p class="app-header__sub" id="area-label">Roanoke area · circuit CIR72</p>
+  <!-- ===================== HEADER (AEP Ohio style) ===================== -->
+  <header class="site-header">
+    <!-- top brand bar: logo + utility controls -->
+    <div class="site-header__bar">
+      <a class="brand" href="#main" aria-label="Ohio Power Company home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 40 28" width="40" height="28" role="img" aria-hidden="true">
+            <polygon points="9,2 38,2 31,26 2,26" fill="none" stroke="currentColor" stroke-width="3.5" />
+          </svg>
+        </span>
+        <span class="brand__words">
+          <span class="brand__name">Ohio Power Company</span>
+          <span class="brand__tag">An AEP Company</span>
+        </span>
+      </a>
+
+      <div class="site-header__controls">
+        <label class="premise-picker">
+          <span class="sr-only">Pick a demo premise</span>
+          <span class="premise-picker__label">Premise</span>
+          <select id="premise-select" aria-label="Select a demo premise"></select>
+        </label>
+        <span class="mock-badge" title="All numbers below are illustrative sample data, not model output.">
+          Sample data
+        </span>
       </div>
     </div>
 
-    <div class="app-header__controls">
-      <label class="premise-picker">
-        <span class="sr-only">Pick a demo premise</span>
-        <span class="premise-picker__label">Premise</span>
-        <select id="premise-select" aria-label="Select a demo premise"></select>
-      </label>
-      <span class="mock-badge" title="All numbers below are illustrative sample data, not model output.">
-        Sample data
-      </span>
-    </div>
+    <!-- red primary navigation, mirroring aepohio.com -->
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list">
+        <li><a href="#main">My Account</a></li>
+        <li><a href="#main">Bills &amp; Payments</a></li>
+        <li><a class="is-active" href="#main" aria-current="page">Outages</a></li>
+        <li><a href="#prep-h">Safety</a></li>
+        <li><a href="#main">Savings</a></li>
+        <li><a href="#main">Company</a></li>
+      </ul>
+    </nav>
   </header>
+
+  <!-- page title strip -->
+  <div class="page-title">
+    <div class="page-title__inner">
+      <h1>AI Outage Concierge</h1>
+      <p class="page-title__sub" id="area-label">Roanoke area · circuit CIR72</p>
+    </div>
+  </div>
 
   <!-- ===================== MAIN GRID ===================== -->
   <main id="main" class="layout">
@@ -75,6 +96,24 @@
       <p class="privacy-note">
         Only your own location is shown. Other customers are never plotted. No street addresses are used.
       </p>
+    </section>
+
+    <!-- ---------- CHAT (right of the map) ---------- -->
+    <section class="panel panel--chat" aria-labelledby="chat-h">
+      <div class="panel__head">
+        <h2 id="chat-h">Ask the concierge</h2>
+      </div>
+
+      <div id="chat-log" class="chat-log" aria-live="polite"></div>
+
+      <div class="chat-suggestions" id="chat-suggestions"></div>
+
+      <form id="chat-form" class="chat-form">
+        <label class="sr-only" for="chat-input">Your question</label>
+        <input id="chat-input" type="text" autocomplete="off"
+               placeholder="e.g. Will I lose power?" />
+        <button type="submit" class="btn">Send</button>
+      </form>
     </section>
 
     <!-- ---------- OUTAGE OUTLOOK (risk + restoration combined) ---------- -->
@@ -192,7 +231,7 @@
     </section>
 
     <!-- ---------- PREPARE ---------- -->
-    <section class="panel" aria-labelledby="prep-h">
+    <section class="panel panel--prepare" aria-labelledby="prep-h">
       <div class="panel__head">
         <h2 id="prep-h">What should I do to prepare?</h2>
         <span class="label-chip label-chip--action" id="prep-label">Your action</span>
@@ -212,7 +251,7 @@
     </section>
 
     <!-- ---------- ALERTS & TIMELINE ---------- -->
-    <section class="panel" aria-labelledby="alerts-h">
+    <section class="panel panel--alerts" aria-labelledby="alerts-h">
       <div class="panel__head">
         <h2 id="alerts-h">Do I qualify for alerts?</h2>
         <span class="eligible-chip" id="alerts-eligible">—</span>
@@ -223,24 +262,6 @@
 
       <h3 class="subhead">Notifications <span class="muted small">(play the storm on the map above)</span></h3>
       <ul id="notifications" class="notifications"><li class="muted">Messages appear as the storm plays.</li></ul>
-    </section>
-
-    <!-- ---------- CHAT ---------- -->
-    <section class="panel panel--chat" aria-labelledby="chat-h">
-      <div class="panel__head">
-        <h2 id="chat-h">Ask the concierge</h2>
-      </div>
-
-      <div id="chat-log" class="chat-log" aria-live="polite"></div>
-
-      <div class="chat-suggestions" id="chat-suggestions"></div>
-
-      <form id="chat-form" class="chat-form">
-        <label class="sr-only" for="chat-input">Your question</label>
-        <input id="chat-input" type="text" autocomplete="off"
-               placeholder="e.g. Will I lose power?" />
-        <button type="submit" class="btn">Send</button>
-      </form>
     </section>
   </main>
 
@@ -271,12 +292,5 @@
   </div>
 
   <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
-
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
-  <script src="app.js"></script>
 </body>
 </html>
