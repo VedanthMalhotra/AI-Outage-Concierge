@@ -1,0 +1,211 @@
+AEP AI OUTAGE CONCIERGE - AWS SERVICES REQUIRED
+==============================================
+Covers the whole project: data cleaning -> model training -> backend + chatbot -> dashboard.
+Budget: $300 AWS credit. Expected spend: ~$40-90 if the guardrails below are followed.
+Costs are rough estimates. Check current prices on each service's AWS pricing page.
+
+Legend:  [REQUIRED] needed for the MVP   [OPTIONAL] nice to have   [AVOID] don't use
+Owner:   DATA = data owner   ML = ML teammate   DASH = dashboard teammate   ALL = everyone
+
+
+----------------------------------------------------------------------
+0. ACCOUNT SETUP + COST CONTROL  (hour 0, ~15 min, owner: DATA)
+----------------------------------------------------------------------
+[REQUIRED] AWS IAM / IAM Identity Center
+    - One login per teammate. No shared root account.
+    - One role per person, scoped to the project S3 bucket and SageMaker.
+    - Policy that only allows small CPU instance types (blocks GPU ml.g*/ml.p*).
+    - Cost: free
+
+[REQUIRED] AWS Budgets
+    - Email alerts to the whole team at $50, $100 and $200.
+    - Cost: free (first 2 budgets)
+
+[REQUIRED] AWS Billing console + Cost Explorer
+    - Check spend once per phase.
+    - Cost: free (console)
+
+[REQUIRED] One AWS Region for everything
+    - Pick one region where Claude Opus 5.5 is available on Amazon Bedrock
+      (check the Bedrock model list in the console before choosing).
+      Use the same region for S3, SageMaker, EC2.
+    - Tag every resource:  project=aep-outage-concierge
+
+[OPTIONAL] AWS CloudTrail (event history)
+    - Who did what, if something unexpected appears on the bill.
+    - Cost: free (default 90-day event history)
+
+
+----------------------------------------------------------------------
+1. STORAGE  (owner: DATA, used by ALL)
+----------------------------------------------------------------------
+[REQUIRED] Amazon S3 - one bucket: aep-outage-concierge-<team>
+    raw/         3 zips, labor workbook, structure drawings (upload once)
+    processed/   cleaned parquet tables, one folder per batch (DATA writes)
+    features/    model-ready feature tables (ML writes)
+    models/      model.joblib + metrics.json + features.json (ML writes)
+    - Settings: Block Public Access ON, default encryption (SSE-S3) ON,
+      lifecycle rule to delete processed/ and features/ after the hackathon.
+    - Never upload: addresses, road names, premise-level Life Support flag.
+    - Cost: < $1
+
+
+----------------------------------------------------------------------
+2. DATA CLEANING  (owner: DATA)
+----------------------------------------------------------------------
+[REQUIRED] Amazon SageMaker AI - Studio domain + JupyterLab space
+    - Python notebooks/scripts read raw/ and write processed/.
+    - Instance: ml.t3.medium for light work, ml.m5.xlarge for the large
+      line/pole files. CPU only.
+    - Turn ON idle auto-shutdown (e.g. 60 min).
+    - Cost: ~$0.05-0.25 per hour while running -> ~$5-10 total
+
+[OPTIONAL] SageMaker Processing job
+    - Re-run the final cleaning scripts as one repeatable job.
+    - Cost: ~$1-2
+
+[OPTIONAL] Amazon Athena (+ AWS Glue Data Catalog table definitions)
+    - Quick SQL checks on the cleaned parquet in S3 (row counts, nulls).
+    - Cost: cents (charged per data scanned, tiny here)
+
+[AVOID] AWS Glue ETL jobs, Glue DataBrew, Amazon EMR
+    - No native shapefile support, poor at spatial joins, overkill for ~32 MB.
+
+
+----------------------------------------------------------------------
+3. FEATURE ENGINEERING + MODEL TRAINING  (owner: ML)
+----------------------------------------------------------------------
+[REQUIRED] Amazon SageMaker AI - Studio JupyterLab space (same domain)
+    - scikit-learn: logistic regression (risk, access), Poisson regression
+      (expected damage). Train on Feb 2025, validate on Sep 2024.
+    - CPU only (ml.t3.medium / ml.m5.large is enough).
+    - Output to S3 models/: model.joblib, metrics.json, features.json,
+      coefficient table (used for plain-language explanations).
+    - Cost: ~$5-10 total
+
+[OPTIONAL] SageMaker Model Registry
+    - Version the three models.
+    - Cost: free (storage is in S3)
+
+[OPTIONAL] SageMaker real-time or serverless endpoint
+    - Only as a "show-off" during judging. The MVP doesn't need it: the
+      backend downloads model files from S3 and predicts locally.
+    - If used: create just before judging, DELETE right after.
+    - Cost: ~$0-5
+
+[AVOID] SageMaker Canvas, SageMaker Data Wrangler, managed MLflow tracking
+        server, any GPU instance (ml.g*, ml.p*)
+    - Charged per session or hour, or uses large default instances.
+      Not needed for this data size. Use metrics.json for experiment tracking.
+
+
+----------------------------------------------------------------------
+4. AI CHATBOT  (owner: backend builder, default DATA after hour 8)
+----------------------------------------------------------------------
+[REQUIRED] Amazon Bedrock - Claude Opus 5.5
+    - Request model access in the Bedrock console on day 1 (can take time).
+    - Called from the backend with tool use. The chatbot only calls our
+      risk / restoration / guidance / alert functions.
+    - Cost controls: cap response length, low/medium effort, prompt caching
+      for the fixed system prompt + tool definitions, max turns per session.
+      Rehearse in offline mode (free).
+    - Cost: ~$20-60 (a few cents per chat turn)
+    - CHECK FIRST: confirm your AWS credits cover Claude on Bedrock. If not,
+      use the Anthropic API directly (outside AWS) and keep the AWS credits
+      for everything else.
+
+[OPTIONAL] Amazon Bedrock Guardrails
+    - Extra PII filter on chat input/output on top of our own privacy filter.
+    - Cost: charged per text processed (small at demo volume)
+
+
+----------------------------------------------------------------------
+5. BACKEND API + DASHBOARD HOSTING  (owner: backend builder + DASH)
+----------------------------------------------------------------------
+[REQUIRED] Amazon EC2 - one small instance (e.g. t3.small or t3.medium)
+    - Runs the FastAPI backend (risk/restoration/guidance/alerts/timeline/chat
+      endpoints). It also serves the dashboard's static HTML/JS/CSS.
+    - At startup, loads model files from S3 models/.
+    - Gets permissions through an IAM instance role (S3 read, Bedrock invoke).
+      No keys stored on the server.
+    - Security group: open only port 443/80 (or your demo port) + SSH from
+      your IP.
+    - STOP the instance when not testing.
+    - Cost: ~$0.02-0.05 per hour -> ~$2-10 total
+    - Fallback: the whole app also runs on a laptop for the demo (offline mode).
+
+[OPTIONAL] AWS Systems Manager Parameter Store (or AWS Secrets Manager)
+    - Store config (bucket name, model paths, Anthropic API key if not using
+      Bedrock).
+    - Cost: Parameter Store standard = free; Secrets Manager ~$0.40/secret/month
+
+[OPTIONAL] Amazon CloudWatch Logs
+    - App logs and the audit log, with log retention set to 7 days
+      (matches the data-retention policy in docs/mvp-plan.md section 9b).
+    - Cost: cents at this volume
+
+[OPTIONAL] Amazon S3 static website + Amazon CloudFront, or AWS Amplify Hosting
+    - Only if you want the dashboard hosted separately from the API (HTTPS
+      link to share with judges). Not needed if EC2 serves it.
+    - Cost: ~$0-2
+
+[OPTIONAL] Amazon SNS (email only)
+    - Send the 4 proactive messages to a teammate's email during the demo.
+    - [AVOID] real SMS: US text messaging needs a registered sending number,
+      which takes days to approve. Show SMS text in the dashboard feed instead.
+    - Cost: free tier covers demo volume
+
+
+----------------------------------------------------------------------
+6. NOT NEEDED (don't create these)
+----------------------------------------------------------------------
+[AVOID] Amazon Redshift, Amazon OpenSearch, Amazon Kinesis, Amazon MSK,
+        NAT Gateways, AWS Glue jobs, Amazon EMR, SageMaker Canvas,
+        SageMaker Data Wrangler, GPU instances, always-on endpoints
+    - None are needed, and some cost money every hour just by existing.
+
+
+----------------------------------------------------------------------
+7. COST SUMMARY (rough)
+----------------------------------------------------------------------
+    S3 storage ............................ < $1
+    SageMaker Studio (cleaning + ML) ....... ~$10-20
+    SageMaker endpoint (optional) .......... ~$0-5
+    Bedrock Claude (chat testing + demo) ... ~$20-60
+    EC2 backend + dashboard ................ ~$2-10
+    CloudWatch / SNS / Parameter Store ..... ~$0-2
+    ---------------------------------------------
+    TOTAL .................................. ~$40-90  (of $300)
+
+    Biggest risks to the budget: notebooks left running overnight, a GPU
+    instance, a forgotten endpoint, a chatbot loop. All are covered by the
+    guardrails in section 0.
+
+
+----------------------------------------------------------------------
+8. PYTHON PACKAGES PER ENVIRONMENT (for reference)
+----------------------------------------------------------------------
+SageMaker - data cleaning (DATA):
+    pandas, numpy, pyarrow, geopandas, shapely, pyogrio (or pyshp), boto3
+SageMaker - modelling (ML):
+    pandas, numpy, pyarrow, scikit-learn, joblib, boto3
+EC2 - backend + chatbot:
+    fastapi, uvicorn, pandas, numpy, scikit-learn, joblib, boto3,
+    anthropic  (official Anthropic Python SDK; also supports Bedrock)
+Dashboard (no Python):
+    HTML + JavaScript + Leaflet (loaded from a CDN)
+
+
+----------------------------------------------------------------------
+9. DAY-1 CHECKLIST
+----------------------------------------------------------------------
+[ ] Confirm with mentors: OK to upload challenge data to our AWS account?
+[ ] Confirm credits cover Amazon Bedrock (Claude)
+[ ] Choose region (Claude Opus 5.5 available on Bedrock there)
+[ ] IAM logins for 3 teammates + CPU-only instance policy
+[ ] AWS Budgets alerts at $50 / $100 / $200
+[ ] S3 bucket with Block Public Access + encryption + lifecycle rule
+[ ] Upload raw/ files
+[ ] SageMaker Studio domain + JupyterLab spaces with idle shutdown
+[ ] Request Bedrock model access for Claude Opus 5.5
+[ ] (Later) EC2 instance with IAM role for S3 read + Bedrock invoke
