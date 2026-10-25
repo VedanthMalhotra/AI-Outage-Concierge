@@ -32,6 +32,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from . import concierge
+from . import predict
 from . import predictions
 from . import topology as topo
 from .config import get_settings
@@ -107,8 +108,10 @@ your street. This is an estimate, not a confirmed outage."
 instead of 24."
 
 Tools and memory:
-- Use the tools whenever the user asks about their outage risk, restoration time, preparation or \
-alerts. Call a tool again with new inputs for "what if" questions.
+- Use the tools whenever the user asks about their outage risk, restoration time, preparation, \
+alerts, how sure we are, which part of their line is weakest, whether their fridge, freezer or heat \
+will last, or talking to a person. Call a tool again with new inputs for "what if" questions.
+- Reply in the language the customer writes in (for example Spanish). Keep numbers the same.
 - Remember what this user told you earlier in this conversation (for example that they use \
 medical equipment) and use it. Repeating the user's OWN information back to them when they ask \
 is fine.
@@ -243,9 +246,67 @@ def _tool_guidance(s: Session, args: dict) -> dict:
 
 def _tool_alerts(s: Session, args: dict) -> dict:
     a = concierge.alerts(s.premise_id)["variants"]["medical" if args.get("medical_equipment") else "no-needs"]
+    when = {"pre_storm": "about a day before the storm", "outage_confirmed": "as soon as an outage on your line is confirmed",
+            "estimate_updated": "after crews assess the damage", "restored": "when repairs on your line are done"}
+    msgs = [{"when": when.get(m["type"], m["type"]), "channels": m.get("channel", []), "text": m["text"]}
+            for st in concierge.timeline(s.premise_id)["steps"] for m in st.get("messages", [])]
     return {"eligible": a["eligible"],
             "rules": [{"name": r["name"], "applies": r["met"], "why": r["why"]} for r in a["rules"]],
-            "escalations": a["escalations"], "note": a["note"]}
+            "escalations": a["escalations"], "example_messages_for_this_home": msgs,
+            "messages_note": "Example texts for a Feb-2025-like storm; numbers are model estimates.", "note": a["note"]}
+
+
+def _tool_confidence(s: Session, _: dict) -> dict:
+    r = predictions.predict_risk(s.premise_id, s.scenario["storm_severity"])
+    if "error" in r:
+        return r
+    return {"confidence": r["confidence"], "why": r["confidence_reason"],
+            "what_could_change_it": ["how strong the storm really is (we have no weather data, so it's a setting)",
+                                     "where the storm hits: storms hit different areas",
+                                     "how many crews are available and road access"],
+            "main_assumptions": concierge.ASSUMPTIONS[:6]}
+
+
+def _tool_weakest_link(s: Session, _: dict) -> dict:
+    sev = s.scenario["storm_severity"]
+    path = predict._path(s.premise_id) or []
+    scored = [(l, predict.link_detail(l, sev)) for l in path]
+    zones = [(l, d) for l, d in scored if d and l in predict.engine().zones.index]
+    if not zones:
+        return {"error": "No equipment chain is recorded for this location."}
+    link, d = max(zones, key=lambda x: x[1]["p_damage"])
+    return {"weakest_part": "the safety switch and line section that protects your home" if link == topo.find_premise(get_store(), s.premise_id).get("zone_id")
+            else "a safety switch and line section further up the line toward the substation",
+            "chance_it_is_damaged": d["p_damage"], "band": d["band"], "why": d["reason"],
+            "sections_between_home_and_substation": len(zones), "label": "Model estimate"}
+
+
+def _tool_what_lasts(s: Session, args: dict) -> dict:
+    sc = s.scenario
+    r = predict.simulate(s.premise_id, sc["crews"], sc["storm_severity"], sc["access"],
+                         sc["switching_available"], None, sc["prioritize_critical"])
+    runs = r["runs"]
+    heat = {"before 1970": 8, "1970-2000": 23, "after 2000": 45}
+    items = {"fridge": 4, "full freezer": 48, "half-full freezer": 24,
+             f"home heat (built {args.get('home_built', '1970-2000')})": heat.get(args.get("home_built", "1970-2000"), 23)}
+    if args.get("device_battery_hours"):
+        items["medical device battery"] = float(args["device_battery_hours"])
+    out = {k: {"lasts_hours": h, "chance_outage_is_longer": round(sum(x > h for x in runs) / len(runs), 2)} for k, h in items.items()}
+    return {"if_power_goes_out_likely_hours": [r["p10"], r["p90"]], "most_likely_hours": r["p50"], "items": out,
+            "sources": "USDA (fridge 4 h, freezer 48 h full / 24 h half), RMI Hours of Safety (home heat until 40F)",
+            "label": "Model estimate"}
+
+
+def _tool_human_help(s: Session, args: dict) -> dict:
+    a = concierge.alerts(s.premise_id)["variants"]["medical" if args.get("medical_equipment") else "no-needs"]
+    return {"emergency": "For any emergency, downed line, fire or medical problem: call 911 now.",
+            "human_follow_up_rules": [
+                "Customers who declare medical equipment get earlier notice, a phone-call option and a flag for human follow-up when risk is High or the outage could last over 4 hours.",
+                "When we can't estimate a home reliably (low confidence), the case is routed to human review."],
+            "applies_to_this_customer": [e["name"] for e in a["escalations"]],
+            "how_a_person_reaches_you": "If a follow-up rule applies, AEP contacts you; this assistant can't open a call or chat with a person.",
+            "do_not_add": "Do not mention websites, phone numbers or business hours; none are provided here.",
+            "note": "These are challenge rules, not AEP policy."}
 
 
 TOOLS: dict[str, tuple[Any, str, dict]] = {
@@ -259,7 +320,14 @@ TOOLS: dict[str, tuple[Any, str, dict]] = {
         "prioritize_critical": {"type": "boolean"}}),
     "get_preparation_guidance": (_tool_guidance, "Safety messages and a preparation checklist.", {
         "medical_equipment": {"type": "boolean", "description": "true only if the customer said they use medical equipment"}}),
-    "check_alerts": (_tool_alerts, "Whether the customer qualifies for outage alerts, which ones, and escalations.", {
+    "check_alerts": (_tool_alerts, "Whether the customer qualifies for outage alerts, which ones, escalations, and the example alert texts this home would receive.", {
+        "medical_equipment": {"type": "boolean", "description": "true only if the customer said they use medical equipment"}}),
+    "get_confidence": (_tool_confidence, "How sure the estimates are, why, what could change them, and the main assumptions.", {}),
+    "get_weakest_link": (_tool_weakest_link, "Which part of the line feeding the customer's home is most likely to be damaged, and why.", {}),
+    "check_what_lasts": (_tool_what_lasts, "Whether the fridge, freezer, home heat (and a declared medical device battery) would last through the likely outage.", {
+        "home_built": {"type": "string", "enum": ["before 1970", "1970-2000", "after 2000"], "description": "when the home was built, if the customer said"},
+        "device_battery_hours": {"type": "number", "description": "battery hours of a medical device, only if the customer said"}}),
+    "get_human_help": (_tool_human_help, "When and how a person follows up, and emergency instructions. Use for 'can I talk to someone' questions.", {
         "medical_equipment": {"type": "boolean", "description": "true only if the customer said they use medical equipment"}}),
 }
 TOOL_CONFIG = {"tools": [
