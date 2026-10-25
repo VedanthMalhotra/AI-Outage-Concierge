@@ -26,3 +26,9 @@ web/.env
 web/.env.local
 .vite/
 node_modules/
+
+# local data copies (never commit data)
+data/features/
+data/processed/
+data/models/
+data/raw/
