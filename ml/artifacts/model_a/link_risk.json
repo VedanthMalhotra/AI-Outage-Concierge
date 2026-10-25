@@ -1,0 +1,4601 @@
+{
+  "event": "feb2025",
+  "severities": [
+    0.5,
+    1.0,
+    1.5,
+    2.0
+  ],
+  "links": {
+    "37800298D00183": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800298D06007": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322B00146": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322B46062": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322C00081": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0153,
+        "1.0": 0.0528,
+        "1.5": 0.1672,
+        "2.0": 0.4194
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800322C00082": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322C00102": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.1474,
+        "1.0": 0.3836,
+        "1.5": 0.6913,
+        "2.0": 0.8896
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800322C00108": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0205,
+        "1.0": 0.0701,
+        "1.5": 0.2134,
+        "2.0": 0.494
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800322C00118": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.2771,
+        "1.0": 0.5797,
+        "1.5": 0.8323,
+        "2.0": 0.947
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800322C00137": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322C04022": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322D00027": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.0484,
+        "1.0": 0.1548,
+        "1.5": 0.3972,
+        "2.0": 0.7034
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "Moderate",
+        "2.0": "Very High"
+      }
+    },
+    "37800322D00033": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.0096,
+        "1.0": 0.0338,
+        "1.5": 0.1119,
+        "2.0": 0.3119
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800322D00035": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322D00047": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0384,
+        "1.0": 0.1256,
+        "1.5": 0.3409,
+        "2.0": 0.6504
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800322D00052": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0383,
+        "1.0": 0.1253,
+        "1.5": 0.3402,
+        "2.0": 0.6498
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800322D00064": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322D00067": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0572,
+        "1.0": 0.1792,
+        "1.5": 0.4399,
+        "2.0": 0.7386
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800322D00168": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322D06019": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322D06046": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322D26054": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1144
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322D36066": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800322D40006": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.1889,
+        "1.0": 0.4559,
+        "1.5": 0.7509,
+        "2.0": 0.9156
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800323A00090": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323A00091": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.1303,
+        "1.0": 0.3502,
+        "1.5": 0.6598,
+        "2.0": 0.8747
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800323A00175": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0385,
+        "1.0": 0.1261,
+        "1.5": 0.3417,
+        "2.0": 0.6513
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800323A00273": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323A00280": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323A00282": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323A00299": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B00044": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B00048": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B00059": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B00065": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B00071": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B00075": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B00084": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.073,
+        "1.0": 0.2209,
+        "1.5": 0.5051,
+        "2.0": 0.786
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800323B00145": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B00150": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B00214": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.039,
+        "1.0": 0.1273,
+        "1.5": 0.3442,
+        "2.0": 0.6538
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800323B02009": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B02016": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B02030": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B02037": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323B26156": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.3825,
+        "1.0": 0.6903,
+        "1.5": 0.8891,
+        "2.0": 0.9665
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800323D00036": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323D00083": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323D00085": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1144
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323D00157": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0119,
+        "1.0": 0.0414,
+        "1.5": 0.1345,
+        "2.0": 0.3586
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800323D00164": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323D00170": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0141,
+        "1.0": 0.0488,
+        "1.5": 0.1558,
+        "2.0": 0.3991
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "Moderate"
+      }
+    },
+    "37800323D00188": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.009,
+        "1.0": 0.0317,
+        "1.5": 0.1054,
+        "2.0": 0.2978
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800323D00191": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0383,
+        "1.0": 0.1253,
+        "1.5": 0.3402,
+        "2.0": 0.6498
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800323D00257": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323D06017": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323D06019": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323D06025": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.05,
+        "1.0": 0.1593,
+        "1.5": 0.4055,
+        "2.0": 0.7105
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800323D06028": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0528,
+        "1.0": 0.1669,
+        "1.5": 0.419,
+        "2.0": 0.7218
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800323D06030": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800323D06039": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.2032,
+        "1.0": 0.4785,
+        "1.5": 0.7676,
+        "2.0": 0.9224
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800323D06041": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "A large share of poles on this segment are over 50 years old.",
+      "p_damage": {
+        "0.5": 0.1822,
+        "1.0": 0.445,
+        "1.5": 0.7426,
+        "2.0": 0.9122
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800323D06043": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346A00074": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0362,
+        "1.0": 0.119,
+        "1.5": 0.327,
+        "2.0": 0.6362
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800346A00082": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0637,
+        "1.0": 0.1967,
+        "1.5": 0.4684,
+        "2.0": 0.7602
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346A00131": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0121,
+        "1.0": 0.0423,
+        "1.5": 0.1372,
+        "2.0": 0.3639
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800346A00133": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0665,
+        "1.0": 0.2042,
+        "1.5": 0.48,
+        "2.0": 0.7686
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346A00193": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346B00024": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346B00028": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346B00053": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.3132,
+        "1.0": 0.6214,
+        "1.5": 0.8552,
+        "2.0": 0.9551
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346B00058": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0078,
+        "1.0": 0.0275,
+        "1.5": 0.0925,
+        "2.0": 0.2683
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800346B00153": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346B02001": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346B36045": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.1092,
+        "1.0": 0.3062,
+        "1.5": 0.6136,
+        "2.0": 0.8511
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346B36047": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C00038": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0098,
+        "1.5": 0.0345,
+        "2.0": 0.114
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C00062": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C00072": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0103,
+        "1.0": 0.0363,
+        "1.5": 0.1193,
+        "2.0": 0.3276
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800346C00105": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C00156": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C00159": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C00167": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C00174": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1142
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C00246": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C00257": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346C10270": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00001": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0154,
+        "1.0": 0.0534,
+        "1.5": 0.1688,
+        "2.0": 0.4222
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800346D00003": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.045,
+        "1.0": 0.1451,
+        "1.5": 0.3792,
+        "2.0": 0.6873
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800346D00004": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00005": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1141
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00006": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0554,
+        "1.0": 0.1742,
+        "1.5": 0.4316,
+        "2.0": 0.732
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346D00007": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0238,
+        "1.0": 0.0807,
+        "1.5": 0.2401,
+        "2.0": 0.532
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800346D00010": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00015": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00019": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.0286,
+        "1.0": 0.0956,
+        "1.5": 0.2757,
+        "2.0": 0.578
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800346D00021": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0635,
+        "1.0": 0.1961,
+        "1.5": 0.4674,
+        "2.0": 0.7595
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346D00023": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1141
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00030": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00035": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0384,
+        "1.0": 0.1256,
+        "1.5": 0.3409,
+        "2.0": 0.6504
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800346D00044": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0027,
+        "1.0": 0.0098,
+        "1.5": 0.0345,
+        "2.0": 0.1138
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00049": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00067": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1144
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00077": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1144
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00082": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00086": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00109": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00118": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00136": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0098,
+        "1.5": 0.0345,
+        "2.0": 0.114
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00149": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00186": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00187": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00202": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1142
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00205": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0104,
+        "1.0": 0.0365,
+        "1.5": 0.12,
+        "2.0": 0.3291
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800346D00211": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00213": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00236": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00245": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D00257": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.0795,
+        "1.0": 0.2372,
+        "1.5": 0.5281,
+        "2.0": 0.8011
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346D06002": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.009,
+        "1.0": 0.0318,
+        "1.5": 0.1056,
+        "2.0": 0.2981
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800346D06006": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.1467,
+        "1.0": 0.3821,
+        "1.5": 0.69,
+        "2.0": 0.889
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346D06010": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.0582,
+        "1.0": 0.1818,
+        "1.5": 0.4443,
+        "2.0": 0.7421
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346D06023": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D06024": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D06025": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D06031": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1142
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D09786": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.009,
+        "1.0": 0.0318,
+        "1.5": 0.1057,
+        "2.0": 0.2985
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800346D09814": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.1392,
+        "1.0": 0.3679,
+        "1.5": 0.6768,
+        "2.0": 0.8828
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800346D09817": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0255,
+        "1.0": 0.0861,
+        "1.5": 0.2532,
+        "2.0": 0.5495
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800346D42051": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1141
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800346D42054": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00004": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1144
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00050": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00058": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00060": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1142
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00067": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00073": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1141
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00080": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.0215,
+        "1.0": 0.0732,
+        "1.5": 0.2212,
+        "2.0": 0.5054
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347A00083": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0157,
+        "1.0": 0.0543,
+        "1.5": 0.1712,
+        "2.0": 0.4264
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347A00085": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.0357,
+        "1.0": 0.1176,
+        "1.5": 0.3241,
+        "2.0": 0.6331
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347A00092": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00093": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0441,
+        "1.0": 0.1423,
+        "1.5": 0.3739,
+        "2.0": 0.6824
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347A00098": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00101": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0105,
+        "1.0": 0.0366,
+        "1.5": 0.1203,
+        "2.0": 0.3299
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347A00104": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0105,
+        "1.0": 0.0366,
+        "1.5": 0.1203,
+        "2.0": 0.3299
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347A00105": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0155,
+        "1.0": 0.0536,
+        "1.5": 0.1693,
+        "2.0": 0.4232
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347A00114": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00139": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0091,
+        "1.0": 0.032,
+        "1.5": 0.1062,
+        "2.0": 0.2995
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347A00142": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0139,
+        "1.0": 0.0482,
+        "1.5": 0.1541,
+        "2.0": 0.396
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347A00148": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0383,
+        "1.0": 0.1253,
+        "1.5": 0.3402,
+        "2.0": 0.6498
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347A00154": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.1137,
+        "1.0": 0.3157,
+        "1.5": 0.6241,
+        "2.0": 0.8566
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347A00232": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00233": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00361": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00364": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00391": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00393": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A00417": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.2994,
+        "1.0": 0.6059,
+        "1.5": 0.8469,
+        "2.0": 0.9522
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347A00422": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A02032": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A26052": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.3019,
+        "1.0": 0.6087,
+        "1.5": 0.8485,
+        "2.0": 0.9527
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347A30071": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A30435": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A36043": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A46158": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347A46172": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.7218,
+        "1.0": 0.9033,
+        "1.5": 0.9711,
+        "2.0": 0.9918
+      },
+      "band": {
+        "0.5": "Very High",
+        "1.0": "Very High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347B00046": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B00109": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.014,
+        "1.0": 0.0485,
+        "1.5": 0.155,
+        "2.0": 0.3976
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347B00110": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0183,
+        "1.0": 0.0629,
+        "1.5": 0.1946,
+        "2.0": 0.4651
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347B00111": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0161,
+        "1.0": 0.0556,
+        "1.5": 0.1749,
+        "2.0": 0.4328
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347B00112": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0104,
+        "1.0": 0.0364,
+        "1.5": 0.1198,
+        "2.0": 0.3287
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347B00172": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.5383,
+        "1.0": 0.8075,
+        "1.5": 0.9379,
+        "2.0": 0.9819
+      },
+      "band": {
+        "0.5": "High",
+        "1.0": "Very High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347B00202": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B00203": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B00208": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B00345": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B02035": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B02039": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B16055": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B16063": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B16078": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0161,
+        "1.0": 0.0556,
+        "1.5": 0.1749,
+        "2.0": 0.4328
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347B16181": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B22049": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0077,
+        "1.0": 0.0273,
+        "1.5": 0.0916,
+        "2.0": 0.2663
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347B22050": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.012,
+        "1.0": 0.042,
+        "1.5": 0.1362,
+        "2.0": 0.362
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347B26076": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347B46148": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C00008": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0178,
+        "1.0": 0.0612,
+        "1.5": 0.19,
+        "2.0": 0.4577
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347C00017": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.018,
+        "1.0": 0.062,
+        "1.5": 0.1921,
+        "2.0": 0.461
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347C00039": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0346,
+        "2.0": 0.1144
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C00049": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.018,
+        "1.0": 0.062,
+        "1.5": 0.1922,
+        "2.0": 0.4613
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347C00059": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C00061": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C00192": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C00287": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C00290": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.1111,
+        "1.0": 0.3103,
+        "1.5": 0.6182,
+        "2.0": 0.8535
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347C00294": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C00328": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.0857,
+        "1.0": 0.2522,
+        "1.5": 0.5482,
+        "2.0": 0.8137
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347C00349": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C04023": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C04027": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.012,
+        "1.0": 0.042,
+        "1.5": 0.1363,
+        "2.0": 0.3622
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347C04028": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C04030": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C04034": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C04040": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0654,
+        "1.0": 0.2011,
+        "1.5": 0.4753,
+        "2.0": 0.7653
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347C04050": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C04071": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C04080": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347C16045": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.051,
+        "1.0": 0.1621,
+        "1.5": 0.4105,
+        "2.0": 0.7147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347C40010": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.1312,
+        "1.0": 0.3521,
+        "1.5": 0.6617,
+        "2.0": 0.8756
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347D00022": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.1387,
+        "1.0": 0.3669,
+        "1.5": 0.6759,
+        "2.0": 0.8824
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347D00025": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0078,
+        "1.0": 0.0275,
+        "1.5": 0.0923,
+        "2.0": 0.2679
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347D00039": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0947,
+        "1.0": 0.2735,
+        "1.5": 0.5753,
+        "2.0": 0.8298
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800347D00062": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.0215,
+        "1.0": 0.0733,
+        "1.5": 0.2215,
+        "2.0": 0.5059
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347D00116": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.0382,
+        "1.0": 0.1252,
+        "1.5": 0.3399,
+        "2.0": 0.6494
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800347D00118": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347D00121": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0079,
+        "1.0": 0.0278,
+        "1.5": 0.0932,
+        "2.0": 0.27
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347D00171": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347D00255": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347D00281": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347D06009": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347D16033": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0071,
+        "1.0": 0.0252,
+        "1.5": 0.0851,
+        "2.0": 0.2508
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347D16128": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0091,
+        "1.0": 0.0321,
+        "1.5": 0.1066,
+        "2.0": 0.3004
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347D16129": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347D36038": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800347D36167": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0091,
+        "1.0": 0.0321,
+        "1.5": 0.1066,
+        "2.0": 0.3004
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800347D36168": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800348A10030": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800348A10046": {
+      "device_type": "Recloser (Hydraulic)",
+      "link_kind": "zone",
+      "reason": "This segment is protected by a recloser, which retries after a temporary fault.",
+      "p_damage": {
+        "0.5": 0.1173,
+        "1.0": 0.3235,
+        "1.5": 0.6325,
+        "2.0": 0.861
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800348A11035": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0328,
+        "1.0": 0.1088,
+        "1.5": 0.3052,
+        "2.0": 0.6125
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800348A11090": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800348A20054": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0325,
+        "1.0": 0.1078,
+        "1.5": 0.303,
+        "2.0": 0.6101
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800348A21016": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800348A21028": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800348A21041": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800348A21043": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0725,
+        "1.0": 0.2196,
+        "1.5": 0.5031,
+        "2.0": 0.7847
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800348A21060": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800348A21315": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0091,
+        "1.0": 0.0321,
+        "1.5": 0.1066,
+        "2.0": 0.3004
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800348A21316": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800370A00016": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0552,
+        "1.0": 0.1737,
+        "1.5": 0.4306,
+        "2.0": 0.7313
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800370A00251": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0347,
+        "2.0": 0.1145
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800370A00314": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.034,
+        "1.0": 0.1125,
+        "1.5": 0.3132,
+        "2.0": 0.6214
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800370C00004": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800370C00006": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800370C00007": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0136,
+        "1.0": 0.0471,
+        "1.5": 0.1511,
+        "2.0": 0.3905
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "Moderate"
+      }
+    },
+    "37800370C00010": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800370C00136": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0103,
+        "1.0": 0.0361,
+        "1.5": 0.1188,
+        "2.0": 0.3266
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800370C00142": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.1799,
+        "1.0": 0.4412,
+        "1.5": 0.7396,
+        "2.0": 0.9109
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800370C00179": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0258,
+        "1.0": 0.0871,
+        "1.5": 0.2556,
+        "2.0": 0.5527
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800370C00194": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800370C00260": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800370C00279": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800370C00289": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1147
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800370C04010": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0121,
+        "1.0": 0.0422,
+        "1.5": 0.1369,
+        "2.0": 0.3633
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800371000004": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371000008": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.169,
+        "1.0": 0.4225,
+        "1.5": 0.7248,
+        "2.0": 0.9045
+      },
+      "band": {
+        "0.5": "Moderate",
+        "1.0": "High",
+        "1.5": "Very High",
+        "2.0": "Very High"
+      }
+    },
+    "37800371000015": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371000017": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371000027": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0971,
+        "1.0": 0.2789,
+        "1.5": 0.5819,
+        "2.0": 0.8336
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Moderate",
+        "1.5": "High",
+        "2.0": "Very High"
+      }
+    },
+    "37800371000028": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371000041": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "This zone feeds many transformers, so a zone fault reaches many homes.",
+      "p_damage": {
+        "0.5": 0.0366,
+        "1.0": 0.1202,
+        "1.5": 0.3296,
+        "2.0": 0.6388
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800371000044": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+      "p_damage": {
+        "0.5": 0.0459,
+        "1.0": 0.1477,
+        "1.5": 0.384,
+        "2.0": 0.6917
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800371000092": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371000105": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371000149": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0187,
+        "1.0": 0.0643,
+        "1.5": 0.1983,
+        "2.0": 0.4709
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Moderate",
+        "2.0": "High"
+      }
+    },
+    "37800371000172": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371000174": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0351,
+        "2.0": 0.1156
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371000198": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371C10221": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.01,
+        "1.5": 0.0349,
+        "2.0": 0.1152
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    },
+    "37800371C10238": {
+      "device_type": "Fuse",
+      "link_kind": "zone",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+      "p_damage": {
+        "0.5": 0.0091,
+        "1.0": 0.0319,
+        "1.5": 0.106,
+        "2.0": 0.299
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Moderate"
+      }
+    },
+    "37800371C10240": {
+      "device_type": "Transformer",
+      "link_kind": "transformer",
+      "reason": "Many homes share this segment, so a single fault here affects a wide area.",
+      "p_damage": {
+        "0.5": 0.0028,
+        "1.0": 0.0099,
+        "1.5": 0.0348,
+        "2.0": 0.1149
+      },
+      "band": {
+        "0.5": "Low",
+        "1.0": "Low",
+        "1.5": "Low",
+        "2.0": "Low"
+      }
+    }
+  }
+}

@@ -62,9 +62,15 @@ class ChainLink(BaseModel):
     # enriched from the device/transformer tables where available:
     lat: Optional[float] = None
     lon: Optional[float] = None
-    customers_downstream: Optional[int] = None
     rating: Optional[str] = None
     automated: Optional[bool] = None
+    # Model A risk (present when the link-risk lookup covers this link):
+    p_damage: Optional[float] = None
+    band: Optional[str] = None
+    reason: Optional[str] = None
+    # NOTE: per-link customer counts are intentionally omitted. This view shows
+    # only this home's path to the substation and must not reveal how many other
+    # homes sit behind shared upstream equipment.
 
 
 class PowerPathResponse(BaseModel):
@@ -72,6 +78,13 @@ class PowerPathResponse(BaseModel):
     circuit_id: str
     links: list[ChainLink]
     note: str
+    # "good"  = full recorded chain; "fallback" = chain missing, synthesized.
+    coverage: str = "good"
+    # Derived summary + per-home risk (A->home), present when any link scored:
+    storm_severity: float = 1.0
+    weakest_link_step: Optional[int] = None
+    home_probability: Optional[float] = None
+    home_band: Optional[str] = None
 
 
 class Device(BaseModel):

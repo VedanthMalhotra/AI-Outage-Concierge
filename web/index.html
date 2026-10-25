@@ -26,9 +26,22 @@
       </a>
 
       <div class="site-header__controls">
+        <form id="premise-lookup-form" class="premise-lookup" role="search">
+          <label class="premise-picker__label" for="premise-id-input">Premise ID</label>
+          <input
+            id="premise-id-input"
+            name="premise-id"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="Enter a premise ID"
+            aria-label="Enter a premise ID to look up on the map"
+          />
+          <button type="submit" class="btn btn--sm" id="premise-lookup-go">Go</button>
+        </form>
         <label class="premise-picker">
-          <span class="sr-only">Pick a demo premise</span>
-          <span class="premise-picker__label">Premise</span>
+          <span class="sr-only">Or pick a demo premise</span>
+          <span class="premise-picker__label">Demo</span>
           <select id="premise-select" aria-label="Select a demo premise"></select>
         </label>
         <span class="mock-badge" title="All numbers below are illustrative sample data, not model output.">
@@ -36,24 +49,13 @@
         </span>
       </div>
     </div>
-
-    <!-- red primary navigation, mirroring aepohio.com -->
-    <nav class="site-nav" aria-label="Primary">
-      <ul class="site-nav__list">
-        <li><a href="#main">My Account</a></li>
-        <li><a href="#main">Bills &amp; Payments</a></li>
-        <li><a class="is-active" href="#main" aria-current="page">Outages</a></li>
-        <li><a href="#prep-h">Safety</a></li>
-        <li><a href="#main">Savings</a></li>
-        <li><a href="#main">Company</a></li>
-      </ul>
-    </nav>
   </header>
 
   <!-- page title strip -->
   <div class="page-title">
     <div class="page-title__inner">
       <h1>AI Outage Concierge</h1>
+      <span class="page-title__sep" aria-hidden="true">·</span>
       <p class="page-title__sub" id="area-label">Roanoke area · circuit CIR72</p>
     </div>
   </div>

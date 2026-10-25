@@ -13,7 +13,13 @@
  * declared in types.ts, so main.ts keeps consuming one consistent contract.
  * ========================================================================== */
 
-import type { DamageHeat, DemoPremise, PremiseLookup } from "./types";
+import type {
+  DamageHeat,
+  DemoPremise,
+  PowerPath,
+  PowerPathLink,
+  PremiseLookup,
+} from "./types";
 
 /* ---------------------------------------------------------------------------
  * Base URL. Configured via VITE_API_BASE (see web/.env.example). Falls back to
@@ -157,6 +163,7 @@ export async function fetchPremiseLookup(
 }
 
 /* ---------------------------------------------------------------------------
+<<<<<<< Updated upstream
  * chat — Amazon Nova via POST /chat. The backend keeps each conversation in
  * memory under a random session id; we hold that id in sessionStorage so it
  * survives a page refresh but stays private to this browser tab.
@@ -215,6 +222,68 @@ export async function endChat(): Promise<void> {
   } catch {
     /* backend down: the server copy expires on its own */
   }
+=======
+ * power path — the ordered equipment chain feeding one premise.
+ *
+ * The backend's /premise/{id}/power-path returns the links with coordinates and
+ * customer counts but no risk yet (Model A fills p_damage later). We pass the
+ * links straight through; p_damage/band stay undefined until the model is wired
+ * in, and the map falls back to a neutral colour for those links.
+ * ------------------------------------------------------------------------- */
+interface ApiChainLink {
+  step: number;
+  device_loc: string | null;
+  device_type: string;
+  circuit_id?: string | null;
+  lat?: number | null;
+  lon?: number | null;
+  rating?: string | null;
+  automated?: boolean | null;
+  p_damage?: number | null;
+  band?: PowerPath["home_band"];
+  reason?: string | null;
+}
+interface ApiPowerPath {
+  premise_id: string;
+  circuit_id: string;
+  links: ApiChainLink[];
+  note?: string;
+  coverage?: PowerPath["coverage"];
+  home_probability?: number | null;
+  home_band?: PowerPath["home_band"];
+  weakest_link_step?: number | null;
+}
+
+export async function fetchPowerPath(
+  premiseId: string,
+  severity = 1.0
+): Promise<PowerPath> {
+  const pp = await apiGet<ApiPowerPath>(
+    `/premise/${encodeURIComponent(premiseId)}/power-path?severity=${severity}`
+  );
+  const links: PowerPathLink[] = pp.links.map((l) => ({
+    step: l.step,
+    device_loc: l.device_loc ?? null,
+    device_type: l.device_type,
+    lat: l.lat ?? null,
+    lon: l.lon ?? null,
+    p_damage: l.p_damage ?? null,
+    band: l.band ?? null,
+    reason: l.reason ?? null,
+  }));
+  return {
+    premise_id: pp.premise_id,
+    circuit_id: pp.circuit_id,
+    links,
+    note: pp.note,
+    coverage: pp.coverage ?? "good",
+    home_probability: pp.home_probability ?? null,
+    home_band: pp.home_band ?? null,
+    weakest_link_step: pp.weakest_link_step ?? null,
+    is_mock: false,
+    source: `live:${API_BASE}`,
+  };
+>>>>>>> Stashed changes
 }
 
 /* ---------------------------------------------------------------------------

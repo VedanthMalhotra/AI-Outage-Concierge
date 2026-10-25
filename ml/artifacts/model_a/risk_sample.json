@@ -1,0 +1,167 @@
+[
+  {
+    "premise_id": "893916132",
+    "storm_severity": 1.0,
+    "probability": 0.6807,
+    "band": "High",
+    "confidence": "Medium",
+    "confidence_reason": "We linked your home to the power network; some structure data (e.g. pole age) is incomplete.",
+    "top_factors": [
+      {
+        "key": "is_recloser",
+        "label": "Recloser on your line",
+        "detail": "This segment is protected by a recloser, which retries after a temporary fault.",
+        "direction": "raises",
+        "weight": 1.857
+      },
+      {
+        "key": "zone_transformers",
+        "label": "Large protection zone",
+        "detail": "This zone feeds many transformers, so a zone fault reaches many homes.",
+        "direction": "raises",
+        "weight": 1.706
+      },
+      {
+        "key": "pole_wood_share",
+        "label": "Mostly wood poles",
+        "detail": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+        "direction": "raises",
+        "weight": 0.996
+      }
+    ],
+    "label": "Model estimate",
+    "fallback": null
+  },
+  {
+    "premise_id": "649182220",
+    "storm_severity": 1.0,
+    "probability": 0.3586,
+    "band": "Moderate",
+    "confidence": "Medium",
+    "confidence_reason": "We linked your home to the power network; some structure data (e.g. pole age) is incomplete.",
+    "top_factors": [
+      {
+        "key": "is_recloser",
+        "label": "Recloser on your line",
+        "detail": "This segment is protected by a recloser, which retries after a temporary fault.",
+        "direction": "raises",
+        "weight": 1.857
+      },
+      {
+        "key": "zone_transformers",
+        "label": "Large protection zone",
+        "detail": "This zone feeds many transformers, so a zone fault reaches many homes.",
+        "direction": "raises",
+        "weight": 1.11
+      },
+      {
+        "key": "pole_wood_share",
+        "label": "Mostly wood poles",
+        "detail": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+        "direction": "raises",
+        "weight": 0.996
+      }
+    ],
+    "label": "Model estimate",
+    "fallback": null
+  },
+  {
+    "premise_id": "801762575",
+    "storm_severity": 1.0,
+    "probability": 0.0824,
+    "band": "Low",
+    "confidence": "Medium",
+    "confidence_reason": "We linked your home to the power network; some structure data (e.g. pole age) is incomplete.",
+    "top_factors": [
+      {
+        "key": "zone_transformers",
+        "label": "Large protection zone",
+        "detail": "This zone feeds many transformers, so a zone fault reaches many homes.",
+        "direction": "raises",
+        "weight": 0.663
+      },
+      {
+        "key": "is_fuse",
+        "label": "Fuse on your branch",
+        "detail": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+        "direction": "raises",
+        "weight": 0.64
+      },
+      {
+        "key": "pole_wood_share",
+        "label": "Mostly wood poles",
+        "detail": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+        "direction": "lowers",
+        "weight": 0.325
+      }
+    ],
+    "label": "Model estimate",
+    "fallback": null
+  },
+  {
+    "premise_id": "609402527",
+    "storm_severity": 1.0,
+    "probability": 0.5909,
+    "band": "High",
+    "confidence": "Medium",
+    "confidence_reason": "We linked your home to the power network; some structure data (e.g. pole age) is incomplete.",
+    "top_factors": [
+      {
+        "key": "zone_transformers",
+        "label": "Large protection zone",
+        "detail": "This zone feeds many transformers, so a zone fault reaches many homes.",
+        "direction": "raises",
+        "weight": 1.11
+      },
+      {
+        "key": "pole_wood_share",
+        "label": "Mostly wood poles",
+        "detail": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+        "direction": "raises",
+        "weight": 0.996
+      },
+      {
+        "key": "is_fuse",
+        "label": "Fuse on your branch",
+        "detail": "Your branch is protected by a fuse, which can't reset itself after a fault.",
+        "direction": "raises",
+        "weight": 0.64
+      }
+    ],
+    "label": "Model estimate",
+    "fallback": null
+  },
+  {
+    "premise_id": "828604846",
+    "storm_severity": 1.0,
+    "probability": 0.6098,
+    "band": "High",
+    "confidence": "Medium",
+    "confidence_reason": "We linked your home to the power network; some structure data (e.g. pole age) is incomplete.",
+    "top_factors": [
+      {
+        "key": "is_recloser",
+        "label": "Recloser on your line",
+        "detail": "This segment is protected by a recloser, which retries after a temporary fault.",
+        "direction": "raises",
+        "weight": 1.857
+      },
+      {
+        "key": "zone_transformers",
+        "label": "Large protection zone",
+        "detail": "This zone feeds many transformers, so a zone fault reaches many homes.",
+        "direction": "raises",
+        "weight": 1.706
+      },
+      {
+        "key": "pole_wood_share",
+        "label": "Mostly wood poles",
+        "detail": "Wood poles are more likely to fail in a severe storm than steel or fiberglass.",
+        "direction": "raises",
+        "weight": 0.996
+      }
+    ],
+    "label": "Model estimate",
+    "fallback": null
+  }
+]

@@ -148,13 +148,19 @@ def premise_lookup(
 
 
 @app.get("/premise/{premise_id}/power-path", response_model=PowerPathResponse, tags=["premise"])
-def get_power_path(premise_id: str):
+def get_power_path(
+    premise_id: str,
+    severity: float = Query(default=1.0, ge=0.5, le=2.0,
+                            description="storm severity knob (0.5 / 1.0 / 1.5 / 2.0)"),
+):
     store = get_store()
-    pp = topo.power_path(store, premise_id)
+    pp = topo.power_path(store, premise_id, severity)
     if not pp:
+        # Only reached when the premise itself is unknown. A premise with a
+        # missing/partial chain still returns a (fallback) path.
         raise HTTPException(
             status_code=404,
-            detail=f"no equipment chain for premise '{premise_id}'",
+            detail=f"premise '{premise_id}' not found",
         )
     return pp
 

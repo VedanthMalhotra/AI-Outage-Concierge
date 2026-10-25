@@ -1,0 +1,55 @@
+{
+  "premise_id": "858810648",
+  "circuit_id": "CIR72",
+  "storm_severity": 1.0,
+  "home": { "lat": 37.199767, "lon": -80.054723 },
+  "coverage": "good",
+  "links": [
+    {
+      "step": 0,
+      "device_loc": "37800347C04034",
+      "device_type": "Transformer",
+      "lat": 37.200180,
+      "lon": -80.055640,
+      "p_damage": 0.03,
+      "band": "Low",
+      "reason": "Your transformer serves only a few homes and is less exposed."
+    },
+    {
+      "step": 1,
+      "device_loc": "37800347A30435",
+      "device_type": "Fuse",
+      "lat": 37.203010,
+      "lon": -80.058900,
+      "p_damage": 0.18,
+      "band": "Moderate",
+      "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+    },
+    {
+      "step": 2,
+      "device_loc": "37800347A00417",
+      "device_type": "Recloser (Hydraulic)",
+      "lat": 37.206900,
+      "lon": -80.064100,
+      "p_damage": 0.61,
+      "band": "High",
+      "reason": "This zone is mostly overhead line feeding many homes, so a fault here reaches a wide area."
+    },
+    {
+      "step": 3,
+      "device_loc": null,
+      "device_type": "Circuit Breaker",
+      "lat": 37.211200,
+      "lon": -80.070300,
+      "p_damage": 0.09,
+      "band": "Low",
+      "reason": "The substation breaker rarely fails; it is the most protected point on your path."
+    }
+  ],
+  "weakest_link_step": 2,
+  "home_probability": 0.68,
+  "home_band": "High",
+  "note": "Path from your home to the substation only: step 0 is your transformer, ascending steps move upstream to the substation feed. Per-link risk is a Model A estimate. No other customers or shared customer counts are shown.",
+  "is_mock": true,
+  "source": "Hand-made sample for UI development. Not model output."
+}
