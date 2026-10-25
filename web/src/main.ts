@@ -744,10 +744,10 @@ interface BubbleOpts {
 }
 function addBubble(role: "user" | "bot", text: string, opts: BubbleOpts = {}): void {
   const log = $("#chat-log");
-  const b = el(
-    "div",
-    `bubble bubble--${role === "user" ? "user" : opts.emergency ? "emergency" : "bot"}`
-  );
+  // full class names written out so Tailwind keeps these rules (it can't see `bubble--${...}`)
+  const variant =
+    role === "user" ? "bubble--user" : opts.emergency ? "bubble--emergency" : "bubble--bot";
+  const b = el("div", `bubble ${variant}`);
   b.appendChild(document.createTextNode(text));
   if (opts.tools && opts.tools.length) {
     b.appendChild(el("span", "tools", `tools used: ${opts.tools.join(", ")}`));

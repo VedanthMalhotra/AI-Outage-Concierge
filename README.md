@@ -14,6 +14,20 @@ An AI-powered assistant that helps residential customers in the Roanoke Valley (
 | Backend: restoration simulator, rules, chatbot | ⏳ next |
 | Dashboard (`web/`) | 🔄 first version on mock data |
 
+## Run it locally
+
+One command starts both servers, each in its own window. On first run it installs `web/node_modules` and, if `uv` isn't installed, creates `backend/.venv`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\dev.ps1
+```
+
+- **Dashboard:** http://localhost:5173/web/index.html (Vite picks the next port if 5173 is busy)
+- **Backend API docs:** http://127.0.0.1:8000/docs
+- Options: `-FrontendOnly`, `-BackendOnly`, `-LocalData <folder>`, `-BackendPort <n>`
+- **Backend data:** reads S3 by default, which needs an AWS SSO login (`aws sso login --sso-session osu-sandbox`). Without AWS credentials, put the `processed/batch*` folders in `backend/_data/` (or pass `-LocalData`) and it reads them locally. If the backend can't load data, the dashboard falls back to the mock data automatically.
+- **Stop:** close the server windows.
+
 ## Repo map
 
 ```
@@ -26,7 +40,9 @@ docs/                 all project docs (see docs/README.md for the reading order
   reference/          official challenge brief and structure drawings
 data/                 raw AEP data (data/raw) + a small cleaned sample (data/sample)
 mock/                 mock API JSON the dashboard uses until the backend exists
-web/                  the dashboard (HTML / JS / CSS)
+web/                  the dashboard (TypeScript + Tailwind on Vite)
+backend/              FastAPI data API serving the cleaned tables from S3
+dev.ps1               starts backend + dashboard together (see "Run it locally")
 ```
 
 ## Quick links
