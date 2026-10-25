@@ -28,7 +28,5 @@ web/.env.local
 node_modules/
 
 # local data copies (never commit data)
-]
-data/processed/
 data/models/
 data/raw/
