@@ -288,6 +288,7 @@ export async function fetchPowerPath(
   };
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 }
 
 /* ---------------------------------------------------------------------------
@@ -304,6 +305,8 @@ export async function fetchRestorationGrid(premiseId: string): Promise<Restorati
     `/premise/${encodeURIComponent(premiseId)}/restoration-grid`,
     30000
   );
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
