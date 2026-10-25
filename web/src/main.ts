@@ -1,11 +1,9 @@
 /* =============================================================================
- * AI Outage Concierge — dashboard (mock-data build), TypeScript + Tailwind.
+ * AI Outage Concierge — dashboard, TypeScript + Tailwind.
  *
- * Reads the sample JSON in ../mock/api/*. Every shape here matches MVP plan §7
- * (see types.ts), so swapping the mock fetch for the real endpoint is the only
- * change needed when the backend exists.
- *
- * NOTE: all figures are illustrative sample data, never model output.
+ * Everything shown comes from the backend (backend/app): the cleaned AEP data,
+ * the trained models (risk, damage, restoration simulator) and the guidance /
+ * alert / storm-replay rules built on their output. No sample data is used.
  * ========================================================================== */
 
 import "./styles.css";
@@ -16,19 +14,26 @@ import {
   setPowerPath,
   setRiskHeat,
   setPhaseVisuals,
+  setViewMode,
+  getViewMode,
   resizeMap,
 } from "./map3d";
 import type { Color } from "@deck.gl/core";
-import { $, el, getJSON, toast } from "./dom";
+import { $, el, toast } from "./dom";
 import {
   DEFAULT_PREMISE_ID,
   apiHealthy,
   endChat,
+  fetchAlerts,
+  fetchAssumptions,
+  fetchCircuitOutline,
+  fetchGuidance,
   fetchPowerPath,
   fetchPremiseLookup,
   fetchRestorationGrid,
   fetchRiskBySeverity,
   fetchRiskHeat,
+  fetchTimeline,
   sendChat,
 } from "./api";
 import type {
@@ -43,10 +48,7 @@ import type {
   TimelineStep,
 } from "./types";
 
-/* Mock API base, relative to web/index.html. */
-const API = "../mock/api";
-
-/* Severity slider index -> multiplier used by the mock files. */
+/* Severity slider index -> storm severity multiplier (1.0 = like Feb 2025). */
 const SEVERITIES = [0.5, 1.0, 1.5, 2.0] as const;
 const SEVERITY_LABELS: Record<number, string> = {
   0.5: "Minor (0.5×)",
@@ -85,7 +87,7 @@ const state: AppState = {
   playTimer: null,
 };
 
-/* Loaded mock data caches */
+/* Data loaded from the backend (cleaned data + model output); no sample data. */
 const data: AppData = {
   lookup: null,
   circuit: null,
@@ -107,43 +109,38 @@ let prevRisk: Risk | null = null;
 /* whether the live backend answered at boot (reused for later premise fetches) */
 let apiLive = false;
 
-/* Risk and restoration for one premise from the trained models (live API).
- * Keeps whatever is loaded (mock or the previous premise) if the call fails. */
+/* Everything the panels show for one premise, from the backend: risk (models),
+ * restoration (simulator), guidance + alerts (rules on that output) and the storm
+ * replay (model estimates + real Feb 2025 damage on this home's path). Homes with
+ * no equipment chain get the risk fallback and no personal restoration grid. */
 async function loadModelOutput(premiseId: string): Promise<void> {
   if (!apiLive) return;
   try {
-    const [risk, grid] = await Promise.all([
+    const [risk, guidance, alerts, timeline] = await Promise.all([
       fetchRiskBySeverity(premiseId),
-      fetchRestorationGrid(premiseId),
+      fetchGuidance(premiseId),
+      fetchAlerts(premiseId),
+      fetchTimeline(premiseId),
     ]);
-    data.riskBySeverity = risk;
-    data.grid = grid;
+    Object.assign(data, { riskBySeverity: risk, guidance, alerts, timeline });
+    data.grid = await fetchRestorationGrid(premiseId).catch(() => ({ start_delay_h: 6, results: [] }));
   } catch (err) {
-    console.warn("Model output unavailable, keeping current data:", err);
+    console.warn("Model output unavailable:", err);
+    toast("Couldn't load estimates for this home");
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Load a premise's power path: live backend first, mock sample otherwise.
- * The mock is a single premise, so we only serve it for that id and skip the
- * graphic for other demo premises when offline (rather than show a wrong path).
- * ------------------------------------------------------------------------- */
+/* A premise's power path from the backend (null if it has no chain or the call fails). */
 async function loadPowerPath(
   premiseId: string,
   live: boolean,
   severity = 1.0
 ): Promise<PowerPath | null> {
-  if (live) {
-    try {
-      return await fetchPowerPath(premiseId, severity);
-    } catch (err) {
-      console.warn("power-path fetch failed, trying mock:", err);
-    }
-  }
+  if (!live) return null;
   try {
-    const mock = await getJSON<PowerPath>(API, "power_path.json");
-    return mock.premise_id === premiseId ? mock : null;
-  } catch {
+    return await fetchPowerPath(premiseId, severity);
+  } catch (err) {
+    console.warn("power-path fetch failed:", err);
     return null;
   }
 }
@@ -156,48 +153,17 @@ let mapReady = false;
 
 async function boot(): Promise<void> {
   try {
-    // The mock pieces the backend does not yet serve (circuit outline, risk,
-    // restoration grid, guidance, alerts, timeline, chat, assumptions). These
-    // always load; the backend has no equivalents yet.
-    [
-      data.circuit,
-      data.riskBySeverity,
-      data.riskFallback,
-      data.grid,
-      data.guidance,
-      data.alerts,
-      data.timeline,
-      data.chat,
-      data.assumptions,
-    ] = await Promise.all([
-      getJSON<AppData["circuit"]>(API, "circuit_area.geojson"),
-      getJSON<AppData["riskBySeverity"]>(API, "risk_by_severity.json"),
-      getJSON<AppData["riskFallback"]>(API, "risk_fallback.json"),
-      getJSON<AppData["grid"]>(API, "restoration_grid.json"),
-      getJSON<AppData["guidance"]>(API, "guidance.json"),
-      getJSON<AppData["alerts"]>(API, "alerts.json"),
-      getJSON<AppData["timeline"]>(API, "timeline.json"),
-      getJSON<AppData["chat"]>(API, "chat_examples.json"),
-      getJSON<AppData["assumptions"]>(API, "assumptions.json"),
+    // Everything comes from the backend: cleaned data, model output and the
+    // rules built on it. Without it there is nothing honest to show.
+    apiLive = await apiHealthy();
+    if (!apiLive) throw new Error("The backend API is not reachable.");
+    // the map heat (predicted risk) loads after the map is up: see loadRiskHeat()
+    [data.lookup, data.assumptions] = await Promise.all([
+      fetchPremiseLookup(state.premiseId),
+      fetchAssumptions(),
     ]);
-
-    // Premise lookup + damage heat come from the live backend when it is
-    // reachable, otherwise fall back to the mock JSON so the page still works.
-    const live = await apiHealthy();
-    apiLive = live;
-    if (live) {
-      try {
-        data.lookup = await fetchPremiseLookup(state.premiseId);
-      } catch (liveErr) {
-        console.warn("Live API call failed, falling back to mock:", liveErr);
-      }
-    }
-    if (!data.lookup) {
-      data.lookup = await getJSON<AppData["lookup"]>(API, "premise_lookup.json");
-    }
-
-    // Power path for the first premise (live, else the mock sample).
-    data.powerPath = await loadPowerPath(state.premiseId, live, state.severity);
+    data.circuit = await fetchCircuitOutline(data.lookup.circuit_id);
+    data.powerPath = await loadPowerPath(state.premiseId, apiLive, state.severity);
 
     // Keep state in sync with whatever premise the lookup settled on.
     state.premiseId = data.lookup!.premise_id;
@@ -206,14 +172,12 @@ async function boot(): Promise<void> {
     const msg = err instanceof Error ? err.message : String(err);
     document.body.innerHTML =
       `<p style="padding:2rem;font-family:sans-serif">Could not load data. ` +
-      `Start the backend (<code>uv run uvicorn app.main:app --port 8000</code>) ` +
-      `or serve the mock folder over http (e.g. <code>npm run dev</code>) and open ` +
-      `<code>web/index.html</code>.<br><br>${msg}</p>`;
+      `Start the backend (<code>uv run uvicorn app.main:app --port 8000</code> in backend/) ` +
+      `and reload.<br><br>${msg}</p>`;
     return;
   }
 
-  const src = data.lookup!.is_mock === false ? "live API" : "sample data";
-  $("#area-label").textContent = `${data.lookup!.area_label} · ${src}`;
+  $("#area-label").textContent = `${data.lookup!.area_label} · live API`;
 
   buildPremisePicker();
   initMap();
@@ -252,7 +216,7 @@ function buildPremisePicker(): void {
     void selectPremise(sel.value, p ? { lat: p.lat, lon: p.lon } : null);
   });
 
-  // Free-text ID entry: resolve the premise (live lookup / mock), then fly to it.
+  // Free-text ID entry: resolve the premise (live lookup), then fly to it.
   const form = $<HTMLFormElement>("#premise-lookup-form");
   const input = $<HTMLInputElement>("#premise-id-input");
   input.value = state.premiseId;
@@ -269,7 +233,7 @@ function buildPremisePicker(): void {
  *
  * If coords are supplied (demo dropdown) we fly straight there. Otherwise we
  * resolve the premise: the live backend's lookup when available, else the demo
- * list / mock. Unknown ids surface a toast rather than silently doing nothing.
+ * list. Unknown ids surface a toast rather than silently doing nothing.
  * ------------------------------------------------------------------------- */
 async function selectPremise(
   id: string,
@@ -293,14 +257,8 @@ async function selectPremise(
         return;
       }
     } else {
-      // offline: only the mock premise is known
-      const mock = data.lookup!;
-      if (mock.premise_id === id) {
-        coords = { lat: mock.lat, lon: mock.lon };
-      } else {
-        toast(`Premise ${id} isn't in the sample data (backend offline)`);
-        return;
-      }
+      toast("The backend is not reachable");
+      return;
     }
   }
 
@@ -454,7 +412,8 @@ function renderRisk(): void {
     body.hidden = true;
     fb.hidden = false;
     $("#risk-fallback-msg").textContent =
-      (r && r.fallback && r.fallback.message) || data.riskFallback!.fallback.message;
+      (r && r.fallback && r.fallback.message) ||
+      "We can't give a reliable outage estimate for your location. Here is general storm guidance instead.";
     return;
   }
   body.hidden = false;
@@ -493,7 +452,7 @@ function renderRisk(): void {
 }
 
 /* =============================================================================
- * RESTORATION (Req 2) — live via the mock lookup grid
+ * RESTORATION (Req 2) — the simulator's grid for this home (all slider combinations)
  * ========================================================================== */
 function findGridRow(sc: Scenario): GridRow | undefined {
   return data.grid!.results.find(
@@ -587,16 +546,9 @@ function whyFor(
 }
 
 function renderDriversAndJobs(): void {
-  // live grids carry the simulator's drivers and repair queue; the mock grid doesn't
-  const drivers = data.grid!.drivers ?? [
-    { text: "Number of crews: adding more crews cuts the queue time", impact_h: -6.2 },
-    { text: "A broken pole on your line adds about 8 hours", impact_h: 8.0 },
-  ];
-  const jobs = data.grid!.jobs_ahead_of_you ?? [
-    { order: 1, what: "Main line repairs on your circuit", crew_hours: 9.5 },
-    { order: 2, what: "Lines feeding critical facilities", crew_hours: 6.0 },
-    { order: 3, what: "Broken pole + downed wire behind your fuse", crew_hours: 26.0, on_your_line: true },
-  ];
+  // the restoration simulator's drivers and repair queue for this home
+  const drivers = data.grid!.drivers ?? [];
+  const jobs = data.grid!.jobs_ahead_of_you ?? [];
 
   const dl = $("#rest-drivers");
   dl.innerHTML = "";
@@ -630,7 +582,7 @@ function pushHistory(text?: string): void {
  * ========================================================================== */
 function guidanceVariantKey(): string {
   const medical = state.declaredNeeds.includes("medical_equipment");
-  return medical ? "high_4-24h_medical" : "high_4-24h_no-needs";
+  return medical ? "medical" : "no-needs";
 }
 
 function renderGuidance(): void {
@@ -746,12 +698,17 @@ function applyMapPhase(step: TimelineStep | null): void {
   const wrap = $("#map-wrap");
   const badge = $("#map-phase");
 
-  // default (no storm running)
+  // default (no storm running) — restore the power path's per-link risk colours
   if (!phase) {
     wrap.removeAttribute("data-phase");
     badge.hidden = true;
     if (mapReady)
-      setPhaseVisuals({ pin: "normal", circuit: [255, 90, 82], showHeat: true });
+      setPhaseVisuals({
+        pin: "normal",
+        circuit: [255, 90, 82],
+        showHeat: true,
+        pathPhase: null,
+      });
     return;
   }
 
@@ -781,7 +738,13 @@ function applyMapPhase(step: TimelineStep | null): void {
   // damage heat: hidden before/at the peak, deposited once reports arrive
   const showHeat = ([...outagePhases, "restored"] as Phase[]).includes(phase);
 
-  if (mapReady) setPhaseVisuals({ pin: pinState, circuit: circuitColor, showHeat });
+  // power-path phase: the equipment chain reads as "damaged" through the
+  // outage, flips to "restored" at the end, and is risk-coloured otherwise.
+  const pathPhase: "damaged" | "restored" | null =
+    phase === "restored" ? "restored" : outagePhases.includes(phase) ? "damaged" : null;
+
+  if (mapReady)
+    setPhaseVisuals({ pin: pinState, circuit: circuitColor, showHeat, pathPhase });
 }
 
 function stepStorm(): void {
@@ -818,7 +781,8 @@ function stepStorm(): void {
 
 function addNotification(message: NonNullable<TimelineStep["message"]>, t: string): void {
   const feed = $("#notifications");
-  if (feed.querySelector(".muted")) feed.innerHTML = "";
+  // clear only the "Messages appear…" placeholder, not earlier messages (their time tag is .muted too)
+  if (feed.querySelector(":scope > li.muted")) feed.innerHTML = "";
   const li = el("li", "msg");
   const meta = el("div", "msg-meta");
   meta.appendChild(el("span", "msg-type", message.type.replace(/_/g, " ")));
@@ -920,25 +884,6 @@ function addBubble(role: "user" | "bot", text: string, opts: BubbleOpts = {}): H
   return b;
 }
 
-function matchExample(q: string) {
-  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim();
-  const nq = norm(q);
-  const examples = data.chat!.examples;
-  let ex = examples.find((e) => norm(e.user) === nq);
-  if (ex) return ex;
-  if (/life support|neighbou?r|someone else|other customer|my street/.test(nq))
-    return examples.find((e) => e.tools_called.length === 0 && !e.emergency);
-  if (/chest pain|911|emergency|downed line|fire|hurt/.test(nq))
-    return examples.find((e) => e.emergency);
-  if (/more crew|what if|what changed|extra crew/.test(nq))
-    return examples.find((e) => e.tools_called.includes("compare_scenarios"));
-  if (/how long|restoration|power back|get power/.test(nq))
-    return examples.find((e) => e.tools_called.includes("estimate_restoration"));
-  if (/lose power|risk|will i/.test(nq))
-    return examples.find((e) => e.tools_called.includes("get_outage_risk"));
-  return null;
-}
-
 let chatBusy = false;
 
 async function handleChat(q: string): Promise<void> {
@@ -952,20 +897,14 @@ async function handleChat(q: string): Promise<void> {
     const r = await sendChat(q, state.premiseId);
     typing.remove();
     addBubble("bot", r.reply, { tools: r.tools_used, emergency: r.emergency });
-    return;
   } catch {
-    typing.remove(); // backend or model unavailable: fall back to the sample answers below
-  } finally {
-    chatBusy = false;
-  }
-  const ex = matchExample(q);
-  if (ex) {
-    addBubble("bot", ex.assistant, { tools: ex.tools_called, emergency: ex.emergency });
-  } else {
+    typing.remove();
     addBubble(
       "bot",
-      "I can answer about your outage risk, restoration time, how to prepare, or alerts. Try one of the suggested questions. I only state numbers that come from the model's tools."
+      "The assistant is unavailable right now. Your risk, restoration estimate, checklist and alerts are still shown on this page. In an emergency, call 911."
     );
+  } finally {
+    chatBusy = false;
   }
 }
 
@@ -1066,6 +1005,18 @@ function wireControls(): void {
     stepStorm();
   });
   $("#reset-storm").addEventListener("click", resetStorm);
+
+  // 2D / 3D view toggle — one button whose label is the current mode.
+  const viewToggle = $("#view-toggle");
+  viewToggle.addEventListener("click", () => {
+    const next = getViewMode() === "3d" ? "2d" : "3d";
+    if (mapReady) setViewMode(next);
+    viewToggle.textContent = next.toUpperCase();
+    viewToggle.setAttribute(
+      "aria-label",
+      `Map view mode: ${next.toUpperCase()}. Click to switch.`
+    );
+  });
 
   // Chat
   $<HTMLFormElement>("#chat-form").addEventListener("submit", (e) => {

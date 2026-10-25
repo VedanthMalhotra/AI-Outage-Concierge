@@ -5,16 +5,21 @@
  * from S3. It covers a subset of what the dashboard needs: premise lookup,
  * power path, damage heat, circuit summary, facilities, and labor reference.
  *
- * It also serves the model output: risk-by-severity and the restoration grid.
- * The pieces the backend does NOT yet serve — guidance, alerts, the storm
- * timeline and the assumptions list — stay on the mock JSON in ../mock/api.
+ * It also serves the model output (risk-by-severity, the restoration grid) and
+ * the rules built on it (guidance, alerts, storm-replay timeline, assumptions).
+ * The dashboard uses no sample data.
  *
  * Each adapter here reshapes a backend response into the exact UI shape
  * declared in types.ts, so main.ts keeps consuming one consistent contract.
  * ========================================================================== */
 
 import type {
+  Alerts,
+  Assumptions,
+  CircuitGeoJSON,
   DamageHeat,
+  Guidance,
+  Timeline,
   DemoPremise,
   PowerPath,
   PowerPathLink,
@@ -263,7 +268,8 @@ export async function fetchPowerPath(
   severity = 1.0
 ): Promise<PowerPath> {
   const pp = await apiGet<ApiPowerPath>(
-    `/premise/${encodeURIComponent(premiseId)}/power-path?severity=${severity}`
+    `/premise/${encodeURIComponent(premiseId)}/power-path?severity=${severity}`,
+    30000 // link risk comes from the models, which load on the backend's first request
   );
   const links: PowerPathLink[] = pp.links.map((l) => ({
     step: l.step,
@@ -304,6 +310,20 @@ export async function fetchRestorationGrid(premiseId: string): Promise<Restorati
     30000
   );
 }
+
+const premisePath = (id: string, what: string) => `/premise/${encodeURIComponent(id)}/${what}`;
+
+/** Preparation checklist + safety from the home's risk and expected outage length. */
+export const fetchGuidance = (id: string) => apiGet<Guidance>(premisePath(id, "guidance"), 30000);
+/** Alert eligibility, channels and escalations. */
+export const fetchAlerts = (id: string) => apiGet<Alerts>(premisePath(id, "alerts"), 30000);
+/** Storm replay: model estimates + the real Feb 2025 damage on this home's path. */
+export const fetchTimeline = (id: string) => apiGet<Timeline>(premisePath(id, "timeline"), 30000);
+/** Model and data assumptions for the footer panel. */
+export const fetchAssumptions = () => apiGet<Assumptions>("/assumptions");
+/** Outline of the area the circuit serves (no individual homes). */
+export const fetchCircuitOutline = (circuitId: string) =>
+  apiGet<CircuitGeoJSON>(`/circuits/${encodeURIComponent(circuitId)}/outline`, 15000);
 
 /* ---------------------------------------------------------------------------
  * damage heat — the backend already aggregates into ~1 km cells.
