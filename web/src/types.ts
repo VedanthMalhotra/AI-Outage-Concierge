@@ -217,6 +217,7 @@ export interface TimelineStep {
   risk: { probability: number; band: Band } | null;
   restoration: { p10: number; p50: number; p90: number; label: string } | null;
   message: TimelineMessage | null;
+  messages?: TimelineMessage[]; // live API: every message sent at this step
 }
 export interface Timeline {
   premise_id: string;

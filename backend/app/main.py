@@ -235,6 +235,25 @@ def get_timeline(premise_id: str):
     return concierge.timeline(premise_id)
 
 
+@app.get("/premise/{premise_id}/outage-hours", tags=["models"])
+def get_outage_hours(
+    premise_id: str,
+    crews: int = Query(default=2, ge=1, le=10),
+    storm_severity: float = Query(default=1.0, ge=0.1, le=3.0),
+    access: str = Query(default="auto", pattern="^(auto|on|off)$"),
+    switching_available: bool = True,
+    prioritize_critical: bool = True,
+):
+    """All 200 simulated outage lengths (hours, sorted) for a scenario, if the home loses
+    power. The dashboard's "Time That Matters" compares them with how long things last."""
+    p = topo.find_premise(get_store(), premise_id)
+    if not p or not p.get("has_chain"):
+        raise HTTPException(status_code=404, detail=f"no equipment chain for premise '{premise_id}'")
+    r = predict.simulate(str(premise_id), crews, storm_severity, access, switching_available, None, prioritize_critical)
+    return {"premise_id": str(premise_id), "hours": r["runs"], "p10": r["p10"], "p50": r["p50"], "p90": r["p90"],
+            "label": "Model estimate", "applies_if": "your home loses power"}
+
+
 @app.get("/assumptions", tags=["models"])
 def get_assumptions():
     return {"items": concierge.ASSUMPTIONS}

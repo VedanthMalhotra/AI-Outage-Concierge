@@ -21,6 +21,7 @@ import {
 } from "./map3d";
 import type { Color } from "@deck.gl/core";
 import { $, el, toast } from "./dom";
+import { renderPrepare, setPrepPhase, wirePrepare } from "./prepare";
 import {
   DEFAULT_PREMISE_ID,
   apiHealthy,
@@ -29,6 +30,7 @@ import {
   fetchAssumptions,
   fetchCircuitOutline,
   fetchGuidance,
+  fetchOutageHours,
   fetchPowerPath,
   fetchPremiseLookup,
   fetchRestorationGrid,
@@ -537,6 +539,7 @@ function renderRestoration({ silent = false, changeLabel = null }: RenderRestora
   }
 
   state.lastRestoration = { p10: row.p10, p50: row.p50, p90: row.p90, scenario: { ...sc } };
+  void refreshTtm();
 }
 
 /* Plausible "why" for the before/after note. */
@@ -577,6 +580,38 @@ function whyFor(
       : "Less expected damage shortens the repair queue.";
   }
   return "";
+}
+
+/* Time That Matters: simulated outage lengths for the current sliders, then redraw */
+let ttmRuns: { hours: number[]; p10: number; p50: number; p90: number } | null = null;
+let ttmSeq = 0;
+async function refreshTtm(): Promise<void> {
+  if (!apiLive) return;
+  const seq = ++ttmSeq; // ignore answers that arrive after a newer slider change
+  try {
+    const r = await fetchOutageHours(state.premiseId, state.scenario);
+    if (seq !== ttmSeq) return;
+    ttmRuns = r;
+  } catch {
+    if (seq !== ttmSeq) return;
+    ttmRuns = null; // e.g. a home with no equipment chain
+  }
+  drawTtm();
+}
+function drawTtm(): void {
+  const r = data.riskBySeverity?.[state.severity.toFixed(1)];
+  renderPrepare({
+    band: r && !r.fallback ? r.band : null,
+    probability: r && !r.fallback ? r.probability : null,
+    severity: state.severity,
+    severityLabel: SEVERITY_LABELS[state.severity] ?? `${state.severity}×`,
+    runs: ttmRuns?.hours ?? null,
+    p10: ttmRuns?.p10 ?? 0,
+    p50: ttmRuns?.p50 ?? 0,
+    p90: ttmRuns?.p90 ?? 0,
+    medical: state.declaredNeeds.includes("medical_equipment"),
+    overheadService: data.lookup?.service_type === "Overhead",
+  });
 }
 
 function renderDriversAndJobs(): void {
@@ -622,41 +657,16 @@ function guidanceVariantKey(): string {
 function renderGuidance(): void {
   const v = data.guidance!.variants[guidanceVariantKey()];
   if (!v) return;
-
   $("#prep-label").textContent = v.label;
 
   const safety = $("#prep-safety");
   safety.innerHTML = "";
-  v.safety.forEach((s) => {
-    safety.appendChild(el("div", `safety-box safety-box--${s.level}`, `<span>${s.text}</span>`));
-  });
+  v.safety.forEach((s) => safety.appendChild(el("span", `safety-chip safety-chip--${s.level}`, s.text)));
 
   const esc = $("#prep-escalation");
-  if (v.escalation) {
-    esc.hidden = false;
-    esc.textContent = v.escalation;
-  } else {
-    esc.hidden = true;
-  }
-
-  const cl = $("#prep-checklist");
-  cl.innerHTML = "";
-  v.checklist.forEach((c, i) => {
-    const li = el("li", "checklist__item");
-    const label = el("label", "checklist__label");
-    const box = document.createElement("input");
-    box.type = "checkbox";
-    box.className = "checklist__box";
-    box.id = `prep-check-${i}`;
-    box.addEventListener("change", () => {
-      li.classList.toggle("is-checked", box.checked);
-    });
-    label.htmlFor = box.id;
-    label.appendChild(box);
-    label.appendChild(el("span", "checklist__text", c));
-    li.appendChild(label);
-    cl.appendChild(li);
-  });
+  esc.hidden = !v.escalation;
+  esc.textContent = v.escalation ?? "";
+  drawTtm();
 }
 
 /* =============================================================================
@@ -808,9 +818,79 @@ function stepStorm(): void {
     $("#risk-prob").textContent = `about ${Math.round(step.risk.probability * 100)}%`;
   }
 
-  if (step.message) addNotification(step.message, step.t);
+  (step.messages ?? (step.message ? [step.message] : [])).forEach((m) => addNotification(m, step.t));
 
   applyMapPhase(step);
+  onStormPhase(step.phase);
+}
+
+/* ---------------------------------------------------------------------------
+ * The replay walks the customer through the prepare panel:
+ *   before the storm -> checklist "Before" tab + a popup that closes by itself
+ *   storm / outage   -> safety alert that stays until the user closes it
+ *   restored         -> checklist "Power is back" tab + popup
+ * Autoplay holds while the user reads, so a recording flows without clicks.
+ * ------------------------------------------------------------------------- */
+let prepGroup: "before" | "during" | "after" | null = null;
+let playHoldUntil = 0;
+let nudgeTimer: ReturnType<typeof setTimeout> | undefined;
+
+const scrollToEl = (sel: string) =>
+  document.querySelector(sel)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+function nudge(text: string, ms = 5000): void {
+  const n = $("#prep-nudge");
+  n.textContent = text;
+  n.hidden = false;
+  n.classList.remove("is-out");
+  clearTimeout(nudgeTimer);
+  nudgeTimer = setTimeout(() => {
+    n.classList.add("is-out");
+    nudgeTimer = setTimeout(() => (n.hidden = true), 400);
+  }, ms);
+}
+
+function showSafetyAlert(): void {
+  const v = data.guidance?.variants[guidanceVariantKey()];
+  const icon = (t: string) =>
+    /911|hurt/i.test(t) ? "🚑" : /downed|lines?/i.test(t) ? "⚡" : /refuel/i.test(t) ? "⛽" : /generator|carbon/i.test(t) ? "🏠" : "⚠";
+  const ul = $("#safety-alert-list");
+  ul.innerHTML = "";
+  (v?.safety ?? []).forEach((s) => {
+    const li = el("li", `safety-alert__item safety-alert__item--${s.level}`);
+    li.appendChild(el("span", "safety-alert__icon", icon(s.text)));
+    li.appendChild(el("span", null, s.text));
+    ul.appendChild(li);
+  });
+  $("#safety-alert").hidden = false;
+  $<HTMLButtonElement>("#safety-alert-ok").focus({ preventScroll: true });
+}
+
+function closeSafetyAlert(): void {
+  $("#safety-alert").hidden = true;
+  scrollToEl(".panel--prepare"); // show what to do while the power is out
+  playHoldUntil = Date.now() + 5000; // reading time before the replay carries on
+}
+
+function onStormPhase(phase: Phase): void {
+  const group = phase === "pre_storm" ? "before" : phase === "restored" ? "after" : "during";
+  if (group === prepGroup) return;
+  prepGroup = group;
+  setPrepPhase(group, true); // only this phase's checklist while the replay runs
+  if (group === "before") {
+    playHoldUntil = Date.now() + 6000;
+    scrollToEl(".panel--prepare");
+    nudge("A storm is coming. Work through your checklist now, while you still have power.");
+    // autoplay goes back to the map to keep the storm moving; with Step you stay on the checklist
+    if (state.playTimer) setTimeout(() => prepGroup === "before" && scrollToEl(".panel--map"), 5200);
+  } else if (group === "during") {
+    scrollToEl(".panel--map");
+    showSafetyAlert(); // closing it scrolls down to the "Power is out" checklist
+  } else {
+    playHoldUntil = Date.now() + 5000;
+    setTimeout(() => scrollToEl(".panel--prepare"), 800);
+    nudge("Power is back. Here's what to check now.");
+  }
 }
 
 function addNotification(message: NonNullable<TimelineStep["message"]>, t: string): void {
@@ -835,6 +915,7 @@ function playStorm(): void {
   $("#play-storm").textContent = "⏸ Pause";
   stepStorm();
   state.playTimer = setInterval(() => {
+    if (Date.now() < playHoldUntil || !$("#safety-alert").hidden) return; // reading time
     stepStorm();
     if (state.timelineStep >= data.timeline!.steps.length - 1) stopPlay();
   }, 1600);
@@ -853,6 +934,11 @@ function resetStorm(): void {
   applyMapPhase(null);
   renderRisk();
   renderRestoration({ silent: true });
+  prepGroup = null;
+  playHoldUntil = 0;
+  $("#safety-alert").hidden = true;
+  $("#prep-nudge").hidden = true;
+  setPrepPhase("before"); // back to normal tabs
 }
 
 /* =============================================================================
@@ -1037,7 +1123,15 @@ function wireControls(): void {
     state.declaredNeeds = checked ? ["medical_equipment"] : [];
     renderGuidance();
     renderAlerts();
+    drawTtm();
     toast(checked ? "Medical needs on — guidance & alerts updated" : "Medical needs cleared");
+  });
+
+  wirePrepare();
+  $("#safety-alert-x").addEventListener("click", closeSafetyAlert);
+  $("#safety-alert-ok").addEventListener("click", closeSafetyAlert);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("#safety-alert").hidden) closeSafetyAlert();
   });
 
   // Timeline

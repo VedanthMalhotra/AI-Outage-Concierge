@@ -338,6 +338,17 @@ export const fetchGuidance = (id: string) => apiGet<Guidance>(premisePath(id, "g
 export const fetchAlerts = (id: string) => apiGet<Alerts>(premisePath(id, "alerts"), 30000);
 /** Storm replay: model estimates + the real Feb 2025 damage on this home's path. */
 export const fetchTimeline = (id: string) => apiGet<Timeline>(premisePath(id, "timeline"), 30000);
+/** Every simulated outage length (hours) for the current sliders, for "Time That Matters". */
+export interface OutageHours { hours: number[]; p10: number; p50: number; p90: number }
+export const fetchOutageHours = (id: string, sc: {
+  crews: number; storm_severity: number; access: string; switching_available: boolean; prioritize_critical: boolean;
+}) =>
+  apiGet<OutageHours>(
+    premisePath(id, "outage-hours") +
+      `?crews=${sc.crews}&storm_severity=${sc.storm_severity}&access=${sc.access}` +
+      `&switching_available=${sc.switching_available}&prioritize_critical=${sc.prioritize_critical}`,
+    15000
+  );
 /** Model and data assumptions for the footer panel. */
 export const fetchAssumptions = () => apiGet<Assumptions>("/assumptions");
 /** Outline of the area the circuit serves (no individual homes). */

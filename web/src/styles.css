@@ -521,3 +521,74 @@
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* ---- Prepare panel: storm plan, phase checklist, "Will it last?" ---- */
+.prep-basis { margin: 0.6rem 0 0.7rem; padding: 0.6rem 0.8rem; border-radius: 10px; background: #eef4ff; border: 1px solid #c7d7fe; }
+.prep-basis__main { font-size: 1rem; color: #1e3a8a; }
+.prep-basis__sub { font-size: 0.8rem; color: #475569; margin-top: 0.15rem; }
+.prep-tabs { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.prep-tab { flex: 1 1 0; min-width: 7rem; padding: 0.4rem 0.5rem; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; font-size: 0.82rem; font-weight: 600; color: #334155; cursor: pointer; }
+.prep-tab:hover { border-color: #94a3b8; }
+.prep-tab.is-active { background: #1e3a8a; border-color: #1e3a8a; color: #fff; }
+.prep-tab__count { display: inline-block; min-width: 1.2rem; margin-left: 0.25rem; padding: 0 0.3rem; border-radius: 999px; background: rgba(148, 163, 184, 0.3); font-size: 0.72rem; }
+.prep-tab.is-active .prep-tab__count { background: rgba(255, 255, 255, 0.25); }
+.prep-progress { height: 6px; margin-top: 0.6rem; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+.prep-progress__bar { height: 100%; width: 0; background: #16a34a; transition: width 0.25s ease; }
+.prep-progress__text { margin: 0.2rem 0 0.3rem; }
+.prep-tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
+.prep-task__label { display: flex; gap: 0.55rem; align-items: flex-start; padding: 0.45rem 0.55rem; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; font-size: 0.88rem; }
+.prep-task__label:hover { background: #f8fafc; }
+.prep-task__label input { margin-top: 0.2rem; accent-color: #16a34a; }
+.prep-task__why { display: block; font-size: 0.75rem; color: #64748b; }
+.prep-task.is-done .prep-task__text { color: #94a3b8; text-decoration: line-through; }
+.ttm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr)); gap: 0.5rem; margin-top: 0.3rem; }
+.ttm-card { border: 1px solid #e2e8f0; border-left-width: 4px; border-radius: 10px; padding: 0.5rem 0.6rem; font-size: 0.84rem; background: #fff; }
+.ttm-card--ok { border-left-color: #16a34a; }
+.ttm-card--watch { border-left-color: #ca8a04; }
+.ttm-card--risk { border-left-color: #ea580c; }
+.ttm-card__top { display: flex; align-items: center; gap: 0.35rem; }
+.ttm-card__icon { font-size: 1.1rem; }
+.ttm-card__name { font-weight: 700; }
+.ttm-pill { margin-left: auto; font-size: 0.68rem; font-weight: 700; padding: 0.05rem 0.4rem; border-radius: 999px; white-space: nowrap; }
+.ttm-pill--ok { background: #dcfce7; color: #166534; }
+.ttm-pill--watch { background: #fef3c7; color: #92400e; }
+.ttm-pill--risk { background: #ffedd5; color: #9a3412; }
+.ttm-card__lasts { margin-top: 0.2rem; color: #334155; }
+.ttm-mini { position: relative; height: 8px; margin: 0.45rem 0 0.35rem; border-radius: 999px; background: #f1f5f9; }
+.ttm-mini__band { position: absolute; top: 0; height: 100%; border-radius: 999px; background: rgba(37, 99, 235, 0.35); }
+.ttm-mini__mark { position: absolute; top: -3px; width: 3px; height: 14px; border-radius: 2px; background: #0f172a; transform: translateX(-1px); }
+.ttm-card__ctl { font-size: 0.78rem; color: #475569; display: flex; align-items: center; gap: 0.3rem; }
+.ttm-card__ctl select, .ttm-card__ctl input[type="number"] { padding: 0.05rem 0.25rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.78rem; }
+.ttm-card__ctl input[type="number"] { width: 3.4rem; }
+.ttm-card__ctl input[type="range"] { flex: 1; accent-color: #1e3a8a; }
+.ttm-card__tip { margin-top: 0.3rem; font-size: 0.78rem; color: #9a3412; }
+.safety-strip { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.8rem; }
+.safety-chip { font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 6px; }
+.safety-chip--emergency { background: #fbeceb; border: 1px solid #c62828; color: #8f1714; font-weight: 600; }
+.safety-chip--safety { background: #fef4e2; border: 1px solid #d97706; color: #7c3d06; }
+
+/* ---- storm replay: nudge popup + safety alert ---- */
+.prep-nudge { position: fixed; left: 50%; top: 7.5rem; transform: translateX(-50%); z-index: 2990; max-width: min(92vw, 30rem);
+  padding: 0.8rem 1.1rem; border-radius: 12px; background: #1e3a8a; color: #fff; font-size: 0.95rem; font-weight: 600;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35); animation: nudge-in 0.35s ease-out; transition: opacity 0.4s, transform 0.4s; }
+.prep-nudge.is-out { opacity: 0; transform: translate(-50%, -0.6rem); }
+@keyframes nudge-in { from { opacity: 0; transform: translate(-50%, -0.8rem); } to { opacity: 1; transform: translate(-50%, 0); } }
+.safety-alert { position: fixed; inset: 0; z-index: 3000; display: grid; place-items: center; background: rgba(15, 23, 42, 0.45); padding: 1rem; }
+.safety-alert[hidden] { display: none; }
+.safety-alert__card { position: relative; width: min(94vw, 27rem); background: #fff; border-radius: 16px; border-top: 6px solid #c62828;
+  padding: 1.2rem 1.2rem 1rem; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.4); animation: alert-in 0.3s ease-out; text-align: center; }
+@keyframes alert-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+.safety-alert__x { position: absolute; top: 0.5rem; right: 0.6rem; border: 0; background: transparent; font-size: 1.1rem; color: #64748b; cursor: pointer; }
+.safety-alert__x:hover { color: #0f172a; }
+.safety-alert__badge { width: 3rem; height: 3rem; margin: 0 auto 0.4rem; border-radius: 999px; display: grid; place-items: center;
+  background: #fde8e8; color: #c62828; font-size: 1.5rem; animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.35); } 50% { box-shadow: 0 0 0 10px rgba(198, 40, 40, 0); } }
+.safety-alert h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.7rem; color: #0f172a; }
+.safety-alert__list { list-style: none; padding: 0; margin: 0 0 0.9rem; display: grid; gap: 0.45rem; text-align: left; }
+.safety-alert__item { display: flex; gap: 0.6rem; align-items: center; padding: 0.55rem 0.7rem; border-radius: 10px; font-size: 0.9rem; }
+.safety-alert__item--emergency { background: #fbeceb; color: #8f1714; font-weight: 700; }
+.safety-alert__item--safety { background: #fef4e2; color: #7c3d06; }
+.safety-alert__icon { font-size: 1.2rem; }
+
+/* keep panels clear of the sticky header when the storm replay scrolls to them */
+.panel--prepare, .panel--map { scroll-margin-top: 7.5rem; }

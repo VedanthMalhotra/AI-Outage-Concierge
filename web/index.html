@@ -255,11 +255,23 @@
       </label>
       <p class="muted small">We use this only for this session to tailor your steps and alerts. We never guess it from data.</p>
 
-      <div id="prep-safety" class="safety-stack"></div>
-      <p class="escalation-note" id="prep-escalation" hidden></p>
+      <div class="prep-basis" id="prep-basis"></div>
 
-      <h3 class="subhead">Checklist</h3>
-      <ul id="prep-checklist" class="checklist"></ul>
+      <div class="prep-tabs" role="tablist" aria-label="When to do it">
+        <button type="button" class="prep-tab is-active" id="prep-tab-before" role="tab">Before the storm <span class="prep-tab__count"></span></button>
+        <button type="button" class="prep-tab" id="prep-tab-during" role="tab">Power is out <span class="prep-tab__count"></span></button>
+        <button type="button" class="prep-tab" id="prep-tab-after" role="tab">Power is back <span class="prep-tab__count"></span></button>
+      </div>
+      <div class="prep-progress"><div class="prep-progress__bar" id="prep-progress-bar"></div></div>
+      <p class="muted small prep-progress__text" id="prep-progress-text"></p>
+      <ul id="prep-checklist" class="prep-tasks"></ul>
+
+      <h3 class="subhead">Will it last?</h3>
+      <p class="muted small">How long each one lasts without power, against your likely outage (blue).</p>
+      <div id="ttm-cards" class="ttm-grid"></div>
+
+      <p class="escalation-note" id="prep-escalation" hidden></p>
+      <div id="prep-safety" class="safety-strip"></div>
     </section>
 
     <!-- ---------- ALERTS & TIMELINE ---------- -->
@@ -304,5 +316,16 @@
   </div>
 
   <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
+  <!-- storm replay: self-closing nudge (phases 1 and 3) and a safety alert the user closes (phase 2) -->
+  <div id="prep-nudge" class="prep-nudge" role="status" aria-live="polite" hidden></div>
+  <div id="safety-alert" class="safety-alert" role="alertdialog" aria-labelledby="safety-alert-h" hidden>
+    <div class="safety-alert__card">
+      <button type="button" class="safety-alert__x" id="safety-alert-x" aria-label="Close safety alert">✕</button>
+      <div class="safety-alert__badge" aria-hidden="true">⚠</div>
+      <h3 id="safety-alert-h">The storm is here: stay safe</h3>
+      <ul id="safety-alert-list" class="safety-alert__list"></ul>
+      <button type="button" class="btn" id="safety-alert-ok">Got it</button>
+    </div>
+  </div>
 </body>
 </html>

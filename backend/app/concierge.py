@@ -162,34 +162,32 @@ def timeline(premise_id: str) -> dict:
              "secondary": ("damaged service line", "damaged service lines")}
     what = ", ".join(f"{int(v)} {names[k][v > 1]}" for k, v in found.items())
     after = predict.simulate(premise_id, known_damage=found)
-    # once crews are on the line, only the home's own repairs remain
-    own_h = max(1.0, after["p50"] - 6.0)
     r = lambda x, lbl="Model estimate": {"p10": x["p10"], "p50": x["p50"], "p90": x["p90"], "label": lbl}
     band = risk["band"].upper()
+    # three steps: before / during / after. "During" carries two messages: outage confirmed,
+    # then the estimate updated after damage assessment.
+    pre_storm = {"type": "pre_storm", "channel": ["sms", "push"],
+                 "text": f"AEP: A strong storm may affect your area tomorrow. Your outage risk is {band}. If you lose power, "
+                         f"restoration may take {rest['p10']:.0f}-{rest['p90']:.0f} hrs (estimate). Charge devices tonight. Stay away from downed lines."}
+    confirmed = {"type": "outage_confirmed", "channel": ["sms", "push"],
+                 "text": "AEP: We've confirmed an outage affecting your home. Crews are assessing damage and we'll update you."}
+    # sent after damage assessment, so the customer hears what was found and the new range
+    updated = {
+        "type": "estimate_updated", "channel": ["sms"],
+        "text": f"AEP: Updated estimate: power likely back in {after['p10']:.0f}-{after['p90']:.0f} hrs "
+                f"(was {rest['p10']:.0f}-{rest['p90']:.0f}). Crews found {what} on your line."}
+    restored = {"type": "restored", "channel": ["sms", "push"],
+                "text": "AEP: Power should now be restored at your home. Still out? Reply OUT."}
     steps = [
-        {"t": "T-24h", "title": "Forecast: strong storm expected tomorrow", "phase": "pre_storm", "confirmed_event": None,
+        {"t": "T-24h", "title": "Before the storm: strong storm expected tomorrow", "phase": "pre_storm", "confirmed_event": None,
          "risk": {"probability": risk["probability"], "band": risk["band"]}, "restoration": r(rest),
-         "message": {"type": "pre_storm", "channel": ["sms", "push"],
-                     "text": f"AEP: A strong storm may affect your area tomorrow. Your outage risk is {band}. If you lose power, "
-                             f"restoration may take {rest['p10']:.0f}-{rest['p90']:.0f} hrs (estimate). Charge devices tonight. Stay away from downed lines."}},
-        {"t": "T0", "title": "Storm peak", "phase": "storm", "confirmed_event": None, "risk": None, "restoration": r(rest), "message": None},
-        {"t": "T+2h", "title": "Damage reports arriving", "phase": "outage",
-         "confirmed_event": {"text": "Outage on your line", "label": source}, "risk": None, "restoration": r(rest),
-         "message": {"type": "outage_confirmed", "channel": ["sms", "push"],
-                     "text": "AEP: We've confirmed an outage affecting your home. Crews will assess damage after winds ease. We'll update you after assessment."}},
-        {"t": "T+6h", "title": "Damage assessment complete", "phase": "assessing",
+         "message": pre_storm, "messages": [pre_storm]},
+        {"t": "T+6h", "title": "During the storm: your power is out", "phase": "outage",
          "confirmed_event": {"text": f"Found on your line: {what}", "label": source}, "risk": None, "restoration": r(after),
-         "message": None if abs(after["p50"] - rest["p50"]) <= 2 else {
-             "type": "estimate_updated", "channel": ["sms"],
-             "text": f"AEP: Updated estimate: power likely back in {after['p10']:.0f}-{after['p90']:.0f} hrs "
-                     f"(was {rest['p10']:.0f}-{rest['p90']:.0f}). Reason: crews found {what} on your line."}},
-        {"t": f"T+{max(7, after['p50'] - own_h / 2):.0f}h", "title": "Crews working on your line", "phase": "repairing",
-         "confirmed_event": {"text": "Crew assigned to your line", "label": "Simulated"}, "risk": None,
-         "restoration": r({"p10": own_h * 0.3, "p50": own_h / 2, "p90": own_h}), "message": None},
-        {"t": f"T+{after['p50']:.0f}h", "title": "Power restored", "phase": "restored",
+         "message": confirmed, "messages": [confirmed, updated]},
+        {"t": f"T+{after['p50']:.0f}h", "title": "After the storm: power restored", "phase": "restored",
          "confirmed_event": {"text": "Repairs on your line complete", "label": "Simulated"}, "risk": None, "restoration": None,
-         "message": {"type": "restored", "channel": ["sms", "push"],
-                     "text": "AEP: Power should now be restored at your home. Still out? Reply OUT."}},
+         "message": restored, "messages": [restored]},
     ]
     return {"premise_id": str(premise_id), "replay_source": source, "steps": steps}
 

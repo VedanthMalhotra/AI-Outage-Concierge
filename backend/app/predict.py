@@ -427,6 +427,7 @@ def simulate(premise_id: str, crews: int = 2, storm_severity: float = 1.0, acces
     p10, p50, p90 = np.percentile(t, [10, 50, 90])
     sev = storm_severity
     return {"p10": round(float(p10), 1), "p50": round(float(p50), 1), "p90": round(float(p90), 1),
+            "runs": np.round(np.sort(t), 1).tolist(),  # every simulated outage length, for "Time That Matters"
             "expected_damage_on_your_path": {t: round(float(v), 2) for t, v in zip(DAMAGE_TYPES, (inp["own"] + inp["up"]) * sev)},
             "expected_damage_ahead": {t: round(float(v), 2) for t, v in zip(DAMAGE_TYPES, (inp["ahead"] + inp["crit"]) * sev)},
             "expected_damage_on_circuit": {t: round(float(v), 1) for t, v in zip(DAMAGE_TYPES, inp["circuit"] * sev)}}
