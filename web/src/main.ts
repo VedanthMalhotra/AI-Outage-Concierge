@@ -14,8 +14,10 @@ import { $, el, getJSON, toast } from "./dom";
 import {
   DEFAULT_PREMISE_ID,
   apiHealthy,
+  endChat,
   fetchDamageHeat,
   fetchPremiseLookup,
+  sendChat,
 } from "./api";
 import type {
   AppData,
@@ -742,18 +744,37 @@ interface BubbleOpts {
   tools?: string[];
   emergency?: boolean;
 }
-function addBubble(role: "user" | "bot", text: string, opts: BubbleOpts = {}): void {
+/** Render **bold** and line breaks from model replies using text nodes only (no innerHTML). */
+function appendFormatted(target: HTMLElement, text: string): void {
+  text.split("\n").forEach((rawLine, i) => {
+    if (i > 0) target.appendChild(document.createElement("br"));
+    const line = rawLine.replace(/^\s*#{1,6}\s*/, ""); // drop markdown heading markers
+    line.split("**").forEach((part, j) => {
+      if (!part) return;
+      if (j % 2 === 1) {
+        const s = document.createElement("strong");
+        s.textContent = part;
+        target.appendChild(s);
+      } else target.appendChild(document.createTextNode(part));
+    });
+  });
+}
+
+function addBubble(role: "user" | "bot", text: string, opts: BubbleOpts = {}): HTMLElement {
   const log = $("#chat-log");
-  const b = el(
-    "div",
-    `bubble bubble--${role === "user" ? "user" : opts.emergency ? "emergency" : "bot"}`
-  );
-  b.appendChild(document.createTextNode(text));
+  // full class names written out so Tailwind keeps these rules (it can't see `bubble--${...}`)
+  const variant =
+    role === "user" ? "bubble--user" : opts.emergency ? "bubble--emergency" : "bubble--bot";
+  const b = el("div", `bubble ${variant}`);
+  appendFormatted(b, text);
   if (opts.tools && opts.tools.length) {
-    b.appendChild(el("span", "tools", `tools used: ${opts.tools.join(", ")}`));
+    const t = el("span", "tools");
+    t.textContent = `tools used: ${opts.tools.join(", ")}`;
+    b.appendChild(t);
   }
   log.appendChild(b);
   log.scrollTop = log.scrollHeight;
+  return b;
 }
 
 function matchExample(q: string) {
@@ -775,8 +796,25 @@ function matchExample(q: string) {
   return null;
 }
 
-function handleChat(q: string): void {
+let chatBusy = false;
+
+async function handleChat(q: string): Promise<void> {
+  if (chatBusy) return;
+  chatBusy = true;
   addBubble("user", q);
+  const typing = addBubble("bot", "Thinking…");
+  typing.classList.add("bubble--typing");
+  try {
+    // live: Amazon Nova with this tab's private conversation memory
+    const r = await sendChat(q, state.premiseId);
+    typing.remove();
+    addBubble("bot", r.reply, { tools: r.tools_used, emergency: r.emergency });
+    return;
+  } catch {
+    typing.remove(); // backend or model unavailable: fall back to the sample answers below
+  } finally {
+    chatBusy = false;
+  }
   const ex = matchExample(q);
   if (ex) {
     addBubble("bot", ex.assistant, { tools: ex.tools_called, emergency: ex.emergency });
@@ -947,6 +985,7 @@ function clearMyData(): void {
   resetScenario();
   resetStorm();
   $("#chat-log").innerHTML = "";
+  void endChat();
   seedChat();
   toast("Your session data has been cleared.");
 }

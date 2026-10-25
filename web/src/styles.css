@@ -375,6 +375,7 @@
   .bubble--emergency { background: #fbeceb; border: 1px solid theme(colors.aep.emergency); color: #8f1714; }
   .bubble--emergency::before { content: "⛔ EMERGENCY "; @apply block font-bold; margin-bottom: 0.2rem; }
   .bubble .tools { @apply block text-aep-muted; margin-top: 0.3rem; font-size: 0.72rem; }
+  .bubble--typing { @apply text-aep-muted italic; }
 
   .chat-suggestions { @apply flex flex-wrap; gap: 0.35rem; margin: 0.5rem 0; }
   .chat-suggestions button {

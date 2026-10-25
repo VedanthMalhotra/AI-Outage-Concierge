@@ -14,6 +14,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
+from . import chat
 from . import topology as topo
 from .config import get_settings
 from .data import TABLE_PATHS, get_store
@@ -57,9 +58,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
     allow_credentials=False,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["*"],
 )
+app.include_router(chat.router)
 
 
 def _source_label() -> str:

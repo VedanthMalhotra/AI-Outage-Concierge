@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     # Comma-separated list of allowed CORS origins ("*" for all).
     aep_cors_origins: str = "*"
 
+    # Chat (Amazon Nova on Bedrock). Sessions live in memory only.
+    aep_chat_model_id: str = "us.amazon.nova-2-lite-v1:0"
+    aep_chat_session_ttl_min: int = 30
+    aep_chat_max_messages: int = 24
+
     @property
     def cors_origin_list(self) -> list[str]:
         raw = self.aep_cors_origins.strip()
