@@ -58,18 +58,19 @@
   <!-- page title strip -->
   <div class="page-title">
     <div class="page-title__inner">
-      <h1>AI Outage Concierge</h1>
-      <span class="page-title__sep" aria-hidden="true">·</span>
+      <div><p class="eyebrow">ROANOKE VALLEY, VIRGINIA</p><h1>A clearer view of the storm.</h1><p class="hero-description">Understand your risk. Explore your area. Feel more prepared.</p></div>
+      
       <p class="page-title__sub" id="area-label">Roanoke area · circuit CIR72</p>
     </div>
   </div>
 
+  <nav class="dashboard-nav" aria-label="Dashboard sections"><a href="#main" class="is-active">Overview</a><a href="#outlook-h">Outage outlook</a><a href="#prep-h">Your preparation</a><a href="#chat-h">Ask concierge <span>↗</span></a></nav>
   <!-- ===================== MAIN GRID ===================== -->
   <main id="main" class="layout">
     <!-- ---------- MAP ---------- -->
     <section class="panel panel--map" aria-label="Map of your area">
       <div class="panel__head">
-        <h2>Your area</h2>
+        <div><p class="eyebrow">EXPLORE YOUR AREA</p><h2>Your power, in perspective</h2></div>
         <div class="map-legend" aria-hidden="true">
           <span class="dot dot--pin"></span> Your home
           <span class="dot dot--heat"></span> Predicted chance of losing power (AI model, ~500 m areas)
@@ -80,8 +81,9 @@
         <div id="map" role="img" aria-label="Map showing the AI model's predicted chance of losing power, averaged over areas of about 500 m with at least 5 homes, your circuit area, and (once a premise is entered) your home pin and power path. Other customers are never shown."></div>
 
         <!-- 2D / 3D view toggle -->
-        <button type="button" id="view-toggle" class="map-viewtoggle" aria-label="Map view mode: 2D. Click to switch.">2D</button>
+        <button type="button" id="view-toggle" class="map-viewtoggle" aria-label="Map view mode: 3D. Click to switch.">3D</button>
 
+        <div class="map-tools"><button type="button" id="map-home" aria-label="Return to selected home">⌂</button><button type="button" id="map-overview" aria-label="Show area overview">↗</button></div><div class="map-location"><span class="map-location__dot"></span> Roanoke Valley <small id="map-status">Loading TomTom 3D map…</small></div><div class="map-attribution">TomTom map · Outage layers: processed AEP data</div>
         <!-- Power-path colour legend (populated by main.ts) -->
         <div id="pp-legend-host" class="pp-legend" aria-hidden="true"></div>
 
@@ -112,10 +114,10 @@
     <!-- ---------- CHAT (right of the map) ---------- -->
     <section class="panel panel--chat" aria-labelledby="chat-h">
       <div class="panel__head">
-        <h2 id="chat-h">Ask the concierge</h2>
+        <div><p class="eyebrow">HERE TO HELP</p><h2 id="chat-h">Your outage concierge</h2></div><span class="assistant-mark" aria-hidden="true">✦</span>
       </div>
 
-      <div id="chat-log" class="chat-log" aria-live="polite"></div>
+      <p class="concierge-intro">A little clarity when the weather gets uncertain. Ask about your home, your estimate, or your next step.</p><div id="chat-log" class="chat-log" aria-live="polite"></div>
 
       <div class="chat-suggestions" id="chat-suggestions"></div>
 
@@ -280,7 +282,7 @@
   <footer class="app-footer">
     <p class="app-footer__disclaimer">
       <strong>Model estimates, not official AEP information.</strong>
-      Map locations and damage counts are real (circuit CIR72). Risk and restoration numbers are illustrative sample data.
+      Risk and restoration are estimates based on historical storm data. The storm replay is a simulation, not a live outage feed.
     </p>
     <div class="app-footer__actions">
       <button type="button" id="open-assumptions" class="btn btn--ghost">Assumptions ⓘ</button>
