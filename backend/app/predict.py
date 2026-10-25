@@ -155,48 +155,47 @@ def _round10(n: float) -> int:
 # plain-language reasons: shown for features that raise this home's risk, phrased by
 # whether the value is above average (positive coefficient) or below (negative coefficient)
 HIGH = {
-    "primary_overhead_km": ("Long overhead lines", lambda v: f"About {v:.1f} km of overhead power line runs near you, exposed to wind, ice and trees."),
-    "secondary_overhead_km": ("Overhead wires", lambda v: f"About {v:.1f} km of overhead wire serves the homes on your line."),
-    "poles": ("Many poles", lambda v: f"Your line runs on about {int(v)} poles, and each one can be damaged in a storm."),
-    "poles_per_oh_km": ("Many poles", lambda v: f"Your line has many poles close together (about {v:.0f} per km)."),
-    "pole_wood_share": ("Wood poles", lambda v: f"{v:.0%} of the poles on your line are wood."),
-    "pole_height_mean": ("Tall poles", lambda v: f"The poles on your line are tall (about {v:.0f} ft), so they catch more wind."),
-    "customers": ("Shared line", lambda v: f"About {_round10(v)} homes share the safety switch that protects your line."),
-    "transformers": ("Lots of equipment", lambda v: f"Your line feeds a lot of neighborhood equipment ({int(v)} transformers), so there's more that can break."),
-    "oh_transformer_share": ("Equipment on poles", lambda v: f"{v:.0%} of the equipment on your line sits up on poles."),
-    "depth": ("Far from the substation", lambda v: f"Power reaches you through {int(v) + 1} protected sections, so damage further up the line can also cut you off."),
-    "history_damage": ("Storm damage before", lambda v: f"Your line had {int(v)} damage report(s) in earlier storms."),
-    "breaker_only": ("No local safety switch", lambda v: "There's no local safety switch between your home and the substation, so a fault anywhere on the line can cut you off."),
-    "is_recloser": ("Part of a bigger section", lambda v: "Your home is on a larger section of line that shares one automatic safety switch."),
+    "primary_overhead_km": ("Long overhead lines", lambda v: f"About {v:.1f} km of overhead power line serves your area. Every stretch is open to wind, ice and falling branches, so more line means more places a storm can break it."),
+    "secondary_overhead_km": ("Overhead wires", lambda v: f"About {v:.1f} km of overhead wire runs to the homes on your line. Branches and ice can bring these wires down."),
+    "poles": ("Many poles", lambda v: f"Your line runs on about {int(v)} poles. Wind or a falling tree can snap any one of them, and one broken pole cuts power to every home past it."),
+    "poles_per_oh_km": ("Many poles", lambda v: f"Your line has many poles close together (about {v:.0f} per km), so there are more points a storm can damage."),
+    "pole_wood_share": ("Wood poles", lambda v: f"{v:.0%} of the poles on your line are wood, which can crack or rot and is more likely to break in high wind."),
+    "pole_height_mean": ("Tall poles", lambda v: f"The poles on your line are tall (about {v:.0f} ft). Taller poles catch more wind and reach into more tree branches."),
+    "customers": ("Shared line", lambda v: f"About {_round10(v)} homes share the safety switch that protects your line. It serves a longer stretch of line, so damage anywhere along it can trip the switch and cut your power."),
+    "transformers": ("Lots of equipment", lambda v: f"Your line feeds {int(v)} transformers (the boxes that bring power down to homes). Each one, with its pole and wires, is another thing a storm can break, and one failure can trip the whole line."),
+    "oh_transformer_share": ("Equipment on poles", lambda v: f"{v:.0%} of the equipment on your line sits up on poles, where wind, ice and branches can hit it."),
+    "depth": ("Far from the substation", lambda v: f"Power reaches you through {int(v) + 1} protected sections in a row. Damage in any of them can cut you off, not just damage near your home."),
+    "history_damage": ("Storm damage before", lambda v: f"Your line had {int(v)} damage report(s) in earlier storms, which suggests it's exposed to trees or wind."),
+    "breaker_only": ("No local safety switch", lambda v: "No local safety switch protects your line, so a fault anywhere on the main line trips power for everyone on it, including you."),
+    "is_recloser": ("Part of a bigger section", lambda v: "Your home is on a larger section protected by one automatic switch. A larger section covers more line, so more damage can trip it and take you out with it."),
 }
 LOW = {
-    "primary_underground_km": ("Few buried lines", lambda v: "Almost none of the power line near you is underground."),
-    "secondary_underground_km": ("Few buried wires", lambda v: "Almost none of the wire serving your line is underground."),
-    "customers_per_km": ("Rural area", lambda v: f"Homes near you are spread out (about {v:.0f} per km of line), so the lines are long."),
-    "is_recloser": ("Basic safety switch", lambda v: "Your line is protected by a fuse, which can't reset itself after a brief fault."),
+    "primary_underground_km": ("Few buried lines", lambda v: "Almost none of the power line near you is underground, so all of it is open to wind and falling trees."),
+    "secondary_underground_km": ("Few buried wires", lambda v: "Almost none of the wire serving your line is underground, so it's open to branches and ice."),
+    "customers_per_km": ("Rural area", lambda v: f"Homes near you are spread out (about {v:.0f} per km of line). Long lines through open and wooded land face more trees and wind for every home they serve."),
+    "is_recloser": ("Basic safety switch", lambda v: "Your line is protected by a fuse. A fuse can't reset itself, so even a brief fault, like a branch brushing the line, leaves you out until a crew replaces it."),
     "pole_height_mean": ("Shorter poles", lambda v: f"The poles on your line average about {v:.0f} ft."),
-    "customers": ("Small line", lambda v: f"Only about {_round10(v)} homes share the safety switch that protects your line."),
+    "customers": ("Small line", lambda v: f"Only about {_round10(v)} homes share the safety switch that protects your line, so one fault on it affects your home directly."),
 }
 
 
 # reasons a home's risk is LOW: features that pull its risk down, phrased the same two ways
 LOWERS_BELOW = {  # positive coefficient, value below average
-    "primary_overhead_km": ("Short overhead lines", lambda v: f"Only a short stretch of overhead power line (about {v:.1f} km) runs near you."),
-    "secondary_overhead_km": ("Little overhead wire", lambda v: "Little overhead wire serves the homes on your line."),
-    "poles": ("Few poles", lambda v: f"Your line runs on only about {int(v)} poles."),
-    "transformers": ("Little equipment", lambda v: "Your line feeds only a little neighborhood equipment."),
-    "oh_transformer_share": ("Equipment on the ground", lambda v: "Most equipment on your line sits on the ground, not up on poles."),
-    "customers": ("Small line", lambda v: f"Only about {_round10(v)} homes share the safety switch that protects your line."),
-    "pole_wood_share": ("Sturdier poles", lambda v: f"Only {v:.0%} of the poles on your line are wood."),
-    "depth": ("Close to the substation", lambda v: "Power reaches you through few protected sections, so less damage elsewhere can cut you off."),
-    "is_recloser": ("Own safety switch", lambda v: "Your line has its own fuse, so faults on other lines are cut off before they reach you."),
+    "primary_overhead_km": ("Short overhead lines", lambda v: f"Only a short stretch of overhead power line (about {v:.1f} km) serves your area, so there's less line for wind and trees to hit."),
+    "secondary_overhead_km": ("Little overhead wire", lambda v: "Little overhead wire runs to the homes on your line, so there are fewer wires for branches to bring down."),
+    "poles": ("Few poles", lambda v: f"Your line runs on only about {int(v)} poles, so there are fewer that a storm can break."),
+    "transformers": ("Little equipment", lambda v: "Your line feeds only a little equipment, so there's less that can fail and trip the line."),
+    "oh_transformer_share": ("Equipment on the ground", lambda v: "Most equipment on your line sits on the ground, away from wind and falling branches."),
+    "customers": ("Small line", lambda v: f"Only about {_round10(v)} homes share the safety switch that protects your line, so it covers a short stretch with little to go wrong."),
+    "pole_wood_share": ("Sturdier poles", lambda v: f"Only {v:.0%} of the poles on your line are wood; the rest stand up better to wind."),
+    "depth": ("Close to the substation", lambda v: "Power reaches you through few sections, so there's less line between you and the substation where damage could cut you off."),
+    "is_recloser": ("Own safety switch", lambda v: "Your line has its own fuse, so a fault on a neighbouring line gets cut off there instead of reaching you."),
 }
 LOWERS_ABOVE = {  # negative coefficient, value above average
-    "primary_underground_km": ("Buried power line", lambda v: f"Much of the power line near you (about {v:.1f} km) is underground, safe from wind and trees."),
-    "secondary_underground_km": ("Buried wires", lambda v: "Much of the wire serving your line is underground, safe from wind and trees."),
-    "customers_per_km": ("Homes close together", lambda v: "Homes near you are close together, so the power lines are short."),
-    "is_recloser": ("Automatic safety switch", lambda v: "An automatic switch protects your line and can reset itself after brief faults."),
-    "customers": ("Larger, sturdier line", lambda v: f"About {_round10(v)} homes share your line, which tends to be built sturdier."),
+    "primary_underground_km": ("Buried power line", lambda v: f"Much of the power line near you (about {v:.1f} km) is underground, where wind, ice and falling trees can't reach it."),
+    "secondary_underground_km": ("Buried wires", lambda v: "Much of the wire serving your line is underground, where branches and ice can't reach it."),
+    "customers_per_km": ("Homes close together", lambda v: "Homes near you are close together, so the lines between them are short and pass fewer trees."),
+    "is_recloser": ("Automatic safety switch", lambda v: "An automatic switch protects your line. It can reset itself after a brief fault, like a branch brushing the line, instead of leaving you out."),
 }
 
 
