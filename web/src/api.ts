@@ -39,14 +39,16 @@ export const API_BASE: string = (ENV.VITE_API_BASE ?? "http://localhost:8000").r
   ""
 );
 
-/** Demo premise IDs to populate the dev picker (match the old mock list). */
+/** Demo homes for the pitch: six different circuits and towns, every risk band,
+ * overhead and underground, all with full data coverage and a restoration
+ * estimate that drops when crews are added (picked from the model's scores). */
 const DEMO_PREMISE_IDS = [
-  "716589371", // first = default: High risk, and every restoration control moves its estimate
-  "858810648",
-  "840408754",
-  "934287012",
-  "906593047",
-  "998522028",
+  "400797248", // first = default. Salem, CIR31, overhead, Very High (~80%), lost power Feb 2025
+  "823929604", // Roanoke, CIR14, overhead, High (~55%), lost power Feb 2025
+  "399053172", // Boones Mill, CIR18, underground, High (~50%), lost power Feb 2025
+  "100862103", // Vinton, CIR40, overhead, Moderate (~28%)
+  "655649579", // Cloverdale, CIR73, underground, Moderate (~22%)
+  "151197223", // Blue Ridge, CIR61, underground, Low (~5%)
 ] as const;
 
 /** The premise shown first / used for the map centre. */
@@ -143,6 +145,8 @@ export async function fetchPremiseLookup(
       lat: r.value.premise.lat,
       lon: r.value.premise.lon,
       service_type: r.value.premise.service_type ?? "Unknown",
+      city: r.value.premise.city ?? null,
+      circuit_id: r.value.premise.circuit_id,
     }));
 
   // Guarantee the requested premise is present in the picker.
@@ -152,6 +156,8 @@ export async function fetchPremiseLookup(
       lat: main.premise.lat,
       lon: main.premise.lon,
       service_type: main.premise.service_type ?? "Unknown",
+      city: main.premise.city ?? null,
+      circuit_id: main.premise.circuit_id,
     });
   }
 

@@ -543,6 +543,12 @@ export function setPowerPath(pp: PowerPath | null, premiseId: string): void {
   refresh();
 }
 
+/** Swap in a new circuit outline (the selected home is on a different circuit). */
+export function setCircuit(c: GeoJSON.GeoJsonObject | null): void {
+  circuit = c;
+  refresh();
+}
+
 /** Swap in the predicted-risk heat for a new storm severity. */
 export function setRiskHeat(h: RiskHeat | null): void {
   heat = h;

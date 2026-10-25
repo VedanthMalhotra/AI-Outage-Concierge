@@ -13,6 +13,7 @@ import {
   flyToOverview,
   setPowerPath,
   setRiskHeat,
+  setCircuit,
   setPhaseVisuals,
   setViewMode,
   getViewMode,
@@ -106,6 +107,9 @@ const data: AppData = {
 /* remembers the previous risk sample for the before/after delta note */
 let prevRisk: Risk | null = null;
 
+/* circuit whose outline is on the map, so switching homes only refetches on a new circuit */
+let loadedCircuitId: string | null = null;
+
 /* whether the live backend answered at boot (reused for later premise fetches) */
 let apiLive = false;
 
@@ -163,6 +167,7 @@ async function boot(): Promise<void> {
       fetchAssumptions(),
     ]);
     data.circuit = await fetchCircuitOutline(data.lookup.circuit_id);
+    loadedCircuitId = data.lookup.circuit_id;
     data.powerPath = await loadPowerPath(state.premiseId, apiLive, state.severity);
 
     // Keep state in sync with whatever premise the lookup settled on.
@@ -205,7 +210,7 @@ function buildPremisePicker(): void {
   data.lookup!.demo_premises.forEach((p) => {
     const o = el("option");
     o.value = p.premise_id;
-    o.textContent = `${p.premise_id} · ${p.service_type}`;
+    o.textContent = [p.city, p.circuit_id, p.service_type, p.premise_id].filter(Boolean).join(" · ");
     sel.appendChild(o);
   });
   sel.value = state.premiseId;
@@ -239,13 +244,23 @@ async function selectPremise(
   id: string,
   coords: { lat: number; lon: number } | null = null
 ): Promise<void> {
-  // Resolve coordinates if we weren't given them.
-  if (!coords) {
-    // already in the demo list?
-    const demo = data.lookup!.demo_premises.find((x) => x.premise_id === id);
-    if (demo) {
-      coords = { lat: demo.lat, lon: demo.lon };
-    } else if (apiLive) {
+  const demo = data.lookup!.demo_premises.find((x) => x.premise_id === id);
+  if (demo) {
+    coords = coords ?? { lat: demo.lat, lon: demo.lon };
+    // the demo entry already knows its town / circuit / service, so the
+    // header label and circuit outline can follow without another lookup
+    Object.assign(data.lookup!, {
+      premise_id: demo.premise_id,
+      service_type: demo.service_type,
+      ...(demo.circuit_id && {
+        circuit_id: demo.circuit_id,
+        area_label: `${demo.city ? `${demo.city} area` : "Service area"} · circuit ${demo.circuit_id}`,
+      }),
+    });
+    $("#area-label").textContent = `${data.lookup!.area_label} · live API`;
+  } else if (!coords) {
+    // not a demo home: resolve it through the backend
+    if (apiLive) {
       try {
         const look = await fetchPremiseLookup(id);
         coords = { lat: look.lat, lon: look.lon };
@@ -272,14 +287,33 @@ async function selectPremise(
     data.lookup!.lon = coords.lon;
   }
 
-  await loadModelOutput(id);
-  renderRisk();
-  renderRestoration({ silent: true });
+  // a different home: stop any storm replay and don't compare against the old home
+  stopPlay();
+  prevRisk = null;
 
-  // refresh the power-path graphic for the newly selected home
+  // circuit outline follows the home (only refetched when the circuit changes)
+  const circuitId = data.lookup!.circuit_id;
+  const outline = circuitId !== loadedCircuitId && apiLive
+    ? fetchCircuitOutline(circuitId).catch(() => null)
+    : null;
+
+  await loadModelOutput(id);
+  renderGuidance();
+  renderAlerts();
+  buildTimelineTrack();
+  resetStorm(); // re-renders risk + restoration and clears the old home's notifications
+
+  if (outline) {
+    data.circuit = await outline;
+    loadedCircuitId = circuitId;
+    if (mapReady) setCircuit((data.circuit as GeoJSON.GeoJsonObject) ?? null);
+  }
+
+  // refresh the power-path graphic + its legend for the newly selected home
   const pp = await loadPowerPath(state.premiseId, apiLive, state.severity);
   data.powerPath = pp;
   if (mapReady) setPowerPath(pp, state.premiseId);
+  renderPathLegend();
 
   // Fly the 3D camera down from the overview hex field to this home. The pin
   // and power path are revealed as the heat fades back.

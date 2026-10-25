@@ -15,6 +15,8 @@ export interface DemoPremise {
   lat: number;
   lon: number;
   service_type: string;
+  city?: string | null;
+  circuit_id?: string;
 }
 export interface PremiseLookup {
   premise_id: string;
