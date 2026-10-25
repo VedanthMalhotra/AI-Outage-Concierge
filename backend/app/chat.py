@@ -12,10 +12,10 @@ Privacy model
   and are wiped by DELETE /chat/{session_id} (the dashboard's "Clear my data").
   Nothing is written to disk or logged.
 
-Numbers the model states must come from tool results. Risk, restoration,
-guidance and alerts still come from the sample model output in ../mock/api
-until the trained models are wired in; network and history facts come from
-the cleaned S3 tables.
+Numbers the model states must come from tool results. Risk and restoration come
+from the trained models (predictions.py -> predict.py), guidance and alerts from
+rules on that output (concierge.py), and network, history and explanation facts
+from the cleaned and feature tables (profile.py). No sample data is used.
 """
 from __future__ import annotations
 
@@ -26,12 +26,12 @@ import secrets
 import threading
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
+from . import concierge
 from . import predictions
 from . import topology as topo
 from .config import get_settings
@@ -42,7 +42,6 @@ log = logging.getLogger("aep.chat")
 router = APIRouter(tags=["chat"])
 settings = get_settings()
 
-MOCK_DIR = Path(__file__).resolve().parents[2] / "mock" / "api"
 MAX_TOOL_ROUNDS = 4
 MAX_SESSIONS = 500
 
@@ -73,6 +72,10 @@ February 2025 storm, damage reported in their zone in past storms, overhead line
 the type of protective device (fuse or recloser), or how many homes share their equipment.
 - Present history as evidence, not a guarantee: "In the February 2025 storm, your zone had 8 \
 downed wire reports, which is part of why your risk is high."
+- For "why is my risk high/low" questions, lead with the model's own reasons: the top_reasons \
+from get_outage_risk (also in the profile's model_outlook). Profile history can support them. \
+Never say a declared need (like medical equipment) changes the outage risk; it changes guidance \
+and alerts only.
 - Only use history and factors that appear in the profile or tool results. If a factor is \
 unknown (for example pole age), say so instead of guessing.
 - Never generalize from this home to others (do not say "every home on your circuit lost power"). \
@@ -192,10 +195,6 @@ def _trim(messages: list[dict]) -> list[dict]:
 # tools (read-only; always scoped to the session's own premise)
 # ---------------------------------------------------------------------------
 
-def _mock(name: str) -> dict:
-    return json.loads((MOCK_DIR / name).read_text(encoding="utf-8"))
-
-
 def _tool_risk(s: Session, args: dict) -> dict:
     return predictions.predict_risk(s.premise_id, args.get("storm_severity", 1.0))
 
@@ -208,17 +207,17 @@ def _tool_restoration(s: Session, args: dict) -> dict:
 
 
 def _tool_guidance(s: Session, args: dict) -> dict:
-    key = "high_4-24h_medical" if args.get("medical_equipment") else "high_4-24h_no-needs"
-    g = _mock("guidance.json")["variants"][key]
+    g = concierge.guidance(s.premise_id)["variants"]["medical" if args.get("medical_equipment") else "no-needs"]
     return {"safety": [x["text"] for x in g["safety"]], "checklist": g["checklist"],
-            "escalation": g.get("escalation"), "label": "Your action"}
+            "escalation": g.get("escalation"), "risk_band": g["risk_band"],
+            "expected_outage_hours": g["expected_hours"], "based_on": g["based_on"], "label": "Your action"}
 
 
 def _tool_alerts(s: Session, args: dict) -> dict:
-    a = _mock("alerts.json")["variants"]["medical" if args.get("medical_equipment") else "no-needs"]
+    a = concierge.alerts(s.premise_id)["variants"]["medical" if args.get("medical_equipment") else "no-needs"]
     return {"eligible": a["eligible"],
             "rules": [{"name": r["name"], "applies": r["met"], "why": r["why"]} for r in a["rules"]],
-            "escalations": a["escalations"], "note": "Alert rules are challenge assumptions, not AEP policy."}
+            "escalations": a["escalations"], "note": a["note"]}
 
 
 TOOLS: dict[str, tuple[Any, str, dict]] = {
@@ -302,6 +301,10 @@ def chat(req: ChatRequest, request: Request):
             s.premise_id, s.messages = req.premise_id, []
             try:
                 s.profile = customer_profile(req.premise_id)
+                r = predictions.predict_risk(req.premise_id)
+                if s.profile is not None and "error" not in r:
+                    s.profile["model_outlook"] = {k: r[k] for k in ("risk_band", "probability", "confidence", "top_reasons")} | {
+                        "storm": "like Feb 2025", "label": "Model estimate (trained outage-risk model)"}
             except Exception as exc:  # profile is context only; the chat still works without it
                 log.warning("profile build failed for this session: %s", exc)
                 s.profile = None

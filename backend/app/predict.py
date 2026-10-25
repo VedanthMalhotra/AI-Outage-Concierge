@@ -320,8 +320,11 @@ def _damage_inputs(premise_id: str) -> dict:
 
 def simulate(premise_id: str, crews: int = 2, storm_severity: float = 1.0, access: str = "auto",
              switching_available: bool = True, failed_upstream_device: Optional[str] = None,
-             prioritize_critical: bool = True, start_delay_h: float = 6.0, seed: int = 0) -> dict:
+             prioritize_critical: bool = True, start_delay_h: float = 6.0, seed: int = 0,
+             known_damage: Optional[dict[str, float]] = None) -> dict:
     """Monte Carlo restoration time for a home, given that it loses power. Hours, P10/P50/P90.
+    known_damage ({type: count} on the home's own line, e.g. from damage assessment) replaces
+    the model's draws for the home's line; work ahead is still drawn from the model.
 
     Crews work in priority order (MVP plan 5.2): critical facilities first (when on), then
     repairs serving more homes, then this home's own line. Time = start delay + work ahead
@@ -348,6 +351,9 @@ def simulate(premise_id: str, crews: int = 2, storm_severity: float = 1.0, acces
     w = w / w.sum() if w.sum() > 0 else np.full(k, 1 / k)
     none = (own.sum(1) + up.sum(1)) == 0
     own[none, rng.choice(k, none.sum(), p=w)] += 1
+    if known_damage is not None:
+        own = np.tile([float(known_damage.get(t, 0)) for t in DAMAGE_TYPES], (n, 1))
+        up = np.zeros((n, k))
 
     def crew_hours(counts):
         acc = rng.binomial(counts.sum(1).astype(int), p_access) * access_h

@@ -17,6 +17,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import chat
+from . import concierge
 from . import predict
 from . import topology as topo
 from .config import get_settings
@@ -65,6 +66,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(chat.router)
+
+
+@app.on_event("startup")
+def _warm_models() -> None:
+    """Load the models in the background so the first dashboard request is fast."""
+    import threading
+    threading.Thread(target=lambda: _safe(predict.engine), daemon=True).start()
+
+
+def _safe(fn) -> None:
+    try:
+        fn()
+    except Exception as exc:  # noqa: BLE001 - e.g. expired AWS login; requests will retry
+        log.warning("model warm-up failed: %s", exc)
 
 
 def _source_label() -> str:
@@ -191,6 +206,44 @@ def get_restoration_grid(premise_id: str):
     if not p or not p.get("has_chain"):
         raise HTTPException(status_code=404, detail=f"no equipment chain for premise '{premise_id}'")
     return predict.restoration_grid(str(premise_id))
+
+
+def _known(premise_id: str) -> None:
+    if not topo.find_premise(get_store(), premise_id):
+        raise HTTPException(status_code=404, detail=f"premise '{premise_id}' not found")
+
+
+@app.get("/premise/{premise_id}/guidance", tags=["models"])
+def get_guidance(premise_id: str):
+    """Preparation checklist + safety, from the home's risk band and expected outage length
+    (variants: no-needs / medical)."""
+    _known(premise_id)
+    return concierge.guidance(premise_id)
+
+
+@app.get("/premise/{premise_id}/alerts", tags=["models"])
+def get_alerts(premise_id: str):
+    """Alert eligibility, channels, timing and escalations (variants: no-needs / medical)."""
+    _known(premise_id)
+    return concierge.alerts(premise_id)
+
+
+@app.get("/premise/{premise_id}/timeline", tags=["models"])
+def get_timeline(premise_id: str):
+    """Storm replay: model estimates at each step + the real Feb 2025 damage on the home's path."""
+    _known(premise_id)
+    return concierge.timeline(premise_id)
+
+
+@app.get("/assumptions", tags=["models"])
+def get_assumptions():
+    return {"items": concierge.ASSUMPTIONS}
+
+
+@app.get("/circuits/{circuit_id}/outline", tags=["network"])
+def circuit_outline(circuit_id: str):
+    """Outline of the area a circuit serves (convex hull of its homes; no individual points)."""
+    return concierge.circuit_outline(circuit_id)
 
 
 @app.get("/premise/{premise_id}/outage-history", response_model=OutageHistory, tags=["premise"])
