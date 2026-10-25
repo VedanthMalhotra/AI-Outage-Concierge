@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from .data import DataStore
+from .risk_model import get_lookup, home_probability
 
 
 # --------------------------------------------------------------------------
@@ -99,67 +100,168 @@ def data_coverage(premise: dict) -> str:
 # power path (the chain) enriched with device detail
 # --------------------------------------------------------------------------
 
-def power_path(store: DataStore, premise_id: str) -> Optional[dict]:
+def _is_substation_link(device_type: Optional[str]) -> bool:
+    """The breaker row stands in for the substation feed (circuit end)."""
+    if device_type is None:
+        return False
+    t = str(device_type).lower()
+    return "breaker" in t or "substation" in t
+
+
+def _substation_coord(store: DataStore, circuit_id: Optional[str]) -> tuple[Optional[float], Optional[float]]:
+    """A representative point for the substation feed so the path can visibly
+    reach it. We use the centroid of the circuit's scored devices (the breaker
+    row itself carries no coordinates). This is an aggregate point, not a real
+    asset location, so it leaks nothing about individual customers."""
+    if not circuit_id:
+        return None, None
+    dev = store.get("device")
+    cdev = dev[dev["circuit_id"].astype(str) == str(circuit_id)]
+    if cdev.empty:
+        return None, None
+    lat = _clean(cdev["lat"].astype(float).mean())
+    lon = _clean(cdev["lon"].astype(float).mean())
+    return lat, lon
+
+
+def power_path(store: DataStore, premise_id: str, severity: float = 1.0) -> Optional[dict]:
+    # A real premise is required; everything downstream can be synthesized.
+    premise = find_premise(store, premise_id)
+    if premise is None:
+        return None
+
     chain = store.get("chain")
     rows = chain[chain["premise_id"].astype(str) == str(premise_id)].copy()
-    if rows.empty:
-        return None
-    rows = rows.sort_values("step")
+    rows = rows.sort_values("step") if not rows.empty else rows
 
     devices = store.get("device").set_index("device_loc")
     transformers = store.get("transformer").set_index("transformer_loc")
 
-    links: list[dict] = []
-    circuit_id = None
-    for _, r in rows.iterrows():
-        loc = _clean(r.get("device_loc"))
-        link: dict = {
-            "step": int(r["step"]),
-            "device_loc": loc,
-            "device_type": str(r["device_type"]),
-            "circuit_id": _clean(r.get("circuit_id")),
-        }
-        # enrich from device, then transformer
-        if loc is not None and loc in devices.index:
+    lookup = get_lookup()
+
+    def _enrich(link: dict, loc: Optional[str]) -> None:
+        """Attach coordinates from device, then transformer. Per-link customer
+        counts are deliberately NOT included: this view shows only THIS home's
+        path to the substation, never how many other homes sit behind shared
+        equipment."""
+        if loc is None:
+            return
+        if loc in devices.index:
             d = devices.loc[loc]
             if isinstance(d, pd.DataFrame):
                 d = d.iloc[0]
-            link.update({
-                "lat": _clean(d.get("lat")),
-                "lon": _clean(d.get("lon")),
-                "customers_downstream": _clean(d.get("customers_downstream")),
-                "rating": _clean(d.get("rating")),
-                "automated": _clean(d.get("automated")),
-                "circuit_id": link["circuit_id"] or _clean(d.get("circuit_id")),
-            })
-        elif loc is not None and loc in transformers.index:
+            link["lat"] = _clean(d.get("lat"))
+            link["lon"] = _clean(d.get("lon"))
+            link["rating"] = _clean(d.get("rating"))
+            link["automated"] = _clean(d.get("automated"))
+            link["circuit_id"] = link.get("circuit_id") or _clean(d.get("circuit_id"))
+        elif loc in transformers.index:
             t = transformers.loc[loc]
             if isinstance(t, pd.DataFrame):
                 t = t.iloc[0]
-            link.update({
-                "lat": _clean(t.get("lat")),
-                "lon": _clean(t.get("lon")),
-                "customers_downstream": _clean(t.get("customers")),
-                "circuit_id": link["circuit_id"] or _clean(t.get("circuit_id")),
-            })
-        if circuit_id is None and link.get("circuit_id"):
-            circuit_id = link["circuit_id"]
-        links.append(link)
+            link["lat"] = _clean(t.get("lat"))
+            link["lon"] = _clean(t.get("lon"))
+            link["circuit_id"] = link.get("circuit_id") or _clean(t.get("circuit_id"))
 
-    # fall back to premise circuit if the chain rows had none
-    if circuit_id is None:
-        p = find_premise(store, premise_id)
-        circuit_id = p["circuit_id"] if p else "unknown"
+    links: list[dict] = []
+    circuit_id = None
+    reached_substation = False
+
+    if not rows.empty and bool(premise.get("has_chain", True)):
+        # ---- normal path: walk the recorded chain home -> ... -> breaker ----
+        for _, r in rows.iterrows():
+            loc = _clean(r.get("device_loc"))
+            link: dict = {
+                "step": int(r["step"]),
+                "device_loc": loc,
+                "device_type": str(r["device_type"]),
+                "circuit_id": _clean(r.get("circuit_id")),
+            }
+            risk = lookup.link_risk(loc, severity)
+            if risk:
+                link["p_damage"] = risk["p_damage"]
+                link["band"] = risk["band"]
+                link["reason"] = risk["reason"]
+            _enrich(link, loc)
+            if circuit_id is None and link.get("circuit_id"):
+                circuit_id = link["circuit_id"]
+            if _is_substation_link(link["device_type"]):
+                reached_substation = True
+            links.append(link)
+        coverage = "good"
+    else:
+        # ---- fallback: no recorded chain. Synthesize home -> transformer. ----
+        tloc = premise.get("transformer_loc")
+        link = {
+            "step": 0,
+            "device_loc": tloc,
+            "device_type": "Transformer",
+            "circuit_id": premise.get("circuit_id"),
+        }
+        _enrich(link, tloc)
+        links.append(link)
+        coverage = "fallback"
+
+    circuit_id = circuit_id or premise.get("circuit_id") or "unknown"
+
+    # ---- privacy clamp: the path must end AT the substation --------------
+    # The breaker row carries no coordinates, so if the top link is the
+    # substation we give it a representative (aggregate) coordinate; if the
+    # recorded chain never reached the breaker, append a synthetic substation
+    # endpoint. Either way the drawn line runs home -> substation and no
+    # further upstream/shared detail is exposed.
+    sub_lat, sub_lon = _substation_coord(store, circuit_id)
+    if links and _is_substation_link(links[-1]["device_type"]):
+        if links[-1].get("lat") is None:
+            links[-1]["lat"] = sub_lat
+            links[-1]["lon"] = sub_lon
+        reached_substation = True
+    if not reached_substation:
+        links.append({
+            "step": (links[-1]["step"] + 1) if links else 0,
+            "device_loc": None,
+            "device_type": "Substation",
+            "circuit_id": circuit_id,
+            "lat": sub_lat,
+            "lon": sub_lon,
+        })
+
+    # A->home summary from whichever links scored.
+    scored = [(lk["step"], lk["p_damage"]) for lk in links if lk.get("p_damage") is not None]
+    weakest_step = max(scored, key=lambda s: s[1])[0] if scored else None
+    home_p = home_probability([p for _, p in scored])
+    home_band = None
+    if home_p is not None:
+        home_band = (
+            "Low" if home_p < 0.15 else
+            "Moderate" if home_p < 0.40 else
+            "High" if home_p < 0.70 else
+            "Very High"
+        )
+
+    note = (
+        "Path from your home to the substation only: step 0 is your "
+        "transformer, ascending steps move upstream to the substation feed. "
+        "Per-link risk is a Model A estimate. No other customers or shared "
+        "customer counts are shown."
+    )
+    if coverage == "fallback":
+        note = (
+            "We couldn't find the full equipment chain for this home, so we're "
+            "showing the known part of the path from your home to the "
+            "substation. " + note
+        )
 
     return {
         "premise_id": str(premise_id),
         "circuit_id": circuit_id,
         "links": links,
-        "note": (
-            "Ordered equipment path feeding this premise: step 0 is the "
-            "transformer, ascending steps move upstream toward the substation. "
-            "Customer counts are aggregates; no other customers are identified."
-        ),
+        "storm_severity": float(severity),
+        "weakest_link_step": weakest_step,
+        "home_probability": home_p,
+        "home_band": home_band,
+        "coverage": coverage,
+        "note": note,
     }
 
 

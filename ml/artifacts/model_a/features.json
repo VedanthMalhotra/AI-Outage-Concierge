@@ -1,0 +1,78 @@
+{
+  "feature_columns": [
+    "overhead_service_share",
+    "log_customers_behind",
+    "is_recloser",
+    "is_fuse",
+    "is_automated",
+    "is_pad_mounted",
+    "is_three_phase",
+    "pole_mean_age",
+    "pole_share_old",
+    "pole_wood_share",
+    "pole_age_known",
+    "zone_transformers",
+    "hist_damage_other_events"
+  ],
+  "base_rate": 0.04081632653061224,
+  "event_offsets": {
+    "feb2025": 0.0,
+    "sep2024": -2.5609925953470163,
+    "other": -1.7926204054558574
+  },
+  "reference_event": "feb2025",
+  "feature_labels": {
+    "overhead_service_share": {
+      "label": "Overhead power line",
+      "detail": "This part of your line is mostly overhead, which is more exposed to wind, ice and falling trees."
+    },
+    "log_customers_behind": {
+      "label": "Large shared segment",
+      "detail": "Many homes share this segment, so a single fault here affects a wide area."
+    },
+    "is_recloser": {
+      "label": "Recloser on your line",
+      "detail": "This segment is protected by a recloser, which retries after a temporary fault."
+    },
+    "is_fuse": {
+      "label": "Fuse on your branch",
+      "detail": "Your branch is protected by a fuse, which can't reset itself after a fault."
+    },
+    "is_automated": {
+      "label": "Automated protection",
+      "detail": "This segment has automated switching that can isolate faults."
+    },
+    "is_pad_mounted": {
+      "label": "Pad-mounted transformer",
+      "detail": "Your transformer is pad-mounted rather than pole-mounted."
+    },
+    "is_three_phase": {
+      "label": "Three-phase equipment",
+      "detail": "Three-phase segments tend to carry more load and equipment."
+    },
+    "pole_mean_age": {
+      "label": "Older poles nearby",
+      "detail": "Poles on this segment are older on average, which can mean more storm damage."
+    },
+    "pole_share_old": {
+      "label": "Many poles over 50 years",
+      "detail": "A large share of poles on this segment are over 50 years old."
+    },
+    "pole_wood_share": {
+      "label": "Mostly wood poles",
+      "detail": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+    },
+    "pole_age_known": {
+      "label": "Pole-age data coverage",
+      "detail": "How much of the pole-age data is known for this segment."
+    },
+    "zone_transformers": {
+      "label": "Large protection zone",
+      "detail": "This zone feeds many transformers, so a zone fault reaches many homes."
+    },
+    "hist_damage_other_events": {
+      "label": "Storm damage here before",
+      "detail": "This segment was damaged in other storms in the record."
+    }
+  }
+}

@@ -30,6 +30,36 @@ export interface PremiseLookup {
   source?: string;
 }
 
+/* ---- power_path.json ---- */
+export interface PowerPathLink {
+  step: number;
+  device_loc: string | null;
+  device_type: string;
+  lat: number | null;
+  lon: number | null;
+  /* Model A per-link damage probability + its band, when available. */
+  p_damage?: number | null;
+  band?: Band | null;
+  reason?: string | null;
+  /* NOTE: no per-link customer counts here. The path only shows this home's
+   * route to the substation and never how many other homes share equipment. */
+}
+export interface PowerPath {
+  premise_id: string;
+  circuit_id: string;
+  storm_severity?: number;
+  home?: { lat: number; lon: number } | null;
+  links: PowerPathLink[];
+  weakest_link_step?: number | null;
+  home_probability?: number | null;
+  home_band?: Band | null;
+  note?: string;
+  /* "good" = full recorded chain; "fallback" = chain missing, synthesized. */
+  coverage?: "good" | "fallback";
+  is_mock?: boolean;
+  source?: string;
+}
+
 /* ---- damage_heat.json ---- */
 export interface HeatCell {
   lat: number;
@@ -200,6 +230,7 @@ export interface AppData {
   lookup: PremiseLookup | null;
   circuit: CircuitGeoJSON | null;
   heat: DamageHeat | null;
+  powerPath: PowerPath | null;
   riskBySeverity: RiskBySeverity | null;
   riskFallback: RiskFallbackDoc | null;
   grid: RestorationGrid | null;
