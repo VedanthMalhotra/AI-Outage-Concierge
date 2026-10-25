@@ -116,6 +116,63 @@ Each entry follows the same shape: **what we tried → what we found (evidence) 
 | **Chose** | Set install years of 1900 and earlier to unknown (the 3 poles dated 1906–1909 look real and were kept), re-uploaded `pole.parquet`, recomputed pole features |
 | **Better because** | Removes a false "very old poles" signal that would have pushed risk up in a few zones. **Lesson:** review feature distributions (min/max), not just row counts. |
 
+### 12. The two storms hit different places
+| | |
+|---|---|
+| **When** | Build night, model testing · ML |
+| **Tried** | Trained the risk model on Feb 2025 and expected it to predict Sep 2024 outage rates too. |
+| **Found** | The storms hit different areas (area-by-area correlation **0.09**), and Sep 2024 was far milder (3.6% of homes out vs 18.6%). The model predicted 21% outage for Sep. |
+| **Alternatives** | Claim the model predicts where any storm hits · drop the Sep test · separate *where* (exposure ranking) from *how strong* |
+| **Chose** | The model ranks how exposed each home is, and **storm strength became a user slider**. We report ranking accuracy on the held-out storm. |
+| **Better because** | Honest, and it still works: on Sep 2024 the model scores AUC **0.715** vs **0.677** for a simple overhead-line rule, and its top 20% of homes held **43%** of real outages. |
+
+### 13. Damage reports linked to the wrong place
+| | |
+|---|---|
+| **When** | Build night, data audit · ML |
+| **Tried** | Used the cleaned damage-to-network match (nearest transformer). |
+| **Found** | **8.5%** of Feb 2025 damage matched a transformer serving no homes (lost from the labels), and **5.7%** matched a transformer on a different circuit than the report named. |
+| **Alternatives** | Ignore it · drop those reports · re-match |
+| **Chose** | Re-matched every report to the nearest transformer **on its own circuit** that serves homes (≤ 300 m). |
+| **Better because** | Linked reports rose from 91.5% to 94.2%, and held-out home AUC rose from 0.70 to 0.72. |
+
+### 14. Pole age: bad data and low value
+| | |
+|---|---|
+| **When** | Build night · ML, with advice from AEP |
+| **Tried** | Used pole age as a risk input. |
+| **Found** | Placeholder install years (1800s, age 0) remained, only ~50% of ages were known, and AEP's advice was that pole age matters little. |
+| **Chose** | Cleaned bad ages to "unknown" and **removed pole age from the model inputs**. It stays only as background information. |
+| **Better because** | No false "old poles" signal, and the model follows domain advice. |
+
+### 15. The first restoration times were unrealistic
+| | |
+|---|---|
+| **When** | Build night, simulator · ML |
+| **Tried** | Every home waited behind all repairs on its whole circuit. |
+| **Found** | The typical home came out at **~185 hours**, but in Feb 2025 90% of repairs closed within 2 days. |
+| **Alternatives** | Shrink labor hours · add crews · model the repair queue better |
+| **Chose** | Queue each home behind its **own feeder section** (repairs serving more homes go first) plus critical facilities. |
+| **Better because** | Typical home is now ~16 h (10–44 h range for the riskiest), consistent with Feb 2025, and every slider still moves the range. |
+
+### 16. The chatbot made things up and talked like an engineer
+| | |
+|---|---|
+| **When** | Build night, testing · whole team |
+| **Tried** | Let the chatbot explain risk from the customer profile. |
+| **Found** | It invented reasons (e.g. "medical equipment raises your risk"), once invented an AEP website and phone line, and answered with transformer counts and kilometres. |
+| **Chose** | Facts only from our tools; reasons in plain words with real Feb 2025 evidence on the card; an explicit "no contact details" rule; the full dashboard state (storm step, alerts, checklist) sent with every message. |
+| **Better because** | Answers are short, correct, grounded in our data, and match what the customer sees. |
+
+### 17. The Power Path used a one-circuit model
+| | |
+|---|---|
+| **When** | Build night, integration · ML + dashboard |
+| **Tried** | The map's Power Path used a link-risk model trained on a sample. |
+| **Found** | That model covered **one circuit** (270 links), so homes elsewhere had no risk on the map, and the map disagreed with the risk card. |
+| **Chose** | Serve Power Path risk from the all-circuit models (110 circuits, 6,664 areas, 25,303 transformers). |
+| **Better because** | Map and risk card now agree for every home (39 of 40 spot-checked homes matched exactly). |
+
 ---
 
 ## Lessons learned (summary)
@@ -125,6 +182,9 @@ Each entry follows the same shape: **what we tried → what we found (evidence) 
 3. **Check the plan against both the brief and the rubric** early and often (entries 1, 6).
 4. **Safety beats convenience** for emergency features (entry 5).
 5. **Plan around team dependencies:** order work so nobody waits (entry 9).
+6. **Test on data the model never saw, and against a simple baseline** (entry 12).
+7. **Audit the labels, not just the features** (entries 13, 17).
+8. **Ground every AI answer in tools and real data, and test it like a customer would** (entry 16).
 
 ---
 

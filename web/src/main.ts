@@ -678,41 +678,17 @@ function renderGuidance(): void {
  * ALERTS (Req 4)
  * ========================================================================== */
 function renderAlerts(): void {
+  // one line in the prepare panel: eligibility, channels and any escalation (brief Req 4)
   const medical = state.declaredNeeds.includes("medical_equipment");
   const v = data.alerts!.variants[medical ? "medical" : "no-needs"];
-
-  const chip = $("#alerts-eligible");
-  chip.textContent = v.eligible ? "Eligible ✓" : "Not eligible";
-  chip.classList.toggle("is-no", !v.eligible);
-
-  const list = $("#alerts-rules");
-  list.innerHTML = "";
-  v.rules.forEach((rule) => {
-    const li = el("li");
-    const statusTxt =
-      rule.met === true ? "✓ Active" : rule.met === false ? "— Not met" : "• Conditional";
-    const statusCls = rule.met === true ? "rule-status--met" : "rule-status--maybe";
-    const head = el("div", "rule-head");
-    head.appendChild(el("span", `rule-status ${statusCls}`, statusTxt));
-    head.appendChild(el("span", null, `<strong>${rule.name}</strong>`));
-    li.appendChild(head);
-    li.appendChild(el("span", "rule-why", rule.why));
-    if (rule.channels) {
-      const ch = el("div", "rule-channels");
-      rule.channels.forEach((c) => ch.appendChild(el("span", "tag", c.toUpperCase())));
-      (rule.timing || []).forEach((t) => ch.appendChild(el("span", "tag", t)));
-      li.appendChild(ch);
-    }
-    list.appendChild(li);
-  });
-
-  const escWrap = $("#alerts-escalations");
-  escWrap.innerHTML = "";
-  (v.escalations || []).forEach((e) => {
-    const card = el("div", "escalation-card");
-    card.innerHTML = `<strong>${e.name}</strong> — ${e.why}<br>${e.actions.join(" · ")}`;
-    escWrap.appendChild(card);
-  });
+  const pre = v.rules.find((r) => r.id === "A1");
+  const channels = (pre?.channels ?? ["sms"]).map((c) => (c === "sms" ? "text" : c)).join(", ");
+  const esc = (v.escalations || []).map((e) => e.name.toLowerCase());
+  $("#alerts-line").textContent = v.eligible
+    ? `🔔 You qualify for outage alerts by ${channels}` +
+      (pre?.met ? ", starting a day before the storm" : "") +
+      (esc.length ? ` · ${esc.join(", ")} is on` : "") + "."
+    : "🔔 Outage alerts aren't available for this location.";
 }
 
 /* =============================================================================
@@ -834,10 +810,8 @@ function stepStorm(): void {
  *   before the storm -> checklist "Before" tab + a popup that closes by itself
  *   storm / outage   -> safety alert that stays until the user closes it
  *   restored         -> checklist "Power is back" tab + popup
- * Autoplay holds while the user reads, so a recording flows without clicks.
  * ------------------------------------------------------------------------- */
 let prepGroup: "before" | "during" | "after" | null = null;
-let playHoldUntil = 0;
 let nudgeTimer: ReturnType<typeof setTimeout> | undefined;
 
 const scrollToEl = (sel: string) =>
@@ -874,7 +848,6 @@ function showSafetyAlert(): void {
 function closeSafetyAlert(): void {
   $("#safety-alert").hidden = true;
   scrollToEl(".panel--prepare"); // show what to do while the power is out
-  playHoldUntil = Date.now() + 5000; // reading time before the replay carries on
 }
 
 function onStormPhase(phase: Phase): void {
@@ -883,64 +856,48 @@ function onStormPhase(phase: Phase): void {
   prepGroup = group;
   setPrepPhase(group, true); // only this phase's checklist while the replay runs
   if (group === "before") {
-    playHoldUntil = Date.now() + 6000;
     scrollToEl(".panel--prepare");
     nudge("A storm is coming. Work through your checklist now, while you still have power.");
-    // autoplay goes back to the map to keep the storm moving; with Step you stay on the checklist
-    if (state.playTimer) setTimeout(() => prepGroup === "before" && scrollToEl(".panel--map"), 5200);
   } else if (group === "during") {
     scrollToEl(".panel--map");
     showSafetyAlert(); // closing it scrolls down to the "Power is out" checklist
   } else {
-    playHoldUntil = Date.now() + 5000;
     setTimeout(() => scrollToEl(".panel--prepare"), 800);
     nudge("Power is back. Here's what to check now.");
   }
 }
 
 function addNotification(message: NonNullable<TimelineStep["message"]>, t: string): void {
-  const feed = $("#notifications");
-  // clear only the "Messages appear…" placeholder, not earlier messages (their time tag is .muted too)
-  if (feed.querySelector(":scope > li.muted")) feed.innerHTML = "";
-  const li = el("li", "msg");
-  const meta = el("div", "msg-meta");
-  meta.appendChild(el("span", "msg-type", message.type.replace(/_/g, " ")));
-  (message.channel || []).forEach((c) => meta.appendChild(el("span", "tag", c.toUpperCase())));
-  meta.appendChild(el("span", "muted", t));
-  li.appendChild(meta);
-  li.appendChild(el("div", null, message.text));
-  feed.prepend(li);
+  // shown like a phone notification; it slides away by itself after a few seconds
+  const card = el("div", "msg-pop");
+  const head = el("div", "msg-pop__head");
+  head.appendChild(el("span", "msg-pop__app", "⚡ AEP"));
+  head.appendChild(el("span", "msg-pop__meta",
+    `${(message.channel || []).map((c) => c.toUpperCase()).join(" · ")} · ${t}`));
+  card.appendChild(head);
+  const body = el("div", "msg-pop__text");
+  body.textContent = message.text;
+  card.appendChild(body);
+  const stack = $("#msg-stack");
+  stack.prepend(card);
+  setTimeout(() => card.classList.add("is-out"), 7000);
+  setTimeout(() => card.remove(), 7500);
 }
 
-function playStorm(): void {
-  if (state.playTimer) {
-    stopPlay();
-    return;
-  }
-  $("#play-storm").textContent = "⏸ Pause";
-  stepStorm();
-  state.playTimer = setInterval(() => {
-    if (Date.now() < playHoldUntil || !$("#safety-alert").hidden) return; // reading time
-    stepStorm();
-    if (state.timelineStep >= data.timeline!.steps.length - 1) stopPlay();
-  }, 1600);
-}
 function stopPlay(): void {
   if (state.playTimer) clearInterval(state.playTimer);
   state.playTimer = null;
-  $("#play-storm").textContent = "▶ Play storm";
 }
 function resetStorm(): void {
   stopPlay();
   state.timelineStep = -1;
   updateTimelineTrack();
-  $("#timeline-now").textContent = "Press play to simulate the storm on the map.";
-  $("#notifications").innerHTML = '<li class="muted">Messages appear as the storm plays.</li>';
+  $("#timeline-now").textContent = "Press Step to walk through the storm: before, during and after.";
+  $("#msg-stack").innerHTML = "";
   applyMapPhase(null);
   renderRisk();
   renderRestoration({ silent: true });
   prepGroup = null;
-  playHoldUntil = 0;
   $("#safety-alert").hidden = true;
   $("#prep-nudge").hidden = true;
   setPrepPhase("before"); // back to normal tabs
@@ -1171,7 +1128,6 @@ function wireControls(): void {
   });
 
   // Timeline
-  $("#play-storm").addEventListener("click", playStorm);
   $("#step-storm").addEventListener("click", () => {
     stopPlay();
     stepStorm();

@@ -17,14 +17,14 @@
   <header class="site-header">
     <!-- top brand bar: logo + utility controls -->
     <div class="site-header__bar">
-      <a class="brand" href="#main" aria-label="Ohio Power Company home">
+      <a class="brand" href="#main" aria-label="Appalachian Power home">
         <span class="brand__mark" aria-hidden="true">
           <svg viewBox="0 0 40 28" width="40" height="28" role="img" aria-hidden="true">
             <polygon points="9,2 38,2 31,26 2,26" fill="none" stroke="currentColor" stroke-width="3.5" />
           </svg>
         </span>
         <span class="brand__words">
-          <span class="brand__name">Ohio Power Company</span>
+          <span class="brand__name">Appalachian Power</span>
           <span class="brand__tag">An AEP Company</span>
         </span>
       </a>
@@ -94,9 +94,8 @@
         <!-- Storm timeline overlay, bottom of the map -->
         <div class="map-timeline" id="map-timeline" role="group" aria-label="Storm timeline player">
           <div class="map-timeline__top">
-            <p class="map-timeline__now" id="timeline-now">Press play to simulate the storm on the map.</p>
+            <p class="map-timeline__now" id="timeline-now">Press Step to walk through the storm: before, during and after.</p>
             <div class="timeline__buttons">
-              <button type="button" id="play-storm" class="btn btn--sm">▶ Play storm</button>
               <button type="button" id="step-storm" class="btn btn--ghost btn--sm">Step</button>
               <button type="button" id="reset-storm" class="btn btn--ghost btn--sm">Reset</button>
             </div>
@@ -256,6 +255,7 @@
       <p class="muted small">We use this only for this session to tailor your steps and alerts. We never guess it from data.</p>
 
       <div class="prep-basis" id="prep-basis"></div>
+      <p class="alerts-line" id="alerts-line"></p>
 
       <div class="prep-tabs" role="tablist" aria-label="When to do it">
         <button type="button" class="prep-tab is-active" id="prep-tab-before" role="tab">Before the storm <span class="prep-tab__count"></span></button>
@@ -274,19 +274,6 @@
       <div id="prep-safety" class="safety-strip"></div>
     </section>
 
-    <!-- ---------- ALERTS & TIMELINE ---------- -->
-    <section class="panel panel--alerts" aria-labelledby="alerts-h">
-      <div class="panel__head">
-        <h2 id="alerts-h">Do I qualify for alerts?</h2>
-        <span class="eligible-chip" id="alerts-eligible">—</span>
-      </div>
-
-      <ul id="alerts-rules" class="rules-list"></ul>
-      <div id="alerts-escalations"></div>
-
-      <h3 class="subhead">Notifications <span class="muted small">(play the storm on the map above)</span></h3>
-      <ul id="notifications" class="notifications"><li class="muted">Messages appear as the storm plays.</li></ul>
-    </section>
   </main>
 
   <!-- ===================== FOOTER ===================== -->
@@ -327,5 +314,7 @@
       <button type="button" class="btn" id="safety-alert-ok">Got it</button>
     </div>
   </div>
+  <!-- storm replay: each AEP message arrives like a phone notification (closes by itself) -->
+  <div id="msg-stack" class="msg-stack" aria-live="polite"></div>
 </body>
 </html>
