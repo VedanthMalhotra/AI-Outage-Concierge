@@ -25,6 +25,7 @@ export interface PrepContext {
   p90: number;
   medical: boolean;
   overheadService: boolean;
+  general?: boolean;            // no premise selected: general guidance only
 }
 
 type Phase = "before" | "during" | "after";
@@ -135,7 +136,10 @@ export function renderPrepare(c: PrepContext): void {
       `<div class="prep-basis__sub">could be ${Math.round(c.p10)}–${Math.round(c.p90)} h` +
       (c.band ? ` · ${c.band} risk${c.probability != null ? ` (${Math.round(c.probability * 100)}%)` : ""}` : "") +
       ` · ${c.severityLabel} storm · model estimate</div>`
-    : `<div class="prep-basis__main">General storm plan</div><div class="prep-basis__sub">We can't estimate an outage for this home.</div>`;
+    : c.general
+      ? `<div class="prep-basis__main">General storm plan</div><div class="prep-basis__sub">No premise ID entered, so these steps aren't tailored to a home. ` +
+        `Enter a premise ID at the top to see that home's chance of an outage and how long it could last.</div>`
+      : `<div class="prep-basis__main">General storm plan</div><div class="prep-basis__sub">We can't estimate an outage for this home.</div>`;
 
   // 2. checklist with tabs + progress
   const all = tasks(hasRuns ? c : { ...c, p10: 4, p50: 12, p90: 24 });
@@ -176,7 +180,17 @@ export function renderPrepare(c: PrepContext): void {
   const grid = $("#ttm-cards");
   grid.innerHTML = "";
   if (!hasRuns) {
-    grid.appendChild(el("p", "muted small", "No outage estimate for this home."));
+    // no home: show how long each lasts so people can plan, without any outage comparison
+    cards().forEach((k) => {
+      const card = el("div", "ttm-card");
+      card.innerHTML =
+        `<div class="ttm-card__top"><span class="ttm-card__icon" aria-hidden="true">${k.icon}</span>` +
+        `<span class="ttm-card__name">${k.name}</span><span class="ttm-pill">Plan ahead</span></div>` +
+        `<div class="ttm-card__lasts">lasts about <strong>${Math.round(k.hours)} h</strong> without power</div>` +
+        (k.control ? `<div class="ttm-card__ctl">${k.control}</div>` : "") +
+        `<div class="ttm-card__tip">${k.tip}</div>`;
+      grid.appendChild(card);
+    });
     return;
   }
   const max = Math.max(48, c.p90 * 1.1);

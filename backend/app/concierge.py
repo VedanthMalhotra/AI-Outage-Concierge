@@ -52,6 +52,25 @@ def _outlook(premise_id: str) -> Optional[dict]:
     return {"risk": risk, "rest": rest}
 
 
+def general_guidance() -> dict:
+    """Storm guidance for anyone, when no home is selected (no personal estimates)."""
+    return {
+        "note": "General guidance. Without a premise ID we can't estimate this home's outage chance or length.",
+        "safety": [x["text"] for x in SAFETY],
+        "before_the_storm": ["Charge phones, power banks and laptops", "Have flashlights and spare batteries ready (no candles)",
+                             "Store water: 1 gallon per person per day for at least 3 days", "Stock food that needs no cooking or fridge",
+                             "Refill prescriptions", "Fill your car's tank and get some cash", "Pick a warm place you could go if it lasts"],
+        "while_the_power_is_out": ["Keep the fridge and freezer closed", "Stay at least 30 ft from downed lines and report them",
+                                   "Run a generator outdoors only, far from windows", "Switch off big appliances; leave one light on",
+                                   "Wear layers and close off unused rooms to hold heat"],
+        "after_power_is_back": ["Throw out fridge food that was above 40°F for over 2 hours",
+                                "Plug appliances back in one at a time", "If neighbours are back on but you're not, report it",
+                                "Restock water, batteries and food"],
+        "how_long_things_last": {"fridge": "about 4 hours closed", "full freezer": "about 48 hours", "half-full freezer": "about 24 hours"},
+        "sources": "USDA / FoodSafety.gov; MVP plan guidance rules",
+    }
+
+
 # ---------------------------------------------------------------------------
 # guidance (MVP plan 5.3): risk band x expected duration, plus modifiers
 # ---------------------------------------------------------------------------

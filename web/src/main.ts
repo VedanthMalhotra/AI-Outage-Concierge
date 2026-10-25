@@ -48,6 +48,7 @@ import type {
   PowerPath,
   Risk,
   Scenario,
+  Timeline,
   TimelineStep,
 } from "./types";
 
@@ -209,6 +210,10 @@ async function boot(): Promise<void> {
 function buildPremisePicker(): void {
   const sel = $<HTMLSelectElement>("#premise-select");
   sel.innerHTML = "";
+  const none = el("option");
+  none.value = "";
+  none.textContent = "No premise (general guidance)";
+  sel.appendChild(none);
   data.lookup!.demo_premises.forEach((p) => {
     const o = el("option");
     o.value = p.premise_id;
@@ -242,10 +247,49 @@ function buildPremisePicker(): void {
  * resolve the premise: the live backend's lookup when available, else the demo
  * list. Unknown ids surface a toast rather than silently doing nothing.
  * ------------------------------------------------------------------------- */
+/* No premise selected: no personal numbers, just the general plan, storm steps and chat help. */
+const GENERAL_TIMELINE: Timeline = {
+  premise_id: "",
+  steps: [
+    { t: "T-24h", title: "Before the storm: a strong storm is expected", phase: "pre_storm", confirmed_event: null, risk: null, restoration: null,
+      message: null, messages: [{ type: "pre_storm", channel: ["sms", "push"],
+        text: "AEP: A strong storm may affect the area tomorrow. Charge devices tonight and stay away from downed lines." }] },
+    { t: "T0", title: "During the storm: power may go out", phase: "outage", confirmed_event: null, risk: null, restoration: null,
+      message: null, messages: [] },
+    { t: "After", title: "After the storm: power is back", phase: "restored", confirmed_event: null, risk: null, restoration: null,
+      message: null, messages: [] },
+  ],
+};
+
+async function enterGeneralMode(): Promise<void> {
+  state.premiseId = "";
+  $<HTMLSelectElement>("#premise-select").value = "";
+  $<HTMLInputElement>("#premise-id-input").value = "";
+  $("#area-label").textContent = "No premise selected · general guidance";
+  stopPlay();
+  prevRisk = null;
+  data.riskBySeverity = {};
+  data.grid = { start_delay_h: 6, results: [] };
+  data.timeline = GENERAL_TIMELINE;
+  data.powerPath = null;
+  ttmRuns = null;
+  renderGuidance();
+  renderAlerts();
+  buildTimelineTrack();
+  resetStorm();
+  if (mapReady) setPowerPath(null, "");
+  renderPathLegend();
+  toast("No premise selected: showing general storm guidance");
+}
+
 async function selectPremise(
   id: string,
   coords: { lat: number; lon: number } | null = null
 ): Promise<void> {
+  if (!id) {
+    await enterGeneralMode();
+    return;
+  }
   const demo = data.lookup!.demo_premises.find((x) => x.premise_id === id);
   if (demo) {
     coords = coords ?? { lat: demo.lat, lon: demo.lon };
@@ -448,6 +492,7 @@ function renderRisk(): void {
     body.hidden = true;
     fb.hidden = false;
     $("#risk-fallback-msg").textContent =
+      (!state.premiseId ? "No premise ID entered. Enter yours at the top of the page to see your home's chance of losing power." : "") ||
       (r && r.fallback && r.fallback.message) ||
       "We can't give a reliable outage estimate for your location. Here is general storm guidance instead.";
     return;
@@ -517,7 +562,13 @@ function renderRestoration({ silent = false, changeLabel = null }: RenderRestora
 
   const rangeEl = $("#rest-range");
   if (!row) {
-    rangeEl.textContent = "No estimate for this combination.";
+    rangeEl.textContent = state.premiseId
+      ? "No estimate for this combination."
+      : "Enter a premise ID to see how long restoration could take for your home.";
+    $("#rest-confidence").textContent = "";
+    $("#rest-drivers").innerHTML = "";
+    $("#rest-jobs").innerHTML = "";
+    void refreshTtm();
     return;
   }
 
@@ -592,6 +643,11 @@ let ttmRuns: { hours: number[]; p10: number; p50: number; p90: number } | null =
 let ttmSeq = 0;
 async function refreshTtm(): Promise<void> {
   if (!apiLive) return;
+  if (!state.premiseId) {
+    ttmRuns = null;
+    drawTtm();
+    return;
+  }
   const seq = ++ttmSeq; // ignore answers that arrive after a newer slider change
   try {
     const r = await fetchOutageHours(state.premiseId, state.scenario);
@@ -615,7 +671,8 @@ function drawTtm(): void {
     p50: ttmRuns?.p50 ?? 0,
     p90: ttmRuns?.p90 ?? 0,
     medical: state.declaredNeeds.includes("medical_equipment"),
-    overheadService: data.lookup?.service_type === "Overhead",
+    overheadService: !!state.premiseId && data.lookup?.service_type === "Overhead",
+    general: !state.premiseId,
   });
 }
 
@@ -669,7 +726,7 @@ function renderGuidance(): void {
   v.safety.forEach((s) => safety.appendChild(el("span", `safety-chip safety-chip--${s.level}`, s.text)));
 
   const esc = $("#prep-escalation");
-  esc.hidden = !v.escalation;
+  esc.hidden = !v.escalation || !state.premiseId;
   esc.textContent = v.escalation ?? "";
   drawTtm();
 }
@@ -678,6 +735,10 @@ function renderGuidance(): void {
  * ALERTS (Req 4)
  * ========================================================================== */
 function renderAlerts(): void {
+  if (!state.premiseId || !data.alerts) {
+    $("#alerts-line").textContent = "🔔 Enter your premise ID to check which outage alerts you qualify for.";
+    return;
+  }
   // one line in the prepare panel: eligibility, channels and any escalation (brief Req 4)
   const medical = state.declaredNeeds.includes("medical_equipment");
   const v = data.alerts!.variants[medical ? "medical" : "no-needs"];

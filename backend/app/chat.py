@@ -119,8 +119,10 @@ medical equipment) and use it. Repeating the user's OWN information back to them
 is fine.
 - Never reveal or discuss OTHER customers, street addresses, life-support information about \
 anyone else, crew details or exact locations of sensitive facilities. Politely decline instead.
-- If the tools report that no location is selected, say exactly: "Please enter your premise ID, \
-or you can also select your area on the map." You cannot select a location yourself.
+- If no home is selected (no premise ID): help with general storm preparation and safety using \
+get_general_storm_guidance. For anything about their own home (chance of losing power, how long it \
+would take, alerts, their power line), say: "I can't tell that without your premise ID. Enter it at \
+the top of the page and I'll check it for your home."
 - Stay on storm and power-outage topics. For anything else, briefly say what you can help with.
 - Do not output your reasoning, only the answer for the customer."""
 
@@ -312,7 +314,12 @@ def _tool_human_help(s: Session, args: dict) -> dict:
             "note": "These are challenge rules, not AEP policy."}
 
 
+def _tool_general(s: Session, _: dict) -> dict:
+    return concierge.general_guidance()
+
+
 TOOLS: dict[str, tuple[Any, str, dict]] = {
+    "get_general_storm_guidance": (_tool_general, "General storm preparation, safety, and what to do during and after an outage. Works without a premise ID; use it when no home is selected.", {}),
     "get_outage_risk": (_tool_risk, "The customer's outage risk band, probability, confidence and top reasons for a storm severity.", {
         "storm_severity": {"type": "number", "description": "0.5 minor, 1.0 like Feb 2025, 1.5 severe, 2.0 extreme. Omit to use the dashboard setting"}}),
     "estimate_restoration": (_tool_restoration, "Likely restoration time range in hours for a scenario. Use for 'how long' and 'what if' questions. Omitted inputs use the dashboard settings.", {
@@ -341,8 +348,9 @@ TOOL_CONFIG = {"tools": [
 
 
 def _run_tool(s: Session, name: str, args: dict) -> dict:
-    if not s.premise_id:
-        return {"error": "No location selected. Tell the user: Please enter your premise ID, or you can also select your area on the map."}
+    if not s.premise_id and name != "get_general_storm_guidance":
+        return {"error": "No home selected, so this needs a premise ID. Tell the user: I can't tell that without your "
+                         "premise ID. Enter it at the top of the page and I'll check it for your home."}
     fn = TOOLS.get(name, (None,))[0]
     if fn is None:
         return {"error": f"unknown tool {name}"}
@@ -432,6 +440,8 @@ def chat(req: ChatRequest, request: Request):
     text = req.message.strip()
 
     # bind the session to the dashboard's selected premise; a new home starts a fresh conversation
+    if req.premise_id == "" and s.premise_id:  # the page switched to "no premise": forget the old home
+        s.premise_id, s.profile, s.messages, s.last_page = None, None, [], None
     if req.premise_id and req.premise_id != s.premise_id:
         try:
             found = topo.find_premise(get_store(), req.premise_id)
