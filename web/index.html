@@ -77,7 +77,10 @@
       </div>
 
       <div class="map-wrap" id="map-wrap">
-        <div id="map" role="img" aria-label="Map showing your home pin, your circuit area, and aggregated storm-damage density. Other customers are never shown."></div>
+        <div id="map" role="img" aria-label="3D map showing aggregated storm-damage density as extruded hexagons, your circuit area, and (once a premise is entered) your home pin and power path. Other customers are never shown."></div>
+
+        <!-- Power-path colour legend (populated by main.ts) -->
+        <div id="pp-legend-host" class="pp-legend" aria-hidden="true"></div>
 
         <!-- Weather tint that intensifies as the storm peaks -->
         <div class="storm-fx" id="storm-fx" aria-hidden="true"></div>

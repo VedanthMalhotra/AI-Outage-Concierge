@@ -1,5 +1,3 @@
-@import "leaflet/dist/leaflet.css";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -188,7 +186,8 @@
     min-height: 420px;
   }
   .map-wrap { @apply relative overflow-hidden flex-1; border-radius: 6px; min-height: 0; }
-  #map { @apply z-[1] h-full; min-height: 280px; border-radius: 6px; }
+  #map { @apply relative z-[1] h-full w-full; min-height: 280px; border-radius: 6px; background: #2b3440; }
+  #map canvas { border-radius: 6px; }
   .map-legend { @apply text-aep-muted flex items-center gap-3; font-size: 0.78rem; }
   .dot { @apply inline-block rounded-full align-middle; width: 10px; height: 10px; margin-right: 2px; }
   .dot--pin { @apply bg-aep-accent; }
@@ -288,6 +287,8 @@
     box-shadow: 0 0 0 2px #111827, 0 0 10px 3px rgba(239,68,68,0.6);
     animation: pin-pulse-out 1.4s ease-in-out infinite;
   }
+  #pp-legend-host { position: absolute; left: 10px; bottom: 10px; z-index: 5; pointer-events: none; }
+  #pp-legend-host:empty { display: none; }
   .pp-legend {
     background: rgba(17,24,39,0.82); color: #f3f4f6; backdrop-filter: blur(3px);
     border-radius: 8px; padding: 0.5rem 0.65rem; font-size: 0.72rem; line-height: 1.3;
