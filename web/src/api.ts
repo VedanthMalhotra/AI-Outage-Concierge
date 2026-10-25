@@ -198,14 +198,27 @@ export interface ChatReply {
   emergency: boolean;
 }
 
-export async function sendChat(message: string, premiseId: string): Promise<ChatReply> {
+/* the dashboard sliders the chatbot should answer for */
+export interface ChatScenario {
+  storm_severity: number;
+  crews: number;
+  access: "auto" | "on" | "off";
+  switching_available: boolean;
+  prioritize_critical: boolean;
+}
+
+export async function sendChat(
+  message: string,
+  premiseId: string,
+  scenario?: ChatScenario
+): Promise<ChatReply> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 45000);
   try {
     const res = await fetch(`${API_BASE}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, premise_id: premiseId, session_id: readChatSession() }),
+      body: JSON.stringify({ message, premise_id: premiseId, session_id: readChatSession(), scenario }),
       signal: ctrl.signal,
     });
     if (!res.ok) throw new Error(`/chat -> ${res.status}`);

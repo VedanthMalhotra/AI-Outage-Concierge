@@ -928,7 +928,15 @@ async function handleChat(q: string): Promise<void> {
   typing.classList.add("bubble--typing");
   try {
     // live: Amazon Nova with this tab's private conversation memory
-    const r = await sendChat(q, state.premiseId);
+    // send the current sliders so the answer matches what the page shows
+    const sc = state.scenario;
+    const r = await sendChat(q, state.premiseId, {
+      storm_severity: sc.storm_severity,
+      crews: sc.crews,
+      access: sc.access,
+      switching_available: sc.switching_available,
+      prioritize_critical: sc.prioritize_critical,
+    });
     typing.remove();
     addBubble("bot", r.reply, { tools: r.tools_used, emergency: r.emergency });
   } catch {

@@ -26,7 +26,7 @@ import secrets
 import threading
 import time
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -133,12 +133,18 @@ THINKING_RE = re.compile(r"<thinking>.*?</thinking>", re.S | re.I)
 # sessions (in memory only)
 # ---------------------------------------------------------------------------
 
+DEFAULT_SCENARIO = {"storm_severity": 1.0, "crews": 2, "access": "auto",
+                    "switching_available": True, "prioritize_critical": True}
+
+
 @dataclass
 class Session:
     premise_id: Optional[str] = None
     profile: Optional[dict] = None
     messages: list[dict] = field(default_factory=list)
     last_seen: float = field(default_factory=time.time)
+    # the dashboard's current sliders; tools default to these so chat matches the page
+    scenario: dict = field(default_factory=lambda: dict(DEFAULT_SCENARIO))
 
 
 _sessions: dict[str, Session] = {}
@@ -196,14 +202,27 @@ def _trim(messages: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def _tool_risk(s: Session, args: dict) -> dict:
-    return predictions.predict_risk(s.premise_id, args.get("storm_severity", 1.0))
+    return predictions.predict_risk(s.premise_id, args.get("storm_severity", s.scenario["storm_severity"]))
 
 
 def _tool_restoration(s: Session, args: dict) -> dict:
-    return predictions.simulate_restoration(
-        s.premise_id, crews=args.get("crews", 2), storm_severity=args.get("storm_severity", 1.0),
-        access=args.get("access", "auto"), switching_available=args.get("switching_available", True),
-        prioritize_critical=args.get("prioritize_critical", True))
+    sc = s.scenario | {k: v for k, v in args.items() if k in DEFAULT_SCENARIO}  # what-ifs override the page
+    return predictions.simulate_restoration(s.premise_id, **sc)
+
+
+def _scenario_text(sc: dict, changed: bool) -> str:
+    road = {"auto": "decided by the model", "on": "access problems at every repair", "off": "no access problems"}[sc["access"]]
+    text = ("DASHBOARD SETTINGS (what the customer has set on the page right now): "
+            f"storm severity {sc['storm_severity']}x the February 2025 storm, {sc['crews']} crews on the circuit, "
+            f"road access {road}, switching {'available' if sc['switching_available'] else 'not available'}, "
+            f"critical facilities {'prioritized' if sc['prioritize_critical'] else 'not prioritized'}.\n"
+            "Answer risk and restoration questions for these settings: the tools use them by default, so only "
+            "pass a value when the customer asks about a different scenario (a what-if). The profile's "
+            "model_outlook is for a 1x storm; when the storm setting is different, call get_outage_risk.")
+    if changed:
+        text += ("\nThe settings changed since your last answer, so numbers earlier in this conversation are out of "
+                 "date. Call the tools again before giving any number, and mention the new setting.")
+    return text
 
 
 def _tool_guidance(s: Session, args: dict) -> dict:
@@ -222,10 +241,10 @@ def _tool_alerts(s: Session, args: dict) -> dict:
 
 TOOLS: dict[str, tuple[Any, str, dict]] = {
     "get_outage_risk": (_tool_risk, "The customer's outage risk band, probability, confidence and top reasons for a storm severity.", {
-        "storm_severity": {"type": "number", "description": "0.5 minor, 1.0 like Feb 2025 (default), 1.5 severe, 2.0 extreme"}}),
-    "estimate_restoration": (_tool_restoration, "Likely restoration time range in hours for a scenario. Use for 'how long' and 'what if' questions.", {
-        "crews": {"type": "integer", "description": "crews on the circuit, 1-10 (default 2)"},
-        "storm_severity": {"type": "number", "description": "0.5, 1.0 (default), 1.5 or 2.0"},
+        "storm_severity": {"type": "number", "description": "0.5 minor, 1.0 like Feb 2025, 1.5 severe, 2.0 extreme. Omit to use the dashboard setting"}}),
+    "estimate_restoration": (_tool_restoration, "Likely restoration time range in hours for a scenario. Use for 'how long' and 'what if' questions. Omitted inputs use the dashboard settings.", {
+        "crews": {"type": "integer", "description": "crews on the circuit, 1-10. Omit to use the dashboard setting"},
+        "storm_severity": {"type": "number", "description": "0.5, 1.0, 1.5 or 2.0. Omit to use the dashboard setting"},
         "access": {"type": "string", "enum": ["auto", "on", "off"], "description": "road access problems: auto (model), on, off"},
         "switching_available": {"type": "boolean"},
         "prioritize_critical": {"type": "boolean"}}),
@@ -262,6 +281,16 @@ class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=1000)
     session_id: Optional[str] = Field(default=None, max_length=64)
     premise_id: Optional[str] = Field(default=None, max_length=20)
+    scenario: Optional["ChatScenario"] = None
+
+
+class ChatScenario(BaseModel):
+    """The dashboard's sliders at the moment the message was sent."""
+    storm_severity: float = Field(default=1.0, ge=0.5, le=2.0)
+    crews: int = Field(default=2, ge=1, le=10)
+    access: Literal["auto", "on", "off"] = "auto"
+    switching_available: bool = True
+    prioritize_critical: bool = True
 
 
 class ChatResponse(BaseModel):
@@ -312,6 +341,12 @@ def chat(req: ChatRequest, request: Request):
     if EMERGENCY_RE.search(text):
         return ChatResponse(session_id=session_id, reply=EMERGENCY_REPLY, emergency=True)
 
+    scenario_changed = False
+    if req.scenario:
+        new = req.scenario.model_dump()
+        scenario_changed = bool(s.messages) and new != s.scenario
+        s.scenario = new
+
     msgs = _trim(s.messages + [{"role": "user", "content": [{"text": text}]}])
     system = [{"text": SYSTEM_PROMPT}]
     if s.profile:
@@ -319,6 +354,7 @@ def chat(req: ChatRequest, request: Request):
                                + json.dumps(s.profile, default=str)})
     else:
         system.append({"text": "CUSTOMER PROFILE: none. No location is selected yet."})
+    system.append({"text": _scenario_text(s.scenario, scenario_changed)})
     tools_used: list[str] = []
     try:
         for _ in range(MAX_TOOL_ROUNDS + 1):
