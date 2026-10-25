@@ -13,6 +13,8 @@ import {
   flyToOverview,
   setPowerPath,
   setPhaseVisuals,
+  setViewMode,
+  getViewMode,
   resizeMap,
 } from "./map3d";
 import type { Color } from "@deck.gl/core";
@@ -680,12 +682,17 @@ function applyMapPhase(step: TimelineStep | null): void {
   const wrap = $("#map-wrap");
   const badge = $("#map-phase");
 
-  // default (no storm running)
+  // default (no storm running) — restore the power path's per-link risk colours
   if (!phase) {
     wrap.removeAttribute("data-phase");
     badge.hidden = true;
     if (mapReady)
-      setPhaseVisuals({ pin: "normal", circuit: [255, 90, 82], showHeat: true });
+      setPhaseVisuals({
+        pin: "normal",
+        circuit: [255, 90, 82],
+        showHeat: true,
+        pathPhase: null,
+      });
     return;
   }
 
@@ -715,7 +722,13 @@ function applyMapPhase(step: TimelineStep | null): void {
   // damage heat: hidden before/at the peak, deposited once reports arrive
   const showHeat = ([...outagePhases, "restored"] as Phase[]).includes(phase);
 
-  if (mapReady) setPhaseVisuals({ pin: pinState, circuit: circuitColor, showHeat });
+  // power-path phase: the equipment chain reads as "damaged" through the
+  // outage, flips to "restored" at the end, and is risk-coloured otherwise.
+  const pathPhase: "damaged" | "restored" | null =
+    phase === "restored" ? "restored" : outagePhases.includes(phase) ? "damaged" : null;
+
+  if (mapReady)
+    setPhaseVisuals({ pin: pinState, circuit: circuitColor, showHeat, pathPhase });
 }
 
 function stepStorm(): void {
@@ -975,6 +988,18 @@ function wireControls(): void {
     stepStorm();
   });
   $("#reset-storm").addEventListener("click", resetStorm);
+
+  // 2D / 3D view toggle — one button whose label is the current mode.
+  const viewToggle = $("#view-toggle");
+  viewToggle.addEventListener("click", () => {
+    const next = getViewMode() === "3d" ? "2d" : "3d";
+    if (mapReady) setViewMode(next);
+    viewToggle.textContent = next.toUpperCase();
+    viewToggle.setAttribute(
+      "aria-label",
+      `Map view mode: ${next.toUpperCase()}. Click to switch.`
+    );
+  });
 
   // Chat
   $<HTMLFormElement>("#chat-form").addEventListener("submit", (e) => {

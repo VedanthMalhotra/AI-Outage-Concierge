@@ -232,7 +232,7 @@
 
   .map-phase {
     @apply absolute z-[500] text-white flex items-center gap-2 font-semibold shadow-aep;
-    bottom: 10px; right: 56px; background: rgba(43,43,43,0.88); backdrop-filter: blur(2px);
+    bottom: 10px; left: 10px; background: rgba(43,43,43,0.88); backdrop-filter: blur(2px);
     border-radius: 4px; padding: 0.3rem 0.6rem; font-size: 0.78rem;
   }
   .map-phase__dot { @apply rounded-full bg-aep-accent; width: 9px; height: 9px; }
@@ -289,6 +289,20 @@
   }
   #pp-legend-host { position: absolute; left: 10px; bottom: 10px; z-index: 5; pointer-events: none; }
   #pp-legend-host:empty { display: none; }
+
+  /* 2D / 3D view toggle (bottom-right map overlay, above the storm tint) */
+  .map-viewtoggle {
+    position: absolute; bottom: 10px; right: 10px; z-index: 600;
+    appearance: none; border: 0; cursor: pointer; pointer-events: auto;
+    min-width: 2.4rem; text-align: center;
+    color: #fff; background: rgba(17,24,39,0.92); backdrop-filter: blur(3px);
+    font-size: 0.78rem; font-weight: 700; line-height: 1;
+    padding: 0.4rem 0.7rem; border-radius: 7px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    transition: background 0.15s ease;
+  }
+  .map-viewtoggle:hover { background: theme(colors.aep.accent); }
+  .map-viewtoggle:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
   .pp-legend {
     background: rgba(17,24,39,0.82); color: #f3f4f6; backdrop-filter: blur(3px);
     border-radius: 8px; padding: 0.5rem 0.65rem; font-size: 0.72rem; line-height: 1.3;

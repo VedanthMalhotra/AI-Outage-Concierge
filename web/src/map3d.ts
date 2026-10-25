@@ -79,8 +79,19 @@ let home: { lat: number; lon: number; label: string; service: string } | null = 
 
 let heatVisible = true; // storm timeline toggles this
 let flatHeat = false; // true once a premise is picked: flat 2D heatmap (pitch 0)
+let viewMode: "2d" | "3d" = "3d"; // user-facing 2D/3D toggle (see setViewMode)
 let pinState: PinState = "normal";
 let circuitPhaseColor: Color = [255, 90, 82];
+
+/* storm-timeline state for the power path: during outage phases the whole path
+ * reads as "damaged", and at the end of the animation it flips to "restored".
+ * null = no storm running, so the path keeps its per-link risk colouring. */
+type PathPhase = "damaged" | "restored";
+let pathPhase: PathPhase | null = null;
+const PATH_PHASE_COLOR: Record<PathPhase, Color> = {
+  damaged: [239, 68, 68], // red — same as the Very High risk band
+  restored: [34, 197, 94], // green — matches the restored pin
+};
 
 let viewState: ViewState = {
   longitude: 0,
@@ -252,8 +263,10 @@ function gradientLayer() {
 
 function heatLayer() {
   if (!heat || !heatVisible) return null;
-  // overview -> extruded 3D hexagons; premise selected -> smooth 2D gradient.
-  return flatHeat ? gradientLayer() : hexLayer();
+  // 2D mode (or a framed premise) -> smooth flat gradient; 3D mode -> extruded
+  // hexagons. The user toggle (viewMode) wins over the auto premise flattening.
+  const flat = viewMode === "2d" || flatHeat;
+  return flat ? gradientLayer() : hexLayer();
 }
 
 /* =============================================================================
@@ -333,7 +346,18 @@ function bandFromProb(p: number | null | undefined): Band | null {
   if (p < 0.7) return "High";
   return "Very High";
 }
+/** A link is "at risk" (and so can show damaged) when its risk band is High or
+ * Very High — i.e. p_damage >= 0.4, the Moderate→High boundary in bandFromProb. */
+function linkAtRisk(link: PowerPathLink): boolean {
+  const band = link.band || bandFromProb(link.p_damage);
+  return band === "High" || band === "Very High";
+}
 function linkColor(link: PowerPathLink): Color {
+  // At the end of the storm the whole path reads as restored.
+  if (pathPhase === "restored") return PATH_PHASE_COLOR.restored;
+  // During the outage only the at-risk links turn damaged; everything else
+  // keeps its normal per-link risk colour.
+  if (pathPhase === "damaged" && linkAtRisk(link)) return PATH_PHASE_COLOR.damaged;
   const band = link.band || bandFromProb(link.p_damage);
   return band ? BAND_COLOR[band] : PATH_NEUTRAL;
 }
@@ -390,11 +414,18 @@ function powerPathLayers() {
       id: "pp-spine",
       data: [{ path: linePts }],
       getPath: (d: { path: [number, number][] }) => d.path,
-      getColor: [229, 231, 235, 240],
+      // Neutral light spine normally. The spine spans the whole chain, so it
+      // only turns green once the path is restored; during the outage it stays
+      // neutral and the at-risk nodes carry the damaged colour.
+      getColor:
+        pathPhase === "restored"
+          ? rgba(PATH_PHASE_COLOR.restored, 245)
+          : ([229, 231, 235, 240] as Color),
       getWidth: 3,
       widthUnits: "pixels",
       capRounded: true,
       jointRounded: true,
+      updateTriggers: { getColor: pathPhase },
     }),
     // weakest-link ring
     new ScatterplotLayer({
@@ -421,6 +452,7 @@ function powerPathLayers() {
       getLineWidth: 1.5,
       lineWidthUnits: "pixels",
       pickable: true,
+      updateTriggers: { getFillColor: pathPhase },
     }),
     new TextLayer({
       id: "pp-glyphs",
@@ -556,7 +588,8 @@ export function flyToPremise(
       home.service = homeInfo.service;
     }
   }
-  // Drop to a flat, top-down 2D heatmap zoomed in on the home + its path.
+  // Zoom in on the home + its path. Flatten the heat to the smooth gradient so
+  // the path reads clearly; the camera tilt follows the user's 2D/3D toggle.
   heatVisible = true;
   flatHeat = true;
   viewState = {
@@ -564,7 +597,7 @@ export function flyToPremise(
     longitude: lon,
     latitude: lat,
     zoom: PREMISE_ZOOM,
-    pitch: 0,
+    pitch: viewMode === "3d" ? OVERVIEW_PITCH : 0,
     bearing: 0,
     transitionDuration: 1800,
     transitionInterpolator: new FlyToInterpolator({ speed: 1.4 }),
@@ -576,15 +609,37 @@ export function flyToPremise(
 export function flyToOverview(): void {
   if (!deck || !home) return;
   heatVisible = true;
-  flatHeat = false; // back to extruded 3D hexagons
+  flatHeat = false; // overview uses the hex field (unless the user forced 2D)
   viewState = {
     ...viewState,
     zoom: 12.5,
-    pitch: OVERVIEW_PITCH,
+    pitch: viewMode === "3d" ? OVERVIEW_PITCH : 0,
     transitionDuration: 1600,
     transitionInterpolator: new FlyToInterpolator({ speed: 1.4 }),
   };
   deck.setProps({ initialViewState: viewState, layers: allLayers() });
+}
+
+/**
+ * User-facing 2D/3D toggle. 2D = flat top-down view with the smooth density
+ * gradient; 3D = pitched camera with extruded damage hexagons. Keeps the
+ * current center and zoom, only animating the tilt + heat representation.
+ */
+export function setViewMode(mode: "2d" | "3d"): void {
+  if (!deck || mode === viewMode) return;
+  viewMode = mode;
+  viewState = {
+    ...viewState,
+    pitch: mode === "3d" ? OVERVIEW_PITCH : 0,
+    transitionDuration: 900,
+    transitionInterpolator: new FlyToInterpolator({ speed: 1.6 }),
+  };
+  deck.setProps({ initialViewState: viewState, layers: allLayers() });
+}
+
+/** Current view mode, so the UI can sync its toggle state. */
+export function getViewMode(): "2d" | "3d" {
+  return viewMode;
 }
 
 /** Swap in a new power path (e.g. after a premise change / severity change). */
@@ -594,15 +649,19 @@ export function setPowerPath(pp: PowerPath | null, premiseId: string): void {
   refresh();
 }
 
-/** Storm-timeline hook: recolour circuit, restyle pin, show/hide heat. */
+/** Storm-timeline hook: recolour circuit, restyle pin, show/hide heat, and
+ * drive the power-path phase (damaged / restored). Pass pathPhase:null to
+ * restore the per-link risk colouring when the storm is reset. */
 export function setPhaseVisuals(opts: {
   pin?: PinState;
   circuit?: Color;
   showHeat?: boolean;
+  pathPhase?: PathPhase | null;
 }): void {
   if (opts.pin) pinState = opts.pin;
   if (opts.circuit) circuitPhaseColor = opts.circuit;
   if (opts.showHeat != null) heatVisible = opts.showHeat;
+  if (opts.pathPhase !== undefined) pathPhase = opts.pathPhase;
   refresh();
 }
 
