@@ -155,6 +155,7 @@ DEFAULT_SCENARIO = {"storm_severity": 1.0, "crews": 2, "access": "auto",
 class Session:
     premise_id: Optional[str] = None
     profile: Optional[dict] = None
+    last_page: Optional[str] = None  # last dashboard summary sent, to flag changes
     messages: list[dict] = field(default_factory=list)
     last_seen: float = field(default_factory=time.time)
     # the dashboard's current sliders; tools default to these so chat matches the page
@@ -356,6 +357,36 @@ def _run_tool(s: Session, name: str, args: dict) -> dict:
 # endpoint
 # ---------------------------------------------------------------------------
 
+def _page_summary(board: Optional[dict], sc: dict) -> Optional[str]:
+    """One plain line of what the dashboard shows now (cards, sliders, storm step, checklist)."""
+    if not board:
+        return None
+    parts = []
+    r = board.get("risk_card") or {}
+    if r.get("band"):
+        parts.append(f"risk {r['band']} about {r.get('chance_pct')}% ({r.get('storm_setting', '')} storm)")
+    rc = board.get("restoration_card") or {}
+    if rc.get("likely_hours"):
+        parts.append(f"restoration {rc['likely_hours'][0]}-{rc['likely_hours'][1]} h, most likely {rc.get('most_likely_hours')} h")
+    parts.append(f"crews {sc['crews']}, road access {sc['access']}, switching {'on' if sc['switching_available'] else 'off'}, "
+                 f"critical facilities first {'on' if sc['prioritize_critical'] else 'off'}")
+    st = board.get("storm_replay") or {}
+    if st.get("step"):
+        parts.append(f"storm replay step {st['step']}: {st.get('what_is_happening')}"
+                     + (f"; found on their line: {st['confirmed_on_their_line']}" if st.get("confirmed_on_their_line") else "")
+                     + (f"; estimate now {st['estimate_at_this_step']['likely_hours'][0]}-{st['estimate_at_this_step']['likely_hours'][1]} h"
+                        if st.get("estimate_at_this_step") else ""))
+    else:
+        parts.append("storm replay not started")
+    parts.append("medical equipment declared" if board.get("declared_medical_equipment") else "no medical equipment declared")
+    pp = board.get("prepare_panel") or {}
+    for key, name in (("before_the_storm", "before-storm"), ("power_is_out", "power-out"), ("power_is_back", "power-back")):
+        ph = pp.get(key) or {}
+        if ph.get("done"):
+            parts.append(f"{name} checklist done: {'; '.join(ph['done'])} ({len(ph.get('still_to_do', []))} left)")
+    return ". ".join(parts)
+
+
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=1000)
     session_id: Optional[str] = Field(default=None, max_length=64)
@@ -428,7 +459,16 @@ def chat(req: ChatRequest, request: Request):
         scenario_changed = bool(s.messages) and new != s.scenario
         s.scenario = new
 
-    msgs = _trim(s.messages + [{"role": "user", "content": [{"text": text}]}])
+    # the page state rides along with the question itself, so the newest numbers sit next to it
+    # and win over anything said earlier in the conversation
+    turn = [{"text": text}]
+    page = _page_summary(req.dashboard, s.scenario)
+    if page:
+        changed = bool(s.messages) and page != s.last_page
+        turn.append({"text": ("[The page changed since your last answer; earlier numbers in this chat are out of date. "
+                              if changed else "[") + "What the customer's page shows right now: " + page + "]"})
+        s.last_page = page
+    msgs = _trim(s.messages + [{"role": "user", "content": turn}])
     system = [{"text": SYSTEM_PROMPT}]
     if s.profile:
         system.append({"text": "CUSTOMER PROFILE (this user's own home only; facts from AEP data):\n"
@@ -443,7 +483,9 @@ def chat(req: ChatRequest, request: Request):
             + board + "\nUse it: answer about the storm step they're on, the alerts they've received, the numbers "
             "on their cards, and which checklist items they have done or still need to do. If the storm replay "
             "is running, talk about that moment (for example during the storm: safety and what to do while the "
-            "power is out). Numbers here come from our models, so you may state them.")})
+            "power is out). Numbers here come from our models, so you may state them. The page state in the "
+            "customer's LATEST message is current: if it differs from your earlier answers, use the new values "
+            "(or call the tools again) and never repeat outdated numbers.")})
     tools_used: list[str] = []
     try:
         for _ in range(MAX_TOOL_ROUNDS + 1):
