@@ -12,9 +12,9 @@ Privacy model
   and are wiped by DELETE /chat/{session_id} (the dashboard's "Clear my data").
   Nothing is written to disk or logged.
 
-Numbers the model states must come from tool results. Risk and restoration
-come from the trained models (predict.py); guidance and alerts still come
-from the sample output in ../mock/api; network and history facts come from
+Numbers the model states must come from tool results. Risk, restoration,
+guidance and alerts still come from the sample model output in ../mock/api
+until the trained models are wired in; network and history facts come from
 the cleaned S3 tables.
 """
 from __future__ import annotations
@@ -29,13 +29,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from . import predict
+from . import predictions
 from . import topology as topo
 from .config import get_settings
 from .data import get_store
+from .profile import customer_profile
 
 log = logging.getLogger("aep.chat")
 router = APIRouter(tags=["chat"])
@@ -49,8 +50,13 @@ SYSTEM_PROMPT = """You are the AEP Outage Concierge, a friendly assistant for re
 Appalachian Power customers in the Roanoke Valley preparing for or living through a storm outage.
 
 Grounding (most important):
-- Only say what the tool results in this conversation say, plus what the user told you. \
-Do not add facts, advice, services, promises or steps from your own knowledge.
+- Only say what the CUSTOMER PROFILE and the tool results in this conversation say, plus what \
+the user told you. Do not add facts, advice, services, promises or steps from your own knowledge.
+- The CUSTOMER PROFILE describes this user's own home from AEP's data: their circuit, service \
+type, transformer, equipment path, zone, area factors (lines, poles), and whether they lost power \
+in past storms. Answer questions about their home, area, equipment or history directly from it, \
+without calling a tool. Past storms are history; risk and restoration for the coming storm come \
+from the tools.
 - Never promise anything the tool results do not state: no crew priority, no visits, no phone \
 numbers, no websites, no account or profile changes, no timelines. Describe alerts, escalations, \
 guidance and estimates using only the wording the tools give.
@@ -59,6 +65,22 @@ decide priorities, or any other AEP process, unless a tool result states it.
 - If the tools do not provide the answer, reply exactly: "I don't have that information. I can \
 help with your outage risk, restoration time, how to prepare, and alerts." Add nothing else.
 - Only state numbers (risk, hours, counts) that appear in a tool result. Never estimate them yourself.
+
+Explaining predictions:
+- When you give a risk or restoration estimate, explain WHY by connecting the tool's reasons to \
+this home's facts in the CUSTOMER PROFILE: for example whether the home lost power in the \
+February 2025 storm, damage reported in their zone in past storms, overhead line length, \
+the type of protective device (fuse or recloser), or how many homes share their equipment.
+- Present history as evidence, not a guarantee: "In the February 2025 storm, your zone had 8 \
+downed wire reports, which is part of why your risk is high."
+- Only use history and factors that appear in the profile or tool results. If a factor is \
+unknown (for example pole age), say so instead of guessing.
+- Never generalize from this home to others (do not say "every home on your circuit lost power"). \
+The outage history is about THIS home only.
+- For "why that long" questions, explain only with the restoration tool's own fields: \
+"what_this_includes" and "what_moves_it" (for example "with 4 crews it would be about 12 hours"). \
+Do not invent other causes. Do not describe the crews in the scenario as actually scheduled; \
+they are scenario inputs.
 
 Emergencies:
 - If the user describes any emergency or danger to anyone (health problem, injury, fire, smoke, \
@@ -73,8 +95,8 @@ sentences, or a short bulleted list for checklists.
 - Label estimates, for example "This is a model estimate, not a confirmed outage."
 
 Tools and memory:
-- Use the tools whenever the user asks about their risk, restoration time, preparation, alerts, \
-their area or their power line. Call a tool again with new inputs for "what if" questions.
+- Use the tools whenever the user asks about their outage risk, restoration time, preparation or \
+alerts. Call a tool again with new inputs for "what if" questions.
 - Remember what this user told you earlier in this conversation (for example that they use \
 medical equipment) and use it. Repeating the user's OWN information back to them when they ask \
 is fine.
@@ -111,6 +133,7 @@ THINKING_RE = re.compile(r"<thinking>.*?</thinking>", re.S | re.I)
 @dataclass
 class Session:
     premise_id: Optional[str] = None
+    profile: Optional[dict] = None
     messages: list[dict] = field(default_factory=list)
     last_seen: float = field(default_factory=time.time)
 
@@ -140,6 +163,23 @@ def _get_session(session_id: Optional[str]) -> tuple[str, Session]:
         return session_id, s
 
 
+_hits: dict[str, list[float]] = {}
+
+
+def _rate_limited(ip: str, now: float) -> bool:
+    """True if this visitor has sent too many messages in the last 10 minutes."""
+    with _lock:
+        recent = [t for t in _hits.get(ip, []) if now - t < 600]
+        if len(recent) >= settings.aep_chat_rate_per_10min:
+            _hits[ip] = recent
+            return True
+        _hits[ip] = recent + [now]
+        if len(_hits) > 5000:  # forget idle visitors
+            for k in [k for k, v in _hits.items() if not v or now - v[-1] > 600]:
+                del _hits[k]
+        return False
+
+
 def _trim(messages: list[dict]) -> list[dict]:
     """Keep the most recent messages, starting on a plain user turn (never on a tool result)."""
     msgs = messages[-settings.aep_chat_max_messages:]
@@ -156,79 +196,15 @@ def _mock(name: str) -> dict:
     return json.loads((MOCK_DIR / name).read_text(encoding="utf-8"))
 
 
-def _nearest(value: float, options: list[float]) -> float:
-    return min(options, key=lambda o: abs(o - value))
-
-
-def _tool_area(s: Session, _: dict) -> dict:
-    p = topo.find_premise(get_store(), s.premise_id)
-    hist = topo.outage_history(get_store(), s.premise_id) or {}
-    return {
-        "circuit_id": p.get("circuit_id"), "town": p.get("city"),
-        "service_type": p.get("service_type"), "has_equipment_chain": p.get("has_chain"),
-        "data_coverage": topo.data_coverage(p),
-        "lost_power_in_feb2025_storm": hist.get("out_feb2025"),
-        "lost_power_in_sep2024_storm": hist.get("out_sep2024"),
-        "source": "cleaned AEP data",
-    }
-
-
-def _tool_power_path(s: Session, args: dict) -> dict:
-    pp = topo.power_path(get_store(), s.premise_id)
-    if not pp:
-        return {"error": "No equipment chain is recorded for this location."}
-    links = pp.get("links") or []
-    sev = _nearest(float(args.get("storm_severity", 1.0)), predict.SEVERITIES)
-    lr = predict.link_risk(s.premise_id, sev)
-    zones = {k: v for k, v in lr.items() if v["kind"] == "zone"}
-    weakest = max(zones.values(), key=lambda v: v["probability"]) if zones else None
-    return {
-        "equipment_from_home_to_substation": [l.get("device_type") for l in links],
-        "protective_devices": sum(1 for l in links if str(l.get("device_type", "")).startswith(("Fuse", "Recloser"))),
-        "storm_severity": sev,
-        "weakest_link": {"what": "the fuse or recloser area on your path most likely to be damaged",
-                         "damage_probability": weakest["probability"], "band": weakest["band"]} if weakest else None,
-        "label": "Model estimate", "source": "cleaned AEP data + trained link-damage model",
-    }
-
-
-def _tool_circuit_history(s: Session, _: dict) -> dict:
-    p = topo.find_premise(get_store(), s.premise_id)
-    summ = topo.circuit_summary(get_store(), p["circuit_id"])
-    return {k: summ[k] for k in ("circuit_id", "premises", "damage_feb2025", "damage_sep2024", "damage_other")} | {
-        "source": "cleaned AEP data (damage report counts)"}
-
-
 def _tool_risk(s: Session, args: dict) -> dict:
-    sev = _nearest(float(args.get("storm_severity", 1.0)), predict.SEVERITIES)
-    r = predict.home_risk(s.premise_id, sev)
-    if r["fallback"]:
-        return {"error": r["fallback"]["message"], "label": "Model estimate"}
-    return {
-        "storm_severity": sev, "risk_band": r["band"], "probability": r["probability"],
-        "confidence": r["confidence"], "confidence_reason": r["confidence_reason"],
-        "top_reasons": [f["detail"] for f in r["top_factors"]],
-        "label": "Model estimate", "source": "trained outage-risk model (Feb 2025, tested on Sep 2024)",
-    }
+    return predictions.predict_risk(s.premise_id, args.get("storm_severity", 1.0))
 
 
 def _tool_restoration(s: Session, args: dict) -> dict:
-    want = {
-        "crews": max(1, min(10, int(args.get("crews", 2)))),
-        "storm_severity": _nearest(float(args.get("storm_severity", 1.0)), predict.SEVERITIES),
-        "access": args.get("access", "auto") if args.get("access") in ("auto", "on", "off") else "auto",
-        "switching_available": bool(args.get("switching_available", True)),
-        "failed_upstream_device": None,
-        "prioritize_critical": bool(args.get("prioritize_critical", True)),
-    }
-    p = topo.find_premise(get_store(), s.premise_id)
-    if not p or not p.get("has_chain"):
-        return {"error": "No equipment chain is recorded for this location, so there is no personal restoration estimate."}
-    r = predict.simulate(s.premise_id, **want)
-    return want | {"likely_range_hours": [r["p10"], r["p90"]], "most_likely_hours": r["p50"],
-                   "expected_damage_on_your_line": r["expected_damage_on_your_path"],
-                   "applies_if": "your home loses power",
-                   "label": "Model estimate", "source": "restoration simulator (AEP labor hours x damage model)"}
+    return predictions.simulate_restoration(
+        s.premise_id, crews=args.get("crews", 2), storm_severity=args.get("storm_severity", 1.0),
+        access=args.get("access", "auto"), switching_available=args.get("switching_available", True),
+        prioritize_critical=args.get("prioritize_critical", True))
 
 
 def _tool_guidance(s: Session, args: dict) -> dict:
@@ -246,10 +222,6 @@ def _tool_alerts(s: Session, args: dict) -> dict:
 
 
 TOOLS: dict[str, tuple[Any, str, dict]] = {
-    "get_my_area": (_tool_area, "The customer's circuit, town, service type (overhead/underground) and whether they lost power in past storms.", {}),
-    "get_power_path": (_tool_power_path, "The equipment feeding the customer's home, from their transformer up to the substation, and its weakest link.", {
-        "storm_severity": {"type": "number", "description": "0.5 minor, 1.0 like Feb 2025 (default), 1.5 severe, 2.0 extreme"}}),
-    "get_circuit_damage_history": (_tool_circuit_history, "How many damage reports the customer's circuit had in past storms.", {}),
     "get_outage_risk": (_tool_risk, "The customer's outage risk band, probability, confidence and top reasons for a storm severity.", {
         "storm_severity": {"type": "number", "description": "0.5 minor, 1.0 like Feb 2025 (default), 1.5 severe, 2.0 extreme"}}),
     "estimate_restoration": (_tool_restoration, "Likely restoration time range in hours for a scenario. Use for 'how long' and 'what if' questions.", {
@@ -312,7 +284,10 @@ def _client():
 
 
 @router.post("/chat", response_model=ChatResponse)
-def chat(req: ChatRequest):
+def chat(req: ChatRequest, request: Request):
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0]
+    if _rate_limited(ip, time.time()):
+        raise HTTPException(status_code=429, detail="Too many messages. Please wait a few minutes.")
     session_id, s = _get_session(req.session_id)
     text = req.message.strip()
 
@@ -325,17 +300,28 @@ def chat(req: ChatRequest):
             raise HTTPException(status_code=503, detail="Customer data is unavailable right now.") from exc
         if found:
             s.premise_id, s.messages = req.premise_id, []
+            try:
+                s.profile = customer_profile(req.premise_id)
+            except Exception as exc:  # profile is context only; the chat still works without it
+                log.warning("profile build failed for this session: %s", exc)
+                s.profile = None
 
     if EMERGENCY_RE.search(text):
         return ChatResponse(session_id=session_id, reply=EMERGENCY_REPLY, emergency=True)
 
     msgs = _trim(s.messages + [{"role": "user", "content": [{"text": text}]}])
+    system = [{"text": SYSTEM_PROMPT}]
+    if s.profile:
+        system.append({"text": "CUSTOMER PROFILE (this user's own home only; facts from AEP data):\n"
+                               + json.dumps(s.profile, default=str)})
+    else:
+        system.append({"text": "CUSTOMER PROFILE: none. No location is selected yet."})
     tools_used: list[str] = []
     try:
         for _ in range(MAX_TOOL_ROUNDS + 1):
             resp = _client().converse(
                 modelId=settings.aep_chat_model_id,
-                system=[{"text": SYSTEM_PROMPT}],
+                system=system,
                 messages=msgs,
                 toolConfig=TOOL_CONFIG,
                 inferenceConfig={"maxTokens": 600, "temperature": 0},

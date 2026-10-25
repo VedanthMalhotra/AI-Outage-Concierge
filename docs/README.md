@@ -12,6 +12,7 @@ Everything we've written for the AI Outage Concierge, in reading order. New to t
 | 03 | **Research** | [Existing solutions](03-research/existing-solutions.md) | Analysis of current outage tools, gaps we fill, sources | Pitch prep (Innovation, Impact) |
 | 04 | **Data & AWS** | [AWS data-cleaning guide](04-data-and-aws/aws-data-cleaning-guide.md) | Step-by-step cleaning on SageMaker (the code we ran) | Re-running or changing the cleaning |
 | | | [Cleaned data notes](04-data-and-aws/cleaned-data-notes.md) | The 15 cleaned tables: columns, row counts, labels, known gaps | **ML teammate**, or anyone using the data |
+| | | [Hosting on AWS](04-data-and-aws/hosting.md) | The live site, every AWS resource created, how to update, stop and delete it | Updating the hosted site or cleaning up after judging |
 | | | [AWS requirements](04-data-and-aws/aws-requirements.txt) | Every AWS service we use, owners, costs, day-1 checklist | Setting up AWS or checking the budget |
 | 05 | **Judging** | [Judging criteria](05-judging/judging-criteria.md) | The HackOHI/O rubric (6 criteria × 5 points) and how to score well | Pitch prep, checking we cover everything |
 | | | [Navigating challenges](05-judging/navigating-challenges.md) | Pivot log: what didn't work and how we changed course | **Add an entry every time something fails or changes** |

@@ -1,0 +1,2648 @@
+[
+  {
+    "link_loc": "37800347A46172",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.9033,
+    "homes_sharing": 112,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800347B00172",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.8075,
+    "homes_sharing": 84,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800323B26156",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.6903,
+    "homes_sharing": 93,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800346B00053",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.6214,
+    "homes_sharing": 38,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800347A26052",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.6087,
+    "homes_sharing": 43,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800347A00417",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.6059,
+    "homes_sharing": 574,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800322C00118",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.5797,
+    "homes_sharing": 17,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800322C00118",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.5797,
+    "homes_sharing": 17,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800322C00118",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.5797,
+    "homes_sharing": 17,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800323D06039",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.4785,
+    "homes_sharing": 28,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800322D40006",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.4559,
+    "homes_sharing": 92,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800323D06041",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.445,
+    "homes_sharing": 9,
+    "reason": "A large share of poles on this segment are over 50 years old."
+  },
+  {
+    "link_loc": "37800323D06041",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.445,
+    "homes_sharing": 9,
+    "reason": "A large share of poles on this segment are over 50 years old."
+  },
+  {
+    "link_loc": "37800370C00142",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.4412,
+    "homes_sharing": 22,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800371000008",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.4225,
+    "homes_sharing": 22,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800371000008",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.4225,
+    "homes_sharing": 22,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800322C00102",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3836,
+    "homes_sharing": 33,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800322C00102",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3836,
+    "homes_sharing": 33,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800346D06006",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3821,
+    "homes_sharing": 168,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800346D09814",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3679,
+    "homes_sharing": 70,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347D00022",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3669,
+    "homes_sharing": 106,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800347C40010",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3521,
+    "homes_sharing": 116,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800323A00091",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3502,
+    "homes_sharing": 19,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800322D00027",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3405,
+    "homes_sharing": 29,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800348A10046",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3235,
+    "homes_sharing": 45,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800347A00154",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3157,
+    "homes_sharing": 38,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800347A00154",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3157,
+    "homes_sharing": 38,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800347C00290",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3103,
+    "homes_sharing": 23,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346B36045",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3062,
+    "homes_sharing": 7,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346B36045",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.3062,
+    "homes_sharing": 7,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800371000027",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2789,
+    "homes_sharing": 29,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347D00039",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2735,
+    "homes_sharing": 21,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347C00328",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2522,
+    "homes_sharing": 161,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800346D00257",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2372,
+    "homes_sharing": 85,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800346D00257",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2372,
+    "homes_sharing": 85,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800346D00257",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2372,
+    "homes_sharing": 85,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800323B00084",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2209,
+    "homes_sharing": 4,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800348A21043",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2196,
+    "homes_sharing": 10,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346A00133",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2042,
+    "homes_sharing": 15,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346A00133",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2042,
+    "homes_sharing": 15,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347C04040",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.2011,
+    "homes_sharing": 4,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346A00082",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1967,
+    "homes_sharing": 3,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346D00021",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1961,
+    "homes_sharing": 5,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346D06010",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1818,
+    "homes_sharing": 64,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800322D00067",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1792,
+    "homes_sharing": 58,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346D00006",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1742,
+    "homes_sharing": 3,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800370A00016",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1737,
+    "homes_sharing": 5,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800370A00016",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1725,
+    "homes_sharing": 13,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800323D06028",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1669,
+    "homes_sharing": 15,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800323D06028",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1669,
+    "homes_sharing": 15,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347C16045",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1621,
+    "homes_sharing": 56,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800323D06025",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1593,
+    "homes_sharing": 25,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800322D00027",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1548,
+    "homes_sharing": 20,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800371000044",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1477,
+    "homes_sharing": 7,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346D00003",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1451,
+    "homes_sharing": 12,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347A00093",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1423,
+    "homes_sharing": 4,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800323B00214",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1273,
+    "homes_sharing": 10,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800323A00175",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1261,
+    "homes_sharing": 1,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800322D00047",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1256,
+    "homes_sharing": 2,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800322D00047",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1256,
+    "homes_sharing": 2,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346D00035",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1256,
+    "homes_sharing": 2,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800322D00052",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1253,
+    "homes_sharing": 3,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800323D00191",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1253,
+    "homes_sharing": 3,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800323D00191",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1253,
+    "homes_sharing": 3,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347A00142",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1253,
+    "homes_sharing": 3,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347A00148",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1253,
+    "homes_sharing": 3,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347D00116",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1252,
+    "homes_sharing": 32,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800347D00116",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1252,
+    "homes_sharing": 32,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800371000041",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1202,
+    "homes_sharing": 7,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800346A00074",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.119,
+    "homes_sharing": 7,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346A00074",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.119,
+    "homes_sharing": 7,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346A00074",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.119,
+    "homes_sharing": 7,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347A00085",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1176,
+    "homes_sharing": 266,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800370A00314",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1125,
+    "homes_sharing": 13,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800348A11035",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1088,
+    "homes_sharing": 24,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800348A11035",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1088,
+    "homes_sharing": 24,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800348A20054",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.1078,
+    "homes_sharing": 3,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346D00019",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0956,
+    "homes_sharing": 50,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800370C00179",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0871,
+    "homes_sharing": 29,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346D09817",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0861,
+    "homes_sharing": 6,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800346D00007",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0807,
+    "homes_sharing": 4,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800346D00007",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0807,
+    "homes_sharing": 4,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347D00062",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0733,
+    "homes_sharing": 24,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800347A00080",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0732,
+    "homes_sharing": 29,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800322C00108",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0701,
+    "homes_sharing": 6,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800371000149",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0643,
+    "homes_sharing": 9,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800371000149",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0643,
+    "homes_sharing": 9,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800371000149",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0643,
+    "homes_sharing": 9,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347B00110",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0629,
+    "homes_sharing": 5,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800347C00017",
+    "link_kind": "zone",
+    "device_type": "Recloser (Hydraulic)",
+    "circuit_id": "CIR72",
+    "p_damage": 0.062,
+    "homes_sharing": 1563,
+    "reason": "This segment is protected by a recloser, which retries after a temporary fault."
+  },
+  {
+    "link_loc": "37800347C00049",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.062,
+    "homes_sharing": 23,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347C00008",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0612,
+    "homes_sharing": 4,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347B00111",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0556,
+    "homes_sharing": 16,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347B16078",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0556,
+    "homes_sharing": 16,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347A00083",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0543,
+    "homes_sharing": 3,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347A00105",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0536,
+    "homes_sharing": 1,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800346D00001",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0534,
+    "homes_sharing": 2,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800322C00081",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0528,
+    "homes_sharing": 9,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800323D00170",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0488,
+    "homes_sharing": 5,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347B00109",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0485,
+    "homes_sharing": 10,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347A00142",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0482,
+    "homes_sharing": 3,
+    "reason": "Wood poles are more likely to fail in a severe storm than steel or fiberglass."
+  },
+  {
+    "link_loc": "37800370C00007",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0471,
+    "homes_sharing": 10,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800346A00131",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0423,
+    "homes_sharing": 5,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800370C04010",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0422,
+    "homes_sharing": 7,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347B22050",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.042,
+    "homes_sharing": 13,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347C04027",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.042,
+    "homes_sharing": 12,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800323D00157",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0414,
+    "homes_sharing": 2,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347A00101",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0366,
+    "homes_sharing": 6,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347A00104",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0366,
+    "homes_sharing": 6,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800346D00205",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0365,
+    "homes_sharing": 9,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347B00112",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0364,
+    "homes_sharing": 11,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800346C00072",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0363,
+    "homes_sharing": 19,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800370C00136",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0361,
+    "homes_sharing": 32,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800322D00033",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0338,
+    "homes_sharing": 17,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800322D00033",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0338,
+    "homes_sharing": 17,
+    "reason": "This zone feeds many transformers, so a zone fault reaches many homes."
+  },
+  {
+    "link_loc": "37800347D16128",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0321,
+    "homes_sharing": 1,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347D36167",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0321,
+    "homes_sharing": 1,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800348A21315",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0321,
+    "homes_sharing": 1,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347A00139",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.032,
+    "homes_sharing": 2,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800371C10238",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0319,
+    "homes_sharing": 3,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800346D06002",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0318,
+    "homes_sharing": 5,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800346D09786",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0318,
+    "homes_sharing": 4,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800323D00188",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0317,
+    "homes_sharing": 6,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347D00121",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0278,
+    "homes_sharing": 1,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800346B00058",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0275,
+    "homes_sharing": 4,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347D00025",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0275,
+    "homes_sharing": 5,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347B22049",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0273,
+    "homes_sharing": 13,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800347D16033",
+    "link_kind": "zone",
+    "device_type": "Fuse",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0252,
+    "homes_sharing": 5,
+    "reason": "Your branch is protected by a fuse, which can't reset itself after a fault."
+  },
+  {
+    "link_loc": "37800298D00183",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800298D06007",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322B00146",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322B46062",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322C04022",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322D00035",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322D00168",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322D06019",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322D06046",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322D36066",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323A00090",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323A00273",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323A00280",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323A00282",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B00150",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B02009",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B02030",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B02037",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323D00036",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323D00164",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323D00257",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323D06017",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323D06019",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323D06030",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323D06043",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346A00193",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346B00028",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346B36047",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C00246",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C00257",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C10270",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00010",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00030",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00086",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00118",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00245",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D06023",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D42054",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00092",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00232",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00233",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00361",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00364",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00391",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00393",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00422",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A02032",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A30435",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A36043",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B00202",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B00203",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B00208",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B00345",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B16055",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B16181",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B46148",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C00192",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C00287",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C00349",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C04028",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C04050",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C04071",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C04080",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347D00255",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347D06009",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347D16129",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347D36038",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347D36168",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800348A11090",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800348A21016",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800348A21028",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800348A21316",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800370C00010",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800370C00260",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371000004",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371000028",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371000092",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371000105",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371000174",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 1,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371000198",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371C10221",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.01,
+    "homes_sharing": 2,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322C00082",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322C00137",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322D00064",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800322D26054",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 6,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323A00299",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B00044",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B00048",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B00059",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B00065",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B00071",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B00075",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B00145",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323B02016",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323D00083",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800323D00085",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 6,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346B00024",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346B00153",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346B02001",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C00062",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C00105",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C00156",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C00159",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C00167",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C00174",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 7,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00004",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00005",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 8,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00015",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00023",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 8,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00049",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00067",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 6,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00077",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 6,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00082",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00109",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00149",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00186",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00187",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00202",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 7,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00211",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00213",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00236",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D06024",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D06025",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D06031",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 7,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D42051",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 8,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00004",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 6,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00050",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00058",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00060",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 7,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00067",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00073",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 8,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00098",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A00114",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A30071",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347A46158",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B00046",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B02035",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B02039",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B16063",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347B26076",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C00039",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 6,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C00059",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C00061",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C00294",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C04023",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C04030",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347C04034",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347D00118",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347D00171",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800347D00281",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800348A10030",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800348A21041",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800348A21060",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800370A00251",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 5,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800370C00004",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800370C00006",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800370C00194",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800370C00279",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800370C00289",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 4,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371000015",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371000017",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371000172",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800371C10240",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0099,
+    "homes_sharing": 3,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346C00038",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0098,
+    "homes_sharing": 9,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00044",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0098,
+    "homes_sharing": 11,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  },
+  {
+    "link_loc": "37800346D00136",
+    "link_kind": "transformer",
+    "device_type": "Transformer",
+    "circuit_id": "CIR72",
+    "p_damage": 0.0098,
+    "homes_sharing": 9,
+    "reason": "Many homes share this segment, so a single fault here affects a wide area."
+  }
+]

@@ -9,6 +9,7 @@
  * ========================================================================== */
 
 import L from "leaflet";
+import "leaflet.heat"; // adds L.heatLayer (density heatmap)
 import "./styles.css";
 import { $, el, getJSON, toast } from "./dom";
 import {
@@ -16,6 +17,7 @@ import {
   apiHealthy,
   endChat,
   fetchDamageHeat,
+  fetchPowerPath,
   fetchPremiseLookup,
   fetchRestorationGrid,
   fetchRiskBySeverity,
@@ -27,6 +29,8 @@ import type {
   Band,
   GridRow,
   Phase,
+  PowerPath,
+  PowerPathLink,
   Risk,
   Scenario,
   TimelineStep,
@@ -79,6 +83,7 @@ const data: AppData = {
   lookup: null,
   circuit: null,
   heat: null,
+  powerPath: null,
   riskBySeverity: null,
   riskFallback: null,
   grid: null,
@@ -92,13 +97,13 @@ const data: AppData = {
 /* remembers the previous risk sample for the before/after delta note */
 let prevRisk: Risk | null = null;
 
-/* true once the backend answered /health; model output then comes from it */
-let live = false;
+/* whether the live backend answered at boot (reused for later premise fetches) */
+let apiLive = false;
 
 /* Risk and restoration for one premise from the trained models (live API).
  * Keeps whatever is loaded (mock or the previous premise) if the call fails. */
 async function loadModelOutput(premiseId: string): Promise<void> {
-  if (!live) return;
+  if (!apiLive) return;
   try {
     const [risk, grid] = await Promise.all([
       fetchRiskBySeverity(premiseId),
@@ -111,6 +116,31 @@ async function loadModelOutput(premiseId: string): Promise<void> {
   }
 }
 
+/* ---------------------------------------------------------------------------
+ * Load a premise's power path: live backend first, mock sample otherwise.
+ * The mock is a single premise, so we only serve it for that id and skip the
+ * graphic for other demo premises when offline (rather than show a wrong path).
+ * ------------------------------------------------------------------------- */
+async function loadPowerPath(
+  premiseId: string,
+  live: boolean,
+  severity = 1.0
+): Promise<PowerPath | null> {
+  if (live) {
+    try {
+      return await fetchPowerPath(premiseId, severity);
+    } catch (err) {
+      console.warn("power-path fetch failed, trying mock:", err);
+    }
+  }
+  try {
+    const mock = await getJSON<PowerPath>(API, "power_path.json");
+    return mock.premise_id === premiseId ? mock : null;
+  } catch {
+    return null;
+  }
+}
+
 /* =============================================================================
  * BOOT
  * ========================================================================== */
@@ -118,6 +148,7 @@ let map: L.Map;
 let pinLayer: L.Marker;
 let circuitLayer: L.GeoJSON;
 let heatLayer: L.LayerGroup;
+let pathLayer: L.LayerGroup; // the selected home's power path graphic
 
 async function boot(): Promise<void> {
   try {
@@ -148,7 +179,8 @@ async function boot(): Promise<void> {
 
     // Premise lookup + damage heat come from the live backend when it is
     // reachable, otherwise fall back to the mock JSON so the page still works.
-    live = await apiHealthy();
+    const live = await apiHealthy();
+    apiLive = live;
     if (live) {
       try {
         [data.lookup, data.heat] = await Promise.all([
@@ -165,6 +197,9 @@ async function boot(): Promise<void> {
     if (!data.heat) {
       data.heat = await getJSON<AppData["heat"]>(API, "damage_heat.json");
     }
+
+    // Power path for the first premise (live, else the mock sample).
+    data.powerPath = await loadPowerPath(state.premiseId, live, state.severity);
 
     // Keep state in sync with whatever premise the lookup settled on.
     state.premiseId = data.lookup!.premise_id;
@@ -184,6 +219,9 @@ async function boot(): Promise<void> {
 
   buildPremisePicker();
   initMap();
+  renderPowerPath();
+  measureTopChrome();
+  window.addEventListener("resize", measureTopChrome);
   wireControls();
   buildChatSuggestions();
   renderAssumptions();
@@ -210,18 +248,95 @@ function buildPremisePicker(): void {
     sel.appendChild(o);
   });
   sel.value = state.premiseId;
-  sel.addEventListener("change", async () => {
-    state.premiseId = sel.value;
-    await loadModelOutput(sel.value);
+
+  // Demo dropdown: coords are already known, so selection is instant.
+  sel.addEventListener("change", () => {
     const p = data.lookup!.demo_premises.find((x) => x.premise_id === sel.value);
-    if (p && map) {
-      pinLayer.setLatLng([p.lat, p.lon]);
-      map.panTo([p.lat, p.lon]);
-    }
-    renderRisk();
-    renderRestoration({ silent: true });
-    toast(`Selected premise ${sel.value}`);
+    void selectPremise(sel.value, p ? { lat: p.lat, lon: p.lon } : null);
   });
+
+  // Free-text ID entry: resolve the premise (live lookup / mock), then fly to it.
+  const form = $<HTMLFormElement>("#premise-lookup-form");
+  const input = $<HTMLInputElement>("#premise-id-input");
+  input.value = state.premiseId;
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const id = input.value.trim();
+    if (!id) return;
+    void selectPremise(id);
+  });
+}
+
+/* ---------------------------------------------------------------------------
+ * Select a premise by id and move the map to it.
+ *
+ * If coords are supplied (demo dropdown) we fly straight there. Otherwise we
+ * resolve the premise: the live backend's lookup when available, else the demo
+ * list / mock. Unknown ids surface a toast rather than silently doing nothing.
+ * ------------------------------------------------------------------------- */
+async function selectPremise(
+  id: string,
+  coords: { lat: number; lon: number } | null = null
+): Promise<void> {
+  // Resolve coordinates if we weren't given them.
+  if (!coords) {
+    // already in the demo list?
+    const demo = data.lookup!.demo_premises.find((x) => x.premise_id === id);
+    if (demo) {
+      coords = { lat: demo.lat, lon: demo.lon };
+    } else if (apiLive) {
+      try {
+        const look = await fetchPremiseLookup(id);
+        coords = { lat: look.lat, lon: look.lon };
+        // adopt the richer lookup so area label / service type update too
+        data.lookup = look;
+        $("#area-label").textContent = `${look.area_label} · live API`;
+      } catch {
+        toast(`Premise ${id} not found`);
+        return;
+      }
+    } else {
+      // offline: only the mock premise is known
+      const mock = data.lookup!;
+      if (mock.premise_id === id) {
+        coords = { lat: mock.lat, lon: mock.lon };
+      } else {
+        toast(`Premise ${id} isn't in the sample data (backend offline)`);
+        return;
+      }
+    }
+  }
+
+  state.premiseId = id;
+  const sel = $<HTMLSelectElement>("#premise-select");
+  if (sel.value !== id) sel.value = id; // keep dropdown in sync when possible
+  $<HTMLInputElement>("#premise-id-input").value = id;
+
+  if (coords && map) {
+    data.lookup!.lat = coords.lat;
+    data.lookup!.lon = coords.lon;
+    pinLayer.setLatLng([coords.lat, coords.lon]);
+    pinLayer.openPopup();
+  }
+
+  await loadModelOutput(id);
+  renderRisk();
+  renderRestoration({ silent: true });
+
+  // refresh the power-path graphic for the newly selected home
+  const pp = await loadPowerPath(state.premiseId, apiLive, state.severity);
+  data.powerPath = pp;
+
+  if (pp && pp.links.some((l) => l.lat != null && l.lon != null)) {
+    // framing the path zooms in on the home and shows its full chain
+    renderPowerPath(true);
+  } else {
+    // no drawable path: just fly to the home location
+    renderPowerPath(false);
+    if (coords && map) map.flyTo([coords.lat, coords.lon], 16, { duration: 0.8 });
+  }
+
+  toast(`Showing premise ${id}`);
 }
 
 /* =============================================================================
@@ -273,21 +388,43 @@ function initMap(): void {
     style: { color: "#ff5a52", weight: 3, fillColor: "#c22823", fillOpacity: 0.12 },
   }).addTo(map);
 
-  // Aggregated damage heat — graduated circles per ~1 km cell.
-  const counts = data.heat!.cells.map((c) => c.count);
-  const maxCount = Math.max(...counts, 1);
-  heatLayer = L.layerGroup();
+  // Aggregated damage heat — a continuous density heatmap over the ~1 km cell
+  // counts. Wrapped in a LayerGroup so the storm timeline can hide/show it
+  // unchanged. Each cell is exploded into several jittered sub-points so the
+  // kernels of neighbouring cells blend into one smooth gradient field rather
+  // than a grid of discrete dots.
+  const maxCount = Math.max(...data.heat!.cells.map((c) => c.count), 1);
+  const CELL_DEG = data.heat!.cell_size_deg || 0.01; // ~1 km cell
+  const heatPoints: [number, number, number][] = [];
   data.heat!.cells.forEach((c) => {
-    const t = c.count / maxCount;
-    L.circle([c.lat, c.lon], {
-      radius: 450,
-      stroke: false,
-      fillColor: t > 0.66 ? "#ef4444" : t > 0.33 ? "#f97316" : "#eab308",
-      fillOpacity: 0.12 + 0.35 * t,
-    })
-      .bindTooltip(`${c.count} damage report(s) in this ~1 km cell (Feb 2025)`)
-      .addTo(heatLayer);
+    // sqrt scaling: spreads the low end out so a few very busy cells don't make
+    // everything else look equally hot. Intensity maps straight to count, with
+    // no base floor — a 1-report cell stays faint/yellow, not red.
+    const norm = Math.sqrt(c.count / maxCount); // 0..1
+    // more reports -> more scattered sub-points (2..12) so density accumulates
+    const n = Math.max(2, Math.round(2 + norm * 10));
+    for (let i = 0; i < n; i++) {
+      const jLat = (Math.random() - 0.5) * CELL_DEG;
+      const jLon = (Math.random() - 0.5) * CELL_DEG;
+      heatPoints.push([c.lat + jLat, c.lon + jLon, norm]);
+    }
   });
+  heatLayer = L.layerGroup();
+  L.heatLayer(heatPoints, {
+    radius: 45,
+    blur: 38,
+    max: 1.0,
+    maxZoom: 15,
+    minOpacity: 0.08, // sparse cells render faint rather than solid
+    gradient: {
+      0.0: "#fef9c3", // barely-there pale yellow (few reports)
+      0.25: "#fde047", // yellow
+      0.45: "#facc15", // amber
+      0.65: "#f97316", // orange
+      0.85: "#ef4444", // red
+      1.0: "#b91c1c", // deep red core (busiest cells only)
+    },
+  }).addTo(heatLayer);
   heatLayer.addTo(map); // shown at rest; the storm hides then re-reveals it
 
   // The customer's own pin (the only point we ever plot).
@@ -301,6 +438,203 @@ function initMap(): void {
     );
 
   setTimeout(() => map.invalidateSize(), 200);
+}
+
+/* =============================================================================
+ * POWER PATH ON THE MAP (the "Your Power Path" graphic)
+ *
+ * Draws, for the selected home only, the ordered line of equipment feeding it:
+ * a connector from the home pin to its transformer, then a polyline up through
+ * each link toward the substation. Each link is a circle coloured by its
+ * Model-A damage probability, and the single weakest link is ringed. A small
+ * legend explains the colours. Privacy: only this home's own path is ever
+ * drawn — no other customers appear.
+ * ========================================================================== */
+
+/* Band -> marker colour (same palette as the risk badges). */
+const PATH_BAND_COLOR: Record<Band, string> = {
+  Low: "#22c55e",
+  Moderate: "#facc15",
+  High: "#f97316",
+  "Very High": "#ef4444",
+};
+const PATH_NEUTRAL = "#9ca3af"; // link has no risk yet (backend without Model A)
+
+function bandFromProb(p: number | null | undefined): Band | null {
+  if (p == null || Number.isNaN(p)) return null;
+  if (p < 0.15) return "Low";
+  if (p < 0.4) return "Moderate";
+  if (p < 0.7) return "High";
+  return "Very High";
+}
+
+function linkColor(link: PowerPathLink): string {
+  const band = link.band || bandFromProb(link.p_damage);
+  return band ? PATH_BAND_COLOR[band] : PATH_NEUTRAL;
+}
+
+function linkGlyph(deviceType: string): string {
+  const t = deviceType.toLowerCase();
+  if (t.includes("transformer")) return "T";
+  if (t.includes("fuse")) return "F";
+  if (t.includes("recloser")) return "R";
+  if (t.includes("sectionalizer")) return "S";
+  if (t.includes("breaker")) return "B";
+  if (t.includes("substation")) return "⌂";
+  if (t.includes("switch")) return "W";
+  return "•";
+}
+
+let pathLegend: L.Control | null = null;
+
+function renderPowerPath(fitView = true): void {
+  if (!map) return;
+
+  // Reset any previous drawing.
+  if (pathLayer) {
+    pathLayer.clearLayers();
+  } else {
+    pathLayer = L.layerGroup().addTo(map);
+  }
+  removePathLegend();
+
+  const pp = data.powerPath;
+  const home = data.lookup;
+  if (!pp || !home) return;
+  if (pp.premise_id !== state.premiseId) return; // guard against stale data
+
+  // Ordered points: home -> each link that has coordinates.
+  const coordLinks = pp.links.filter(
+    (l): l is PowerPathLink & { lat: number; lon: number } =>
+      l.lat != null && l.lon != null
+  );
+  if (coordLinks.length === 0) return;
+
+  const linePts: L.LatLngExpression[] = [
+    [home.lat, home.lon],
+    ...coordLinks.map((l) => [l.lat, l.lon] as [number, number]),
+  ];
+
+  // The spine: a casing (dark, wide) under a bright line, so it reads on
+  // satellite imagery. Dashed between home and transformer (the service drop).
+  L.polyline(linePts, { color: "#0b1324", weight: 7, opacity: 0.55 }).addTo(pathLayer);
+  L.polyline([linePts[0], linePts[1]], {
+    color: "#e5e7eb",
+    weight: 3,
+    opacity: 0.9,
+    dashArray: "4 5",
+  }).addTo(pathLayer);
+  L.polyline(linePts.slice(1), {
+    color: "#e5e7eb",
+    weight: 3,
+    opacity: 0.95,
+  }).addTo(pathLayer);
+
+  const weakest = pp.weakest_link_step;
+
+  coordLinks.forEach((l) => {
+    const color = linkColor(l);
+    const isWeak = weakest != null && l.step === weakest;
+
+    // weakest link gets an outer ring to call it out.
+    if (isWeak) {
+      L.circleMarker([l.lat, l.lon], {
+        radius: 14,
+        color: "#111827",
+        weight: 2,
+        fillColor: color,
+        fillOpacity: 0.25,
+      }).addTo(pathLayer);
+    }
+
+    const marker = L.marker([l.lat, l.lon], {
+      icon: L.divIcon({
+        className: "pp-node",
+        html:
+          `<div class="pp-node__dot${isWeak ? " pp-node__dot--weak" : ""}" ` +
+          `style="background:${color}">${linkGlyph(l.device_type)}</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      }),
+    }).addTo(pathLayer);
+
+    const pct =
+      l.p_damage != null ? `${Math.round(l.p_damage * 100)}% chance of damage` : "risk n/a";
+    marker.bindPopup(
+      `<strong>Step ${l.step}: ${l.device_type}</strong><br>` +
+        `${pct}` +
+        (isWeak ? `<br><em>Weakest link on your path</em>` : "") +
+        (l.reason ? `<br><span style="opacity:.8">${l.reason}</span>` : "")
+    );
+  });
+
+  addPathLegend(pp);
+
+  // Frame the whole path, but only when asked (first load / explicit redraw),
+  // so it doesn't fight a user-initiated zoom-to-home.
+  if (fitView) {
+    const bounds = L.latLngBounds(linePts).pad(0.25);
+    map.fitBounds(bounds, { maxZoom: 16 });
+  }
+}
+
+function addPathLegend(pp: PowerPath): void {
+  const Legend = L.Control.extend({
+    onAdd() {
+      const div = L.DomUtil.create("div", "pp-legend");
+      const home =
+        pp.home_probability != null
+          ? `<div class="pp-legend__home"><strong>Your power path</strong><br>` +
+            `whole-home risk ~${Math.round(pp.home_probability * 100)}%` +
+            (pp.home_band ? ` (${pp.home_band})` : "") +
+            `</div>`
+          : `<div class="pp-legend__home"><strong>Your power path</strong></div>`;
+      const rows = (["Low", "Moderate", "High", "Very High"] as Band[])
+        .map(
+          (b) =>
+            `<span class="pp-legend__row"><i style="background:${PATH_BAND_COLOR[b]}"></i>${b}</span>`
+        )
+        .join("");
+      const note =
+        pp.coverage === "fallback"
+          ? `We couldn't find the full equipment chain for this home, so this is the known part of the path to the substation.`
+          : `Each node is equipment on your home's path to the substation.`;
+      div.innerHTML =
+        home +
+        `<div class="pp-legend__scale">${rows}</div>` +
+        `<div class="pp-legend__note">${note}</div>`;
+      return div;
+    },
+  });
+  // bottom-left: clear of the storm-timeline bar across the top and the zoom
+  // control at bottom-right. Sits just above the storm phase badge.
+  pathLegend = new Legend({ position: "bottomleft" });
+  pathLegend.addTo(map);
+}
+
+function removePathLegend(): void {
+  if (pathLegend) {
+    map.removeControl(pathLegend);
+    pathLegend = null;
+  }
+}
+
+/* Measure the fixed top chrome (masthead + title strip) and expose it as the
+ * --top-chrome CSS var so the map and chat panels can fill the rest of the
+ * viewport on load. Recomputed on resize. */
+function measureTopChrome(): void {
+  const header = document.querySelector("header");
+  const title = document.querySelector(".page-title");
+  const headerH = header ? header.getBoundingClientRect().height : 0;
+  const titleH = title ? title.getBoundingClientRect().height : 0;
+  const root = document.documentElement.style;
+  root.setProperty("--top-chrome", `${Math.round(headerH + titleH)}px`);
+  // The masthead is sticky, so the chat panel pins just below it (never hidden
+  // behind it). Expose its height for the chat's sticky offset + height.
+  root.setProperty("--masthead-h", `${Math.round(headerH)}px`);
+  if (typeof map !== "undefined" && map) {
+    setTimeout(() => map.invalidateSize(), 50);
+  }
 }
 
 type PinState = "normal" | "out" | "restored";
@@ -541,7 +875,22 @@ function renderGuidance(): void {
 
   const cl = $("#prep-checklist");
   cl.innerHTML = "";
-  v.checklist.forEach((c) => cl.appendChild(el("li", null, c)));
+  v.checklist.forEach((c, i) => {
+    const li = el("li", "checklist__item");
+    const label = el("label", "checklist__label");
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.className = "checklist__box";
+    box.id = `prep-check-${i}`;
+    box.addEventListener("change", () => {
+      li.classList.toggle("is-checked", box.checked);
+    });
+    label.htmlFor = box.id;
+    label.appendChild(box);
+    label.appendChild(el("span", "checklist__text", c));
+    li.appendChild(label);
+    cl.appendChild(li);
+  });
 }
 
 /* =============================================================================
@@ -866,6 +1215,15 @@ function wireControls(): void {
       changeLabel: `Storm severity: ${state.scenario.storm_severity.toFixed(1)}×`,
       silent: prevP50 === null,
     });
+    // Recolour the power path for the new severity (live backend only; the mock
+    // sample has a single severity so there is nothing to refetch). Keep the
+    // current view — the user is adjusting the storm, not changing homes.
+    if (apiLive) {
+      void loadPowerPath(state.premiseId, apiLive, state.severity).then((pp) => {
+        data.powerPath = pp;
+        renderPowerPath(false);
+      });
+    }
   });
 
   // Crews

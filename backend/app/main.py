@@ -13,6 +13,8 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from . import chat
 from . import predict
@@ -149,13 +151,19 @@ def premise_lookup(
 
 
 @app.get("/premise/{premise_id}/power-path", response_model=PowerPathResponse, tags=["premise"])
-def get_power_path(premise_id: str):
+def get_power_path(
+    premise_id: str,
+    severity: float = Query(default=1.0, ge=0.5, le=2.0,
+                            description="storm severity knob (0.5 / 1.0 / 1.5 / 2.0)"),
+):
     store = get_store()
-    pp = topo.power_path(store, premise_id)
+    pp = topo.power_path(store, premise_id, severity)
     if not pp:
+        # Only reached when the premise itself is unknown. A premise with a
+        # missing/partial chain still returns a (fallback) path.
         raise HTTPException(
             status_code=404,
-            detail=f"no equipment chain for premise '{premise_id}'",
+            detail=f"premise '{premise_id}' not found",
         )
     return pp
 
@@ -276,3 +284,16 @@ def labor_units():
 @app.get("/reference/labor-adders", response_model=list[LaborAdder], tags=["reference"])
 def labor_adders():
     return topo.labor_adders(get_store())
+
+
+# --------------------------------------------------------------------------
+# hosted mode: serve the built dashboard from the same server (AEP_STATIC_DIR)
+# --------------------------------------------------------------------------
+
+if settings.aep_static_dir:
+    @app.get("/", include_in_schema=False)
+    def site_root():
+        return RedirectResponse("/web/index.html")
+
+    # mounted last so every API route above keeps priority
+    app.mount("/", StaticFiles(directory=settings.aep_static_dir, html=True), name="site")
