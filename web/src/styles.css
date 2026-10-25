@@ -606,3 +606,12 @@
 .msg-pop__head { display: flex; justify-content: space-between; font-size: 0.72rem; color: #64748b; margin-bottom: 0.2rem; }
 .msg-pop__app { font-weight: 700; color: #c62828; }
 .msg-pop__text { font-size: 0.86rem; color: #0f172a; }
+
+/* checklist pieces hidden until the storm walkthrough starts */
+.prep-tabs[hidden], .prep-progress[hidden], .prep-tasks[hidden] { display: none; }
+/* no premise: the restoration controls have nothing to act on */
+.panel--outlook.is-general .controls,
+.panel--outlook.is-general .controls-footer,
+.panel--outlook.is-general details.drivers,
+.panel--outlook.is-general details.history,
+.panel--outlook.is-general #rest-delta { display: none; }

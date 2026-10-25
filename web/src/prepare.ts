@@ -151,10 +151,19 @@ export function renderPrepare(c: PrepContext): void {
     btn.setAttribute("aria-selected", String(ui.phase === ph));
     btn.querySelector(".prep-tab__count")!.textContent = left ? String(left) : "✓";
   });
+  // the checklist appears once the storm walkthrough starts (Step); before that, a hint
+  const started = ui.locked;
+  $(".prep-tabs").hidden = !started;
+  $(".prep-progress").hidden = !started;
+  $("#prep-checklist").hidden = !started;
+  if (!started) {
+    $("#prep-progress-text").textContent =
+      "Press Step on the map to see what to do before, during and after the storm.";
+  }
   const list = all[ui.phase];
   const doneN = list.filter((t) => ui.done.has(t.id)).length;
   $("#prep-progress-bar").style.width = `${list.length ? (doneN / list.length) * 100 : 0}%`;
-  $("#prep-progress-text").textContent = `${doneN} of ${list.length} done`;
+  if (started) $("#prep-progress-text").textContent = `${doneN} of ${list.length} done`;
   const ul = $("#prep-checklist");
   ul.innerHTML = "";
   list.forEach((t) => {

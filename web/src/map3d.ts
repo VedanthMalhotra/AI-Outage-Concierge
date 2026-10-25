@@ -201,8 +201,16 @@ function circuitLayer() {
 /* =============================================================================
  * The home pin (the only customer point ever shown).
  * ========================================================================== */
+let homeHidden = false; // "no premise" demo mode: there is no home to mark
+
+/** Show or hide the home pin (hidden when no premise is selected). */
+export function setHomeVisible(visible: boolean): void {
+  homeHidden = !visible;
+  refresh();
+}
+
 function pinLayers() {
-  if (!home) return [];
+  if (!home || homeHidden) return [];
   const color = PIN_COLOR[pinState];
   const pos: [number, number] = [home.lon, home.lat];
   return [

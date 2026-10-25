@@ -11,6 +11,7 @@ import {
   initMap as initMap3D,
   flyToPremise,
   flyToOverview,
+  setHomeVisible,
   setPowerPath,
   setRiskHeat,
   setCircuit,
@@ -277,7 +278,11 @@ async function enterGeneralMode(): Promise<void> {
   renderAlerts();
   buildTimelineTrack();
   resetStorm();
-  if (mapReady) setPowerPath(null, "");
+  if (mapReady) {
+    setPowerPath(null, "");
+    setHomeVisible(false);
+  }
+  $(".panel--outlook").classList.add("is-general"); // no controls without a home
   renderPathLegend();
   toast("No premise selected: showing general storm guidance");
 }
@@ -290,6 +295,8 @@ async function selectPremise(
     await enterGeneralMode();
     return;
   }
+  $(".panel--outlook").classList.remove("is-general");
+  if (mapReady) setHomeVisible(true);
   const demo = data.lookup!.demo_premises.find((x) => x.premise_id === id);
   if (demo) {
     coords = coords ?? { lat: demo.lat, lon: demo.lon };
