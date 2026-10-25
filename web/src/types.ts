@@ -73,6 +73,23 @@ export interface DamageHeat {
   cells: HeatCell[];
 }
 
+/* ---- backend /risk/heat: predicted outage chance per ~500 m area ---- */
+export interface RiskHeatCell {
+  lat: number;
+  lon: number;
+  probability: number; // average P(lose power) of the homes in the area
+  band: Band;
+  homes: number; // rounded to 10
+}
+export interface RiskHeat {
+  storm_severity: number;
+  cell_size_deg: number;
+  min_homes: number;
+  label: string;
+  note?: string;
+  cells: RiskHeatCell[];
+}
+
 /* ---- risk_by_severity.json / risk_fallback.json ---- */
 export interface RiskFactor {
   key: string;
@@ -243,7 +260,7 @@ export interface RestorationSnapshot {
 export interface AppData {
   lookup: PremiseLookup | null;
   circuit: CircuitGeoJSON | null;
-  heat: DamageHeat | null;
+  heat: RiskHeat | null; // predicted-risk heat from the backend (null offline)
   powerPath: PowerPath | null;
   riskBySeverity: RiskBySeverity | null;
   riskFallback: RiskFallbackDoc | null;

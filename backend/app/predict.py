@@ -263,6 +263,36 @@ def risk_by_severity(premise_id: str) -> dict[str, dict]:
     return {f"{s:.1f}": home_risk(premise_id, s) for s in SEVERITIES}
 
 
+@lru_cache
+def risk_heat(severity: float = 1.0, cell_deg: float = 0.005, min_homes: int = 5) -> dict:
+    """Map heat of predicted outage risk: every home's P(out) (same formula as home_risk),
+    averaged over ~500 m cells. Cells with fewer than `min_homes` homes are dropped, so no
+    single home can be picked out."""
+    e = engine()
+    df = e.link_df[["premise_id", "link"]].copy()
+    p = _scale(df["link"].map(e.p_link).fillna(0.0).to_numpy(), severity)
+    df["log_keep"] = np.log1p(-p)  # P(out) = 1 - prod(1 - p_link) = 1 - exp(sum log(1 - p_link))
+    home_p = 1 - np.exp(df.groupby("premise_id")["log_keep"].sum())
+    home_p.index = home_p.index.astype(str)
+
+    prem = get_store().get("premise")[["premise_id", "lat", "lon"]].dropna()
+    prem = prem.assign(premise_id=prem["premise_id"].astype(str))
+    prem = prem[prem["premise_id"].isin(home_p.index)]
+    prem = prem.assign(p=prem["premise_id"].map(home_p),
+                       cy=np.floor(prem["lat"] / cell_deg), cx=np.floor(prem["lon"] / cell_deg))
+    g = prem.groupby(["cy", "cx"])["p"].agg(["mean", "size"])
+    g = g[g["size"] >= min_homes]
+    cells = [{"lat": round((cy + 0.5) * cell_deg, 5), "lon": round((cx + 0.5) * cell_deg, 5),
+              "probability": round(float(r["mean"]), 3), "band": band(float(r["mean"])),
+              "homes": _round10(float(r["size"]))}
+             for (cy, cx), r in g.iterrows()]
+    return {"storm_severity": severity, "cell_size_deg": cell_deg, "min_homes": min_homes,
+            "label": "Model estimate",
+            "note": f"Average predicted chance of losing power per ~500 m area; areas with fewer than "
+                    f"{min_homes} homes are hidden.",
+            "cells": cells}
+
+
 # ---------------------------------------------------------------------------
 # restoration simulator
 # ---------------------------------------------------------------------------

@@ -191,7 +191,7 @@
   .map-legend { @apply text-aep-muted flex items-center gap-3; font-size: 0.78rem; }
   .dot { @apply inline-block rounded-full align-middle; width: 10px; height: 10px; margin-right: 2px; }
   .dot--pin { @apply bg-aep-accent; }
-  .dot--heat { @apply bg-aep-band-high; }
+  .dot--heat { background: linear-gradient(90deg, #22c55e, #facc15, #f97316, #ef4444); }
   .privacy-note { @apply text-aep-muted; margin-top: 0.5rem; font-size: 0.78rem; }
   .leaflet-container { background: #2b3440; }
 

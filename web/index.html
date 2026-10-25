@@ -72,12 +72,12 @@
         <h2>Your area</h2>
         <div class="map-legend" aria-hidden="true">
           <span class="dot dot--pin"></span> Your home
-          <span class="dot dot--heat"></span> Storm damage density
+          <span class="dot dot--heat"></span> Predicted chance of losing power (AI model, ~500 m areas)
         </div>
       </div>
 
       <div class="map-wrap" id="map-wrap">
-        <div id="map" role="img" aria-label="3D map showing aggregated storm-damage density as extruded hexagons, your circuit area, and (once a premise is entered) your home pin and power path. Other customers are never shown."></div>
+        <div id="map" role="img" aria-label="Map showing the AI model's predicted chance of losing power, averaged over areas of about 500 m with at least 5 homes, your circuit area, and (once a premise is entered) your home pin and power path. Other customers are never shown."></div>
 
         <!-- Power-path colour legend (populated by main.ts) -->
         <div id="pp-legend-host" class="pp-legend" aria-hidden="true"></div>

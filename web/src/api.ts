@@ -21,6 +21,7 @@ import type {
   PremiseLookup,
   RestorationGrid,
   RiskBySeverity,
+  RiskHeat,
 } from "./types";
 
 /* ---------------------------------------------------------------------------
@@ -307,6 +308,12 @@ export async function fetchRestorationGrid(premiseId: string): Promise<Restorati
 /* ---------------------------------------------------------------------------
  * damage heat — the backend already aggregates into ~1 km cells.
  * ------------------------------------------------------------------------- */
+/* predicted-risk heat (trained model): average P(lose power) per ~500 m area.
+ * Long timeout: the first call after a server restart loads the models. */
+export async function fetchRiskHeat(severity = 1.0): Promise<RiskHeat> {
+  return apiGet<RiskHeat>(`/risk/heat?severity=${severity}`, 90000);
+}
+
 export async function fetchDamageHeat(
   event = "feb2025"
 ): Promise<DamageHeat> {

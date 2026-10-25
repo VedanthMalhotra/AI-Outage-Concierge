@@ -262,6 +262,14 @@ def damage_heat(
     return topo.damage_heat(get_store(), event, circuit_id)
 
 
+@app.get("/risk/heat", tags=["models"])
+def risk_heat(severity: float = Query(default=1.0, ge=0.5, le=2.0)):
+    """Predicted chance of losing power (Model A), averaged per ~500 m area for the map heat.
+    Areas with fewer than 5 homes are hidden."""
+    sev = min(predict.SEVERITIES, key=lambda s: abs(s - severity))
+    return predict.risk_heat(sev)
+
+
 # --------------------------------------------------------------------------
 # facilities + labor reference
 # --------------------------------------------------------------------------
@@ -294,6 +302,15 @@ if settings.aep_static_dir:
     @app.get("/", include_in_schema=False)
     def site_root():
         return RedirectResponse("/web/index.html")
+
+    @app.middleware("http")
+    async def no_stale_pages(request, call_next):
+        # the page must be re-checked on every visit so a redeploy shows up at once;
+        # its JS/CSS files have content hashes in their names, so they can stay cached
+        response = await call_next(request)
+        if request.url.path.endswith((".html", "/")):
+            response.headers["Cache-Control"] = "no-cache"
+        return response
 
     # mounted last so every API route above keeps priority
     app.mount("/", StaticFiles(directory=settings.aep_static_dir, html=True), name="site")

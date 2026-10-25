@@ -14,6 +14,7 @@ import {
   flyToPremise,
   flyToOverview,
   setPowerPath,
+  setRiskHeat,
   setPhaseVisuals,
   resizeMap,
 } from "./map3d";
@@ -23,11 +24,11 @@ import {
   DEFAULT_PREMISE_ID,
   apiHealthy,
   endChat,
-  fetchDamageHeat,
   fetchPowerPath,
   fetchPremiseLookup,
   fetchRestorationGrid,
   fetchRiskBySeverity,
+  fetchRiskHeat,
   sendChat,
 } from "./api";
 import type {
@@ -186,19 +187,13 @@ async function boot(): Promise<void> {
     apiLive = live;
     if (live) {
       try {
-        [data.lookup, data.heat] = await Promise.all([
-          fetchPremiseLookup(state.premiseId),
-          fetchDamageHeat("feb2025"),
-        ]);
+        data.lookup = await fetchPremiseLookup(state.premiseId);
       } catch (liveErr) {
         console.warn("Live API call failed, falling back to mock:", liveErr);
       }
     }
     if (!data.lookup) {
       data.lookup = await getJSON<AppData["lookup"]>(API, "premise_lookup.json");
-    }
-    if (!data.heat) {
-      data.heat = await getJSON<AppData["heat"]>(API, "damage_heat.json");
     }
 
     // Power path for the first premise (live, else the mock sample).
@@ -342,17 +337,31 @@ async function selectPremise(
 
 /* =============================================================================
  * MAP — now a pitched 3D deck.gl scene (see map3d.ts). On load it shows the
- * extruded damage-hexbin heatmap over the circuit; entering a premise id flies
- * the camera down to that home and reveals its pin + power path. This function
- * just hands the loaded data to the map module and wires the legend.
+ * predicted-risk heat (trained model) over the circuit; entering a premise id
+ * flies the camera down to that home and reveals its pin + power path. This
+ * function just hands the loaded data to the map module and wires the legend.
  * ========================================================================== */
+/* (Re)load the predicted-risk heat for the current storm severity. Live backend
+ * only; offline the map simply shows no heat. */
+function loadRiskHeat(): void {
+  if (!apiLive) return;
+  const sev = state.severity;
+  fetchRiskHeat(sev)
+    .then((h) => {
+      if (sev !== state.severity) return; // slider moved again meanwhile
+      data.heat = h;
+      if (mapReady) setRiskHeat(h);
+    })
+    .catch((err) => console.warn("risk heat fetch failed:", err));
+}
+
 function initMap(): void {
   const { lat, lon } = data.lookup!;
   initMap3D({
     container: "map",
     lat,
     lon,
-    heat: data.heat!,
+    heat: data.heat,
     circuit: (data.circuit as GeoJSON.GeoJsonObject) ?? null,
     home: {
       lat,
@@ -365,6 +374,7 @@ function initMap(): void {
   });
   mapReady = true;
   renderPathLegend();
+  loadRiskHeat();
 }
 
 /* =============================================================================
@@ -984,6 +994,7 @@ function wireControls(): void {
         if (mapReady) setPowerPath(pp, state.premiseId);
         renderPathLegend();
       });
+      loadRiskHeat(); // area risk changes with storm strength too
     }
   });
 

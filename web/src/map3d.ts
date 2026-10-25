@@ -1,17 +1,15 @@
 /* =============================================================================
  * 3D map (deck.gl standalone) — replaces the old flat Leaflet map.
  *
- * On load the map shows a pitched, extruded HexagonLayer built from the
- * aggregated damage counts (data.heat.cells): taller + redder hexagons mean
- * more storm-damage reports in that ~1 km cell. This is the "3D heatmap" hero
- * view. When a premise id is entered the camera flies/zooms down to that home
- * (FlyToInterpolator), the hexbins fade back, and the home's pin + power path
- * are revealed.
+ * On load the map shows the predicted-risk heat: ~500 m squares coloured by the
+ * average chance (from the trained model) that homes there lose power in the
+ * chosen storm. When a premise id is entered the camera flies/zooms down to that
+ * home (FlyToInterpolator) and the home's pin + power path are revealed.
  *
  * Everything the old Leaflet code drew is reproduced here with deck.gl layers:
  *   - satellite basemap     -> TileLayer + BitmapLayer (Esri World Imagery)
  *   - circuit outline       -> GeoJsonLayer
- *   - damage heat           -> HexagonLayer (extruded) / fades out when zoomed
+ *   - predicted-risk heat   -> SolidPolygonLayer (flat squares, band colours)
  *   - the home's own pin     -> ScatterplotLayer + TextLayer
  *   - the power path graphic -> PathLayer + ScatterplotLayer + TextLayer
  *
@@ -21,12 +19,18 @@
 
 import { Deck, FlyToInterpolator, type Color, type PickingInfo } from "@deck.gl/core";
 import { TileLayer } from "@deck.gl/geo-layers";
-import { BitmapLayer, GeoJsonLayer, PathLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
-import { HeatmapLayer, HexagonLayer } from "@deck.gl/aggregation-layers";
-import type { Band, DamageHeat, PowerPath, PowerPathLink } from "./types";
+import {
+  BitmapLayer,
+  GeoJsonLayer,
+  PathLayer,
+  ScatterplotLayer,
+  SolidPolygonLayer,
+  TextLayer,
+} from "@deck.gl/layers";
+import type { Band, PowerPath, PowerPathLink, RiskHeat, RiskHeatCell } from "./types";
 
 /* ---- camera framing --------------------------------------------------- */
-const OVERVIEW_PITCH = 50; // tilt that shows off the extruded hexagons
+const OVERVIEW_PITCH = 0; // flat, top-down map
 const PREMISE_ZOOM = 16.5; // close-up zoom when a premise is selected
 
 /* ---- palette (matches the risk badge bands in main.ts) ---------------- */
@@ -43,15 +47,6 @@ function rgba(c: Color, a: number): Color {
   return [c[0], c[1], c[2], a] as unknown as Color;
 }
 
-/* HexagonLayer colour ramp (pale yellow -> deep red), same feel as before. */
-const HEX_COLORS: Color[] = [
-  [254, 249, 195],
-  [253, 224, 71],
-  [250, 204, 21],
-  [249, 115, 22],
-  [239, 68, 68],
-  [185, 28, 28],
-];
 
 type PinState = "normal" | "out" | "restored";
 const PIN_COLOR: Record<PinState, Color> = {
@@ -72,13 +67,12 @@ interface ViewState {
 
 /* module state */
 let deck: Deck | null = null;
-let heat: DamageHeat | null = null;
+let heat: RiskHeat | null = null;
 let circuit: GeoJSON.GeoJsonObject | null = null;
 let powerPath: PowerPath | null = null;
 let home: { lat: number; lon: number; label: string; service: string } | null = null;
 
 let heatVisible = true; // storm timeline toggles this
-let flatHeat = false; // true once a premise is picked: flat 2D heatmap (pitch 0)
 let pinState: PinState = "normal";
 let circuitPhaseColor: Color = [255, 90, 82];
 
@@ -137,123 +131,38 @@ function basemapLayers() {
 }
 
 /* =============================================================================
- * Damage heat as extruded hexagons.
+ * Predicted-risk heat: Hanshil's model (backend /risk/heat).
  *
- * One weighted point per cell (not one-per-report): the cell's `count` drives
- * both colour and height directly. Height uses a sqrt mapping so a handful of
- * very busy cells don't tower over everything, and a noise floor is subtracted
- * so low-count cells sit nearly flat instead of covering the map in thin spikes.
- * The layer flattens to a 2D heatmap once a premise is picked.
+ * Each ~500 m square is coloured by the AVERAGE predicted chance that homes in
+ * it lose power, using the same Low / Moderate / High / Very High bands as the
+ * power path. Squares with fewer than 5 homes never arrive from the backend, so
+ * no single home can be picked out. Flat (no 3D) and refetched when the storm
+ * severity slider moves.
  * ========================================================================== */
-interface HeatPoint {
-  position: [number, number];
-  weight: number; // raw report count
-}
+/* stronger bands are more opaque so the risky areas stand out over the imagery */
+const RISK_ALPHA: Record<Band, number> = { Low: 55, Moderate: 105, High: 140, "Very High": 165 };
 
-/* fewest reports a cell needs before it gets a 3D bar at all */
-const MIN_REPORTS_FOR_BAR = 3;
-
-/* One weighted point per cell — used by the extruded hexagons. */
-function hexData(): HeatPoint[] {
-  if (!heat) return [];
-  // 3D view: drop sparse cells entirely so no bar is drawn for them.
-  return heat.cells
-    .filter((c) => c.count >= MIN_REPORTS_FOR_BAR)
-    .map((c) => ({ position: [c.lon, c.lat] as [number, number], weight: c.count }));
-}
-
-/* sqrt-shaped height so big cells don't spike away. Cells below the bar
- * threshold are already filtered out of the 3D view, so they never appear. */
-function heatHeight(count: number): number {
-  const base = MIN_REPORTS_FOR_BAR - 1; // start height just under the threshold
-  return Math.sqrt(Math.max(0, count - base));
-}
-
-/* ---- the extruded 3D hexagons (overview mode) ---- */
-function hexLayer() {
-  return new HexagonLayer<HeatPoint>({
-    id: "damage-hex",
-    data: hexData(),
-    getPosition: (d) => d.position,
-    getColorWeight: (d) => d.weight,
-    colorAggregation: "SUM",
-    getElevationWeight: (d) => heatHeight(d.weight),
-    elevationAggregation: "SUM",
-    radius: 460,
-    elevationScale: 10,
-    extruded: true,
-    pickable: true,
-    colorRange: HEX_COLORS as unknown as Color[],
-    upperPercentile: 98, // clip the busiest few so one outlier can't own the ramp
-    coverage: 0.9,
-    opacity: 0.85,
-    material: {
-      ambient: 0.64,
-      diffuse: 0.6,
-      shininess: 32,
-      specularColor: [60, 64, 70],
-    },
-    transitions: { elevationScale: 600 },
-  });
-}
-
-/* ---- the smooth 2D density gradient (premise mode) ----
- * Reproduces the original Leaflet heatmap exactly: intensity is sqrt-normalised
- * against the busiest cell (so a few hot cells don't wash everything out), and
- * each cell is exploded into several jittered sub-points over its ~1 km footprint
- * so neighbouring kernels blend into one continuous field rather than discrete
- * blobs. The gradient stops below match the old L.heatLayer gradient. */
-function gradientData(): HeatPoint[] {
-  if (!heat) return [];
-  const maxCount = Math.max(...heat.cells.map((c) => c.count), 1);
-  const CELL = heat.cell_size_deg || 0.01; // ~1 km cell
-  const pts: HeatPoint[] = [];
-  for (const c of heat.cells) {
-    const norm = Math.sqrt(c.count / maxCount); // 0..1
-    // Many sub-points scattered across (and slightly beyond) the cell so
-    // neighbouring cells overlap into one continuous field instead of isolated
-    // circles. Scatter radius is ~0.9x the cell so adjacent cells bleed together.
-    const n = Math.max(8, Math.round(10 + norm * 30)); // 8..40 sub-points
-    for (let i = 0; i < n; i++) {
-      const jLat = (Math.random() - 0.5) * CELL * 1.8;
-      const jLon = (Math.random() - 0.5) * CELL * 1.8;
-      pts.push({ position: [c.lon + jLon, c.lat + jLat], weight: norm });
-    }
-  }
-  return pts;
-}
-
-/* All-red gradient: light red at the faint edges -> deep red at the core. No
- * orange or yellow. deck.gl spaces these six evenly across 0..1. */
-const GRADIENT_COLORS: Color[] = [
-  [254, 224, 224], // very light red (faint edges)
-  [252, 165, 165],
-  [248, 113, 113],
-  [239, 68, 68],
-  [185, 28, 28],
-  [127, 15, 15], // deep red core
-];
-
-function gradientLayer() {
-  return new HeatmapLayer<HeatPoint>({
-    id: "damage-gradient",
-    data: gradientData(),
-    getPosition: (d) => d.position,
-    getWeight: (d) => d.weight,
-    // large kernels so points merge into one continuous field, not circles
-    radiusPixels: 110,
-    intensity: 1.4,
-    threshold: 0.06, // trim the palest fringe so edges stay red, not washed out
-    aggregation: "SUM",
-    colorRange: GRADIENT_COLORS as unknown as Color[],
-    opacity: 0.8,
-  });
+function cellPolygon(c: RiskHeatCell, size: number): [number, number][] {
+  const h = size / 2;
+  return [
+    [c.lon - h, c.lat - h],
+    [c.lon + h, c.lat - h],
+    [c.lon + h, c.lat + h],
+    [c.lon - h, c.lat + h],
+  ];
 }
 
 function heatLayer() {
   if (!heat || !heatVisible) return null;
-  // overview -> extruded 3D hexagons; premise selected -> smooth 2D gradient.
-  return flatHeat ? gradientLayer() : hexLayer();
+  const size = heat.cell_size_deg;
+  return new SolidPolygonLayer<RiskHeatCell>({
+    id: "risk-heat",
+    data: heat.cells,
+    getPolygon: (c) => cellPolygon(c, size),
+    getFillColor: (c) => rgba(BAND_COLOR[c.band], RISK_ALPHA[c.band]),
+    pickable: true,
+    updateTriggers: { getPolygon: size },
+  });
 }
 
 /* =============================================================================
@@ -457,24 +366,13 @@ let currentPremiseId: string | null = null;
 
 function tooltip({ object, layer }: PickingInfo): { html: string } | null {
   if (!object || !layer) return null;
-  if (layer.id === "damage-hex") {
-    // HexagonLayer exposes the aggregated colour value on the picked object.
-    // With colorAggregation:"SUM" + getColorWeight:weight this is the summed
-    // report count. Fall back to summing the raw points if it's missing.
-    const o = object as {
-      colorValue?: number;
-      elevationValue?: number;
-      points?: unknown[];
-    };
-    let reports = o.colorValue ?? o.elevationValue ?? 0;
-    if (!reports && o.points) {
-      reports = o.points.reduce<number>((sum, p) => {
-        const rec = p as { weight?: number; source?: { weight?: number } };
-        return sum + (rec.weight ?? rec.source?.weight ?? 0);
-      }, 0);
-    }
+  if (layer.id === "risk-heat") {
+    const c = object as RiskHeatCell;
     return {
-      html: `<strong>Storm damage</strong><br>${Math.round(reports)} reports in this area`,
+      html:
+        `<strong>${Math.round(c.probability * 100)}% chance of losing power</strong> (${c.band})` +
+        `<br>average for about ${c.homes} homes in this area` +
+        `<br><span style="opacity:.8">Model estimate for a ${heat?.storm_severity ?? 1}× Feb 2025 storm</span>`,
     };
   }
   if (layer.id === "pp-nodes") {
@@ -505,7 +403,7 @@ export interface InitMapArgs {
   container: string; // css id of the map div
   lat: number;
   lon: number;
-  heat: DamageHeat;
+  heat: RiskHeat | null;
   circuit: GeoJSON.GeoJsonObject | null;
   home: { lat: number; lon: number; label: string; service: string };
   powerPath: PowerPath | null;
@@ -556,9 +454,8 @@ export function flyToPremise(
       home.service = homeInfo.service;
     }
   }
-  // Drop to a flat, top-down 2D heatmap zoomed in on the home + its path.
+  // Zoom in on the home + its path.
   heatVisible = true;
-  flatHeat = true;
   viewState = {
     ...viewState,
     longitude: lon,
@@ -576,7 +473,6 @@ export function flyToPremise(
 export function flyToOverview(): void {
   if (!deck || !home) return;
   heatVisible = true;
-  flatHeat = false; // back to extruded 3D hexagons
   viewState = {
     ...viewState,
     zoom: 12.5,
@@ -591,6 +487,12 @@ export function flyToOverview(): void {
 export function setPowerPath(pp: PowerPath | null, premiseId: string): void {
   powerPath = pp;
   currentPremiseId = premiseId;
+  refresh();
+}
+
+/** Swap in the predicted-risk heat for a new storm severity. */
+export function setRiskHeat(h: RiskHeat | null): void {
+  heat = h;
   refresh();
 }
 
