@@ -21,6 +21,12 @@ Direct server address (HTTP, changes after a stop/start): http://3.21.44.48/
 - Safeguards for a public site: a "student prototype, not an official AEP website" banner, and a chat limit of 20 messages per 10 minutes per visitor.
 
 ## Update the site after code changes
+From the repo root, after `git pull` (and `aws sso login --sso-session osu-sandbox` if your login expired):
+```powershell
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1
+```
+It does the steps below and checks that the site is back up (about 1–2 minutes). The manual steps, for reference:
+
 1. Build the dashboard (from `web/`): set `VITE_API_BASE=/`, then `npm run build`.
 2. Package `backend/app` + `backend/pyproject.toml`, `web/dist/*` (as `site/`) and `mock/` into `aep-app.zip` with forward-slash paths, and upload it to `s3://sagemaker-aep-outage-indiansassemble/deploy/aep-app.zip`.
 3. Tell the server to reinstall and restart (no SSH needed):

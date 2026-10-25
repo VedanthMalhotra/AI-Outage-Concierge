@@ -2,7 +2,7 @@
 
 An AI-powered assistant that helps residential customers in the Roanoke Valley (Appalachian Power) get through a major storm. It predicts **whether their home will lose power**, estimates **how long restoration could take**, tells them **what to do to prepare**, and sends **proactive alerts**. A chatbot explains it all in plain language.
 
-> **Live site:** https://d22vd18uidf0yz.cloudfront.net/ (hosted on AWS; details in [hosting.md](docs/04-data-and-aws/hosting.md))
+> **Live site:** https://d22vd18uidf0yz.cloudfront.net/ (hosted on AWS; details in [hosting.md](docs/04-data-and-aws/hosting.md)). To publish changes: `git pull`, then `powershell -ExecutionPolicy Bypass -File .\deploy.ps1`
 >
 > **New here? Read [docs/01-overview/project-overview.md](docs/01-overview/project-overview.md) first**, then the [docs index](docs/README.md).
 
