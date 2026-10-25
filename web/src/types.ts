@@ -97,6 +97,7 @@ export interface RiskFactor {
   key: string;
   label: string;
   detail: string;
+  evidence?: string | null; // Feb 2025 damage rate for areas like this one (real labels)
   direction?: string;
   weight?: number;
 }

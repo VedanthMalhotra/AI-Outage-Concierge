@@ -592,3 +592,5 @@
 
 /* keep panels clear of the sticky header when the storm replay scrolls to them */
 .panel--prepare, .panel--map { scroll-margin-top: 7.5rem; }
+
+.factor-evidence { display: block; margin-top: 0.2rem; font-size: 0.78rem; color: #1e3a8a; }

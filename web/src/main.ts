@@ -471,6 +471,11 @@ function renderRisk(): void {
     const li = el("li");
     li.appendChild(el("strong", null, f.label));
     li.appendChild(el("span", null, f.detail));
+    if (f.evidence) {
+      const ev = el("span", "factor-evidence");
+      ev.textContent = `📊 ${f.evidence}`;
+      li.appendChild(ev);
+    }
     list.appendChild(li);
   });
 

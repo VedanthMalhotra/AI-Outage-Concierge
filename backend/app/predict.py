@@ -199,6 +199,56 @@ LOWERS_ABOVE = {  # negative coefficient, value above average
 }
 
 
+# what each feature is called in the storm-history sentence ("areas with ...")
+EVIDENCE_PHRASE = {
+    "primary_overhead_km": lambda v, more: f"{'at least' if more else 'at most'} {v:.1f} km of overhead line",
+    "secondary_overhead_km": lambda v, more: f"{'at least' if more else 'at most'} {v:.1f} km of overhead wire",
+    "poles": lambda v, more: f"{int(v)} or {'more' if more else 'fewer'} poles",
+    "poles_per_oh_km": lambda v, more: "poles this close together" if more else "poles this spread out",
+    "pole_wood_share": lambda v, more: f"{'at least' if more else 'at most'} {v:.0%} wood poles",
+    "pole_height_mean": lambda v, more: f"poles {'this tall or taller' if more else 'this short or shorter'}",
+    "customers": lambda v, more: f"{'this many or more' if more else 'this few or fewer'} homes on one safety switch",
+    "transformers": lambda v, more: f"{int(v)} or {'more' if more else 'fewer'} transformers",
+    "oh_transformer_share": lambda v, more: f"{'at least' if more else 'at most'} {v:.0%} of equipment on poles",
+    "depth": lambda v, more: f"{int(v) + 1} or {'more' if more else 'fewer'} protected sections to the substation",
+    "history_damage": lambda v, more: "damage in earlier storms" if more else "no damage in earlier storms",
+    "breaker_only": lambda v, more: "no local safety switch" if v else "a local safety switch",
+    "is_recloser": lambda v, more: "an automatic switch (recloser)" if v else "a fuse",
+    "primary_underground_km": lambda v, more: f"{'at least' if more else 'at most'} {v:.1f} km of underground line",
+    "secondary_underground_km": lambda v, more: f"{'at least' if more else 'at most'} {v:.1f} km of underground wire",
+    "customers_per_km": lambda v, more: f"homes {'this close together or closer' if more else 'this spread out or more'}",
+}
+MIN_AREAS = 50  # compare against at least this many areas so the rate isn't noise
+
+
+def feb2025_evidence(key: str, value: float) -> Optional[str]:
+    """How often areas like this one were damaged in the Feb 2025 storm, from the real damage
+    labels: areas at or beyond this home's value (same side of the median) vs all areas."""
+    z = engine().zones
+    if key not in z or key not in EVIDENCE_PHRASE:
+        return None
+    col, hit = z[key], z["damaged_feb2025"]
+    if set(col.dropna().unique()) <= {0, 1}:          # yes/no feature: same value
+        group = hit[col == value]
+        more = bool(value)
+    else:
+        more = value >= col.median()
+        group = hit[col >= value] if more else hit[col <= value]
+        if len(group) < MIN_AREAS:                     # widen to the MIN_AREAS nearest that side
+            order = col.sort_values(ascending=not more)
+            group = hit[order.index[:MIN_AREAS]]
+            value = float(col[order.index[MIN_AREAS - 1]])  # describe the widened group honestly
+    if len(group) < MIN_AREAS:
+        return None
+    ratio = group.mean() / hit.mean()
+    like = EVIDENCE_PHRASE[key](value, more)
+    if ratio >= 1.2:
+        return f"In the February 2025 storm, areas with {like} were damaged {ratio:.1f}× as often as the average area."
+    if ratio <= 0.8:
+        return f"In the February 2025 storm, areas with {like} were damaged {(1 - ratio):.0%} less often than the average area."
+    return None
+
+
 def _path(premise_id: str) -> Optional[list[str]]:
     return engine().links.get(str(premise_id))
 
@@ -248,7 +298,9 @@ def home_risk(premise_id: str, severity: float = 1.0) -> dict:
                 table = HIGH if coef[key] > 0 else LOW
             if key in table and len(factors) < 3:
                 label, detail = table[key]
-                factors.append({"key": key, "label": label, "detail": detail(float(e.zones.at[weakest, key])),
+                v = float(e.zones.at[weakest, key])
+                evidence = feb2025_evidence(key, v)
+                factors.append({"key": key, "label": label, "detail": detail(v), "evidence": evidence,
                                 "direction": "lowers" if low else "raises", "weight": round(float(c[key]), 2)})
 
     coverage = topo.data_coverage(p)

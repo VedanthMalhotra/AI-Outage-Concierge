@@ -27,7 +27,7 @@ def predict_risk(premise_id: str, storm_severity: float = 1.0) -> dict:
     return {
         "storm_severity": sev, "risk_band": r["band"], "probability": r["probability"],
         "confidence": r["confidence"], "confidence_reason": r["confidence_reason"],
-        "top_reasons": [f["detail"] for f in r["top_factors"]],
+        "top_reasons": [(f["evidence"] + " " if f.get("evidence") else "") + f["detail"] for f in r["top_factors"]],
         "label": "Model estimate", "source": "trained outage-risk model (Feb 2025, tested on Sep 2024)",
     }
 
