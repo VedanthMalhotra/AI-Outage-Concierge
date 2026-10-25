@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     aws_profile: Optional[str] = "default"
     aws_region: str = "us-east-2"
 
+    # Trained models (modelling/train-model.ipynb). Feature tables are read from
+    # features/ next to the cleaned data. Locally: <data dir>/../models/models.joblib.
+    aep_model_key: str = "models/models.joblib"
+
     # Optional local override: a directory holding batchN/*.parquet.
     # When set, the loader reads here instead of S3.
     aep_local_data_dir: Optional[str] = None

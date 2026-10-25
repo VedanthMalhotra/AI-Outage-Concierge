@@ -17,6 +17,8 @@ import {
   endChat,
   fetchDamageHeat,
   fetchPremiseLookup,
+  fetchRestorationGrid,
+  fetchRiskBySeverity,
   sendChat,
 } from "./api";
 import type {
@@ -90,6 +92,25 @@ const data: AppData = {
 /* remembers the previous risk sample for the before/after delta note */
 let prevRisk: Risk | null = null;
 
+/* true once the backend answered /health; model output then comes from it */
+let live = false;
+
+/* Risk and restoration for one premise from the trained models (live API).
+ * Keeps whatever is loaded (mock or the previous premise) if the call fails. */
+async function loadModelOutput(premiseId: string): Promise<void> {
+  if (!live) return;
+  try {
+    const [risk, grid] = await Promise.all([
+      fetchRiskBySeverity(premiseId),
+      fetchRestorationGrid(premiseId),
+    ]);
+    data.riskBySeverity = risk;
+    data.grid = grid;
+  } catch (err) {
+    console.warn("Model output unavailable, keeping current data:", err);
+  }
+}
+
 /* =============================================================================
  * BOOT
  * ========================================================================== */
@@ -127,7 +148,7 @@ async function boot(): Promise<void> {
 
     // Premise lookup + damage heat come from the live backend when it is
     // reachable, otherwise fall back to the mock JSON so the page still works.
-    const live = await apiHealthy();
+    live = await apiHealthy();
     if (live) {
       try {
         [data.lookup, data.heat] = await Promise.all([
@@ -147,6 +168,7 @@ async function boot(): Promise<void> {
 
     // Keep state in sync with whatever premise the lookup settled on.
     state.premiseId = data.lookup!.premise_id;
+    await loadModelOutput(state.premiseId);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     document.body.innerHTML =
@@ -188,8 +210,9 @@ function buildPremisePicker(): void {
     sel.appendChild(o);
   });
   sel.value = state.premiseId;
-  sel.addEventListener("change", () => {
+  sel.addEventListener("change", async () => {
     state.premiseId = sel.value;
+    await loadModelOutput(sel.value);
     const p = data.lookup!.demo_premises.find((x) => x.premise_id === sel.value);
     if (p && map) {
       pinLayer.setLatLng([p.lat, p.lon]);
@@ -450,11 +473,12 @@ function whyFor(
 }
 
 function renderDriversAndJobs(): void {
-  const drivers = [
+  // live grids carry the simulator's drivers and repair queue; the mock grid doesn't
+  const drivers = data.grid!.drivers ?? [
     { text: "Number of crews: adding more crews cuts the queue time", impact_h: -6.2 },
     { text: "A broken pole on your line adds about 8 hours", impact_h: 8.0 },
   ];
-  const jobs = [
+  const jobs = data.grid!.jobs_ahead_of_you ?? [
     { order: 1, what: "Main line repairs on your circuit", crew_hours: 9.5 },
     { order: 2, what: "Lines feeding critical facilities", crew_hours: 6.0 },
     { order: 3, what: "Broken pole + downed wire behind your fuse", crew_hours: 26.0, on_your_line: true },

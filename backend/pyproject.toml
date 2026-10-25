@@ -12,6 +12,8 @@ dependencies = [
     "s3fs>=2024.6.0",
     "pydantic>=2.7",
     "pydantic-settings>=2.3",
+    "scikit-learn>=1.5",
+    "joblib>=1.4",
 ]
 
 [tool.uv]

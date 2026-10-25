@@ -78,6 +78,9 @@ uv run uvicorn app.main:app --port 8000
 | GET | `/premise/lookup?id=` or `?lat=&lon=` | find a premise (by id or nearest) |
 | GET | `/premise/{id}/power-path` | ordered equipment chain feeding the premise, enriched |
 | GET | `/premise/{id}/outage-history` | per-event outage labels |
+| GET | `/premise/{id}/risk` | **model:** outage risk card per storm severity (band, %, confidence, top reasons; fallback if no chain) |
+| GET | `/premise/{id}/link-risk?severity=` | **model:** damage risk for each link on the Power Path |
+| GET | `/premise/{id}/restoration-grid` | **model:** P10/P50/P90 hours for every dashboard scenario + drivers + repair queue |
 | GET | `/circuits` | list circuit ids |
 | GET | `/circuits/{id}/summary` | counts + damage by event for a circuit |
 | GET | `/devices?circuit_id=&device_type=` | protective devices (fuse/recloser/switch) |
@@ -90,9 +93,22 @@ uv run uvicorn app.main:app --port 8000
 | GET | `/reference/labor-units` | labor hours per part/size band |
 | GET | `/reference/labor-adders` | access / special-equipment adders |
 
+## Models (`app/predict.py`)
+
+- Reads `features/*.parquet` (from `build_features.py`) and `models/models.joblib`
+  (from `modelling/train-model.ipynb`) from S3, or from `data/features` and
+  `data/models` next to `AEP_LOCAL_DATA_DIR`.
+- If `models.joblib` is missing or was saved with a different scikit-learn
+  version, it refits the same models from the feature tables at startup (~5 s).
+- Restoration is a Monte Carlo simulator: expected damage from the damage-count
+  model x storm severity, AEP labor-hour bundles x a 3.5-5.5 travel/setup
+  multiplier, a 32% access-problem chance per job, crews working in priority
+  order (critical facilities, then repairs serving more homes, then your line).
+- The chatbot's risk, restoration and power-path tools call the same functions,
+  so chat and dashboard always show the same numbers.
+
 ## Notes
 
 - Data is read-only; there are no write endpoints.
-- Risk scores and restoration estimates are **not** in these tables — they come
-  from the analytics/model layer (MVP plan §5). This API provides the clean
-  inputs those models and the dashboard consume.
+- Risk scores and restoration estimates are not in the cleaned tables; they come
+  from the model layer above.

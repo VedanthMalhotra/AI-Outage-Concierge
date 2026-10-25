@@ -86,10 +86,24 @@ export interface GridRow {
   p50: number;
   p90: number;
 }
+export interface RestorationDriver {
+  text: string;
+  impact_h: number;
+}
+export interface RestorationJob {
+  order: number;
+  what: string;
+  crew_hours: number;
+  status?: string;
+  on_your_line?: boolean;
+}
 export interface RestorationGrid {
   start_delay_h: number;
   note?: string;
   results: GridRow[];
+  /* live API only (backend/app/predict.py); the mock grid has none */
+  drivers?: RestorationDriver[];
+  jobs_ahead_of_you?: RestorationJob[];
 }
 
 /* ---- guidance.json ---- */

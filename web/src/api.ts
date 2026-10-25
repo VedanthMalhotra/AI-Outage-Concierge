@@ -5,15 +5,21 @@
  * from S3. It covers a subset of what the dashboard needs: premise lookup,
  * power path, damage heat, circuit summary, facilities, and labor reference.
  *
- * The pieces the backend does NOT yet serve — risk-by-severity, the
- * restoration grid, guidance, alerts, the storm timeline, chat, and the
- * assumptions list — stay on the mock JSON in ../mock/api for now.
+ * It also serves the model output: risk-by-severity and the restoration grid.
+ * The pieces the backend does NOT yet serve — guidance, alerts, the storm
+ * timeline and the assumptions list — stay on the mock JSON in ../mock/api.
  *
  * Each adapter here reshapes a backend response into the exact UI shape
  * declared in types.ts, so main.ts keeps consuming one consistent contract.
  * ========================================================================== */
 
-import type { DamageHeat, DemoPremise, PremiseLookup } from "./types";
+import type {
+  DamageHeat,
+  DemoPremise,
+  PremiseLookup,
+  RestorationGrid,
+  RiskBySeverity,
+} from "./types";
 
 /* ---------------------------------------------------------------------------
  * Base URL. Configured via VITE_API_BASE (see web/.env.example). Falls back to
@@ -27,12 +33,12 @@ export const API_BASE: string = (ENV.VITE_API_BASE ?? "http://localhost:8000").r
 
 /** Demo premise IDs to populate the dev picker (match the old mock list). */
 const DEMO_PREMISE_IDS = [
+  "716589371", // first = default: High risk, and every restoration control moves its estimate
   "858810648",
   "840408754",
   "934287012",
   "906593047",
   "998522028",
-  "716589371",
 ] as const;
 
 /** The premise shown first / used for the map centre. */
@@ -215,6 +221,22 @@ export async function endChat(): Promise<void> {
   } catch {
     /* backend down: the server copy expires on its own */
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * model output — risk card per storm severity and the restoration grid, from
+ * the trained models (backend/app/predict.py). Same shapes as the mock JSON.
+ * The grid is simulated on first request, so it gets a longer timeout.
+ * ------------------------------------------------------------------------- */
+export async function fetchRiskBySeverity(premiseId: string): Promise<RiskBySeverity> {
+  return apiGet<RiskBySeverity>(`/premise/${encodeURIComponent(premiseId)}/risk`, 30000);
+}
+
+export async function fetchRestorationGrid(premiseId: string): Promise<RestorationGrid> {
+  return apiGet<RestorationGrid>(
+    `/premise/${encodeURIComponent(premiseId)}/restoration-grid`,
+    30000
+  );
 }
 
 /* ---------------------------------------------------------------------------

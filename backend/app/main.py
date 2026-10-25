@@ -15,6 +15,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import chat
+from . import predict
 from . import topology as topo
 from .config import get_settings
 from .data import TABLE_PATHS, get_store
@@ -157,6 +158,31 @@ def get_power_path(premise_id: str):
             detail=f"no equipment chain for premise '{premise_id}'",
         )
     return pp
+
+
+@app.get("/premise/{premise_id}/risk", tags=["models"])
+def get_risk(premise_id: str):
+    """Outage risk card for each storm severity (0.5 / 1.0 / 1.5 / 2.0), shaped like
+    mock/api/risk_by_severity.json. Homes without an equipment chain get a fallback."""
+    if not topo.find_premise(get_store(), premise_id):
+        raise HTTPException(status_code=404, detail=f"premise '{premise_id}' not found")
+    return predict.risk_by_severity(premise_id)
+
+
+@app.get("/premise/{premise_id}/link-risk", tags=["models"])
+def get_link_risk(premise_id: str, severity: float = Query(default=1.0, ge=0.1, le=3.0)):
+    """Risk for each link (transformer, fuse/recloser area) on the home's Power Path."""
+    return predict.link_risk(premise_id, severity)
+
+
+@app.get("/premise/{premise_id}/restoration-grid", tags=["models"])
+def get_restoration_grid(premise_id: str):
+    """Restoration P10/P50/P90 hours for every dashboard scenario, shaped like
+    mock/api/restoration_grid.json, plus drivers and the repair queue."""
+    p = topo.find_premise(get_store(), premise_id)
+    if not p or not p.get("has_chain"):
+        raise HTTPException(status_code=404, detail=f"no equipment chain for premise '{premise_id}'")
+    return predict.restoration_grid(str(premise_id))
 
 
 @app.get("/premise/{premise_id}/outage-history", response_model=OutageHistory, tags=["premise"])

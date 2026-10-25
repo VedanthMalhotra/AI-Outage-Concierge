@@ -12,9 +12,9 @@ Privacy model
   and are wiped by DELETE /chat/{session_id} (the dashboard's "Clear my data").
   Nothing is written to disk or logged.
 
-Numbers the model states must come from tool results. Risk, restoration,
-guidance and alerts still come from the sample model output in ../mock/api
-until the trained models are wired in; network and history facts come from
+Numbers the model states must come from tool results. Risk and restoration
+come from the trained models (predict.py); guidance and alerts still come
+from the sample output in ../mock/api; network and history facts come from
 the cleaned S3 tables.
 """
 from __future__ import annotations
@@ -32,6 +32,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from . import predict
 from . import topology as topo
 from .config import get_settings
 from .data import get_store
@@ -172,15 +173,22 @@ def _tool_area(s: Session, _: dict) -> dict:
     }
 
 
-def _tool_power_path(s: Session, _: dict) -> dict:
+def _tool_power_path(s: Session, args: dict) -> dict:
     pp = topo.power_path(get_store(), s.premise_id)
     if not pp:
         return {"error": "No equipment chain is recorded for this location."}
-    links = pp.get("links") or pp.get("path") or []
+    links = pp.get("links") or []
+    sev = _nearest(float(args.get("storm_severity", 1.0)), predict.SEVERITIES)
+    lr = predict.link_risk(s.premise_id, sev)
+    zones = {k: v for k, v in lr.items() if v["kind"] == "zone"}
+    weakest = max(zones.values(), key=lambda v: v["probability"]) if zones else None
     return {
         "equipment_from_home_to_substation": [l.get("device_type") for l in links],
         "protective_devices": sum(1 for l in links if str(l.get("device_type", "")).startswith(("Fuse", "Recloser"))),
-        "source": "cleaned AEP data",
+        "storm_severity": sev,
+        "weakest_link": {"what": "the fuse or recloser area on your path most likely to be damaged",
+                         "damage_probability": weakest["probability"], "band": weakest["band"]} if weakest else None,
+        "label": "Model estimate", "source": "cleaned AEP data + trained link-damage model",
     }
 
 
@@ -192,28 +200,35 @@ def _tool_circuit_history(s: Session, _: dict) -> dict:
 
 
 def _tool_risk(s: Session, args: dict) -> dict:
-    sev = _nearest(float(args.get("storm_severity", 1.0)), [0.5, 1.0, 1.5, 2.0])
-    r = _mock("risk_by_severity.json")[f"{sev:.1f}"]
+    sev = _nearest(float(args.get("storm_severity", 1.0)), predict.SEVERITIES)
+    r = predict.home_risk(s.premise_id, sev)
+    if r["fallback"]:
+        return {"error": r["fallback"]["message"], "label": "Model estimate"}
     return {
         "storm_severity": sev, "risk_band": r["band"], "probability": r["probability"],
-        "confidence": r["confidence"], "top_reasons": [f["detail"] for f in r["top_factors"]],
-        "label": "Model estimate", "source": "sample model output",
+        "confidence": r["confidence"], "confidence_reason": r["confidence_reason"],
+        "top_reasons": [f["detail"] for f in r["top_factors"]],
+        "label": "Model estimate", "source": "trained outage-risk model (Feb 2025, tested on Sep 2024)",
     }
 
 
 def _tool_restoration(s: Session, args: dict) -> dict:
     want = {
         "crews": max(1, min(10, int(args.get("crews", 2)))),
-        "storm_severity": _nearest(float(args.get("storm_severity", 1.0)), [0.5, 1.0, 1.5, 2.0]),
+        "storm_severity": _nearest(float(args.get("storm_severity", 1.0)), predict.SEVERITIES),
         "access": args.get("access", "auto") if args.get("access") in ("auto", "on", "off") else "auto",
         "switching_available": bool(args.get("switching_available", True)),
         "failed_upstream_device": None,
         "prioritize_critical": bool(args.get("prioritize_critical", True)),
     }
-    row = next(r for r in _mock("restoration_grid.json")["results"]
-               if all(r[k] == v for k, v in want.items()))
-    return want | {"likely_range_hours": [row["p10"], row["p90"]], "most_likely_hours": row["p50"],
-                   "label": "Model estimate", "source": "sample model output"}
+    p = topo.find_premise(get_store(), s.premise_id)
+    if not p or not p.get("has_chain"):
+        return {"error": "No equipment chain is recorded for this location, so there is no personal restoration estimate."}
+    r = predict.simulate(s.premise_id, **want)
+    return want | {"likely_range_hours": [r["p10"], r["p90"]], "most_likely_hours": r["p50"],
+                   "expected_damage_on_your_line": r["expected_damage_on_your_path"],
+                   "applies_if": "your home loses power",
+                   "label": "Model estimate", "source": "restoration simulator (AEP labor hours x damage model)"}
 
 
 def _tool_guidance(s: Session, args: dict) -> dict:
@@ -232,7 +247,8 @@ def _tool_alerts(s: Session, args: dict) -> dict:
 
 TOOLS: dict[str, tuple[Any, str, dict]] = {
     "get_my_area": (_tool_area, "The customer's circuit, town, service type (overhead/underground) and whether they lost power in past storms.", {}),
-    "get_power_path": (_tool_power_path, "The equipment feeding the customer's home, from their transformer up to the substation.", {}),
+    "get_power_path": (_tool_power_path, "The equipment feeding the customer's home, from their transformer up to the substation, and its weakest link.", {
+        "storm_severity": {"type": "number", "description": "0.5 minor, 1.0 like Feb 2025 (default), 1.5 severe, 2.0 extreme"}}),
     "get_circuit_damage_history": (_tool_circuit_history, "How many damage reports the customer's circuit had in past storms.", {}),
     "get_outage_risk": (_tool_risk, "The customer's outage risk band, probability, confidence and top reasons for a storm severity.", {
         "storm_severity": {"type": "number", "description": "0.5 minor, 1.0 like Feb 2025 (default), 1.5 severe, 2.0 extreme"}}),
