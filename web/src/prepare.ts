@@ -19,6 +19,7 @@ export interface PrepContext {
   probability: number | null;
   severityLabel: string;        // "Feb-2025-like (1.0×)"
   severity: number;
+  crews: number;
   runs: number[] | null;        // simulated outage hours (sorted), current sliders
   p10: number;
   p50: number;
@@ -118,6 +119,7 @@ function tasks(c: PrepContext): Record<Phase, Task[]> {
   const days = Math.max(1, Math.min(7, Math.ceil(c.p90 / 24)));
   // general (no premise) has its own list, so the risk-based extras don't double up on it
   const high = !c.general && (HIGH.has(c.band ?? "") || c.severity >= 1.5);
+  const limitedCrews = !c.general && c.crews <= 2;
   const before: Task[] = [
     { id: "charge", text: "Charge phones, power banks and laptops", why: "Your phone is how you'll get updates." },
     { id: "lights", text: "Put flashlights and spare batteries where you can find them (no candles)" },
@@ -143,6 +145,7 @@ function tasks(c: PrepContext): Record<Phase, Task[]> {
     before.push({ id: "car", text: "Fill your car's tank and get some cash" });
   }
   if (veryLong) before.push({ id: "stay", text: "Pick a warm place you could stay if it runs past a day" });
+  if (limitedCrews) before.push({ id: "queue-plan", text: "Plan for a slower repair queue: charge everything and tell your check-in contact", why: `${c.crews} crews are in this estimate.` });
   if (high) {
     before.push({ id: "unplug", text: "Unplug sensitive electronics before the storm" });
     before.push({ id: "buddy", text: "Set up a check-in with a neighbour or family" });

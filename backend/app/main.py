@@ -217,6 +217,8 @@ def _known(premise_id: str) -> None:
 @app.get("/premise/{premise_id}/ai-checklist", tags=["models"])
 def get_ai_checklist(premise_id: str, severity: float = Query(default=1.0, ge=0.5, le=2.0),
                      crews: int = Query(default=2, ge=1, le=10), medical: bool = False,
+                     access: str = Query(default="auto"), switching_available: bool = True,
+                     prioritize_critical: bool = True, failed_upstream_device: str | None = None,
                      appliances: str = Query(default="", max_length=100,
                                              description="comma list: fridge,freezer,heat,phone,medical,sump,well")):
     """Before / during / after checklist written by the chatbot's model from this home's risk
@@ -225,7 +227,11 @@ def get_ai_checklist(premise_id: str, severity: float = Query(default=1.0, ge=0.
     _known(premise_id)
     sev = min(predict.SEVERITIES, key=lambda s: abs(s - severity))
     have = tuple(sorted({a for a in appliances.split(",") if a in ai_checklist.APPLIANCE_HOURS}))
-    return ai_checklist.checklist(premise_id, sev, crews, medical, have)
+    access = access if access in ("auto", "on", "off") else "auto"
+    failed_upstream_device = failed_upstream_device or None
+    return ai_checklist.checklist(premise_id, sev, crews, medical, have, access,
+                                  switching_available, prioritize_critical,
+                                  failed_upstream_device)
 
 
 @app.get("/premise/{premise_id}/guidance", tags=["models"])

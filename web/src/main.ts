@@ -432,7 +432,7 @@ function loadAiChecklist(): void {
   setAiBuilding(aiFactors(medical));
   // show the "building" animation for at least ~2.5 s so it can be followed
   const minShow = new Promise((r) => setTimeout(r, 2600));
-  Promise.all([fetchAiChecklist(state.premiseId, state.severity, state.scenario.crews, medical, getAppliances()), minShow])
+  Promise.all([fetchAiChecklist(state.premiseId, state.severity, state.scenario.crews, medical, getAppliances(), state.scenario), minShow])
     .then(([list]) => { if (seq === aiSeq) { setAiBuilding(null); setAiChecklist(list); } })
     .catch((err) => {
       if (seq === aiSeq) setAiBuilding(null); // falls back to the rule-based checklist
@@ -759,6 +759,7 @@ function drawTtm(): void {
     band: r && !r.fallback ? r.band : null,
     probability: r && !r.fallback ? r.probability : null,
     severity: state.severity,
+    crews: state.scenario.crews,
     severityLabel: SEVERITY_LABELS[state.severity] ?? `${state.severity}×`,
     runs: ttmRuns?.hours ?? null,
     p10: ttmRuns?.p10 ?? 0,
@@ -1296,6 +1297,7 @@ function wireControls(): void {
       const next = (btn.dataset.access || "auto") as Scenario["access"];
       state.scenario.access = next;
       renderRestoration({ changeLabel: `Getting to the damage: ${labelAccess(old)} → ${labelAccess(next)}` });
+      if (aiMade) loadAiChecklist();
     });
   });
 
@@ -1304,6 +1306,7 @@ function wireControls(): void {
     const checked = (e.target as HTMLInputElement).checked;
     state.scenario.switching_available = checked;
     renderRestoration({ changeLabel: `Switching available: ${checked ? "off → on" : "on → off"}` });
+    if (aiMade) loadAiChecklist();
   });
 
   // Prioritize critical
@@ -1311,6 +1314,7 @@ function wireControls(): void {
     const checked = (e.target as HTMLInputElement).checked;
     state.scenario.prioritize_critical = checked;
     renderRestoration({ changeLabel: `Prioritize critical: ${checked ? "off → on" : "on → off"}` });
+    if (aiMade) loadAiChecklist();
   });
 
   // Failed upstream fuse
@@ -1319,6 +1323,7 @@ function wireControls(): void {
     const old = state.scenario.failed_upstream_device;
     state.scenario.failed_upstream_device = checked ? "fuse" : null;
     renderRestoration({ changeLabel: `Upstream device failed: ${old ? "fuse → none" : "none → your fuse"}` });
+    if (aiMade) loadAiChecklist();
   });
 
   // Reset scenario

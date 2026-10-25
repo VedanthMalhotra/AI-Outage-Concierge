@@ -31,8 +31,10 @@ Rules:
 - "why": at most 12 words, tied to a fact about THIS home (its chance of losing power, how long
   it could last, its line type, its reasons, medical equipment, critical facility). Use only numbers
   that appear in the FACTS, rounded (e.g. "about 24 hours", "about 80%").
-- Put the most important items for this home first. Size water, food and backup-power items to how
-  long the outage could last. If the chance is low, keep the list lighter and say why.
+- Put the most important items for this home first. Use BOTH risk band and restoration time:
+  low risk + short outage gets a light plan; high/very-high risk or a long upper estimate gets
+  extra precautions. Fewer crews means a longer queue, so call that out when it affects the plan.
+  Size water, food and backup-power items to the upper estimate, not a guess.
 - Always include electrical safety: stay 30 feet from downed lines (during), generators outdoors only
   (during), plug appliances back in one at a time (after).
 - If medical_equipment is true, put the medical device battery and backup plan first in "before" and
@@ -57,11 +59,16 @@ APPLIANCE_HOURS = {"fridge": ("fridge", 4), "freezer": ("freezer (full)", 48), "
 
 
 def _facts(premise_id: str, severity: float, crews: int, medical: bool,
-           appliances: tuple[str, ...] = ()) -> Optional[dict]:
+           appliances: tuple[str, ...] = (), access: str = "auto",
+           switching_available: bool = True, prioritize_critical: bool = True,
+           failed_upstream_device: str | None = None) -> Optional[dict]:
     risk = predictions.predict_risk(premise_id, severity)
     if "error" in risk:
         return None
-    sim = predict.simulate(premise_id, crews=crews, storm_severity=severity)
+    sim = predict.simulate(premise_id, crews=crews, storm_severity=severity,
+                           access=access, switching_available=switching_available,
+                           prioritize_critical=prioritize_critical,
+                           failed_upstream_device=failed_upstream_device)
     p = topo.find_premise(get_store(), premise_id) or {}
     fac = predict.critical_facility(premise_id)
     runs = sim.get("runs") or []
@@ -75,12 +82,18 @@ def _facts(premise_id: str, severity: float, crews: int, medical: bool,
     return {
         "chance_of_losing_power": f"about {round(risk['probability'] * 100)}% ({risk['risk_band']})",
         "reasons": risk.get("reasons_in_plain_words", []),
+        "risk_band": risk["risk_band"],
+        "risk_probability": round(risk["probability"], 3),
         "if_power_goes_out_it_could_last": f"most likely about {round(sim['p50'])} hours, "
                                            f"could be {round(sim['p10'])} to {round(sim['p90'])} hours",
         "line_to_the_house": p.get("service_type") or "unknown",
         "medical_equipment": medical,
         "critical_facility": fac["label"] if fac else None,
         "storm": f"{severity}x the February 2025 storm",
+        "crews_on_the_circuit": crews,
+        "road_access": access,
+        "switching_available": switching_available,
+        "critical_facilities_first": prioritize_critical,
         "appliances_at_home": at_home or "not given",
     }
 
@@ -96,10 +109,13 @@ def _clean(items, n_max: int) -> list[dict]:
 
 @lru_cache(maxsize=256)
 def checklist(premise_id: str, severity: float = 1.0, crews: int = 2, medical: bool = False,
-              appliances: tuple[str, ...] = ()) -> Optional[dict]:
+              appliances: tuple[str, ...] = (), access: str = "auto",
+              switching_available: bool = True, prioritize_critical: bool = True,
+              failed_upstream_device: str | None = None) -> Optional[dict]:
     """{"before": [...], "during": [...], "after": [...], "source": ...} or None.
     appliances: sorted tuple of keys (fridge, freezer, heat, phone, medical, sump, well)."""
-    facts = _facts(premise_id, severity, crews, medical, appliances)
+    facts = _facts(premise_id, severity, crews, medical, appliances, access,
+                   switching_available, prioritize_critical, failed_upstream_device)
     if facts is None:
         return None
     try:

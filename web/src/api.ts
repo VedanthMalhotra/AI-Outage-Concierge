@@ -336,10 +336,17 @@ const premisePath = (id: string, what: string) => `/premise/${encodeURIComponent
 /** Preparation checklist + safety from the home's risk and expected outage length. */
 export const fetchGuidance = (id: string) => apiGet<Guidance>(premisePath(id, "guidance"), 30000);
 /** Before / during / after checklist written by the chatbot's model for this home (null if unavailable). */
-export const fetchAiChecklist = (id: string, severity: number, crews: number, medical: boolean, appliances: string[] = []) =>
+export const fetchAiChecklist = (id: string, severity: number, crews: number, medical: boolean,
+                                 appliances: string[] = [], scenario?: {
+                                   access: string; switching_available: boolean;
+                                   prioritize_critical: boolean; failed_upstream_device: string | null;
+                                 }) =>
   apiGet<import("./prepare").AiChecklist | null>(
     `${premisePath(id, "ai-checklist")}?severity=${severity}&crews=${crews}&medical=${medical}` +
-      `&appliances=${encodeURIComponent(appliances.join(","))}`, 45000);
+      `&appliances=${encodeURIComponent(appliances.join(","))}` +
+      (scenario ? `&access=${scenario.access}&switching_available=${scenario.switching_available}` +
+        `&prioritize_critical=${scenario.prioritize_critical}` +
+        `&failed_upstream_device=${encodeURIComponent(scenario.failed_upstream_device ?? "")}` : ""), 45000);
 /** Alert eligibility, channels and escalations. */
 export const fetchAlerts = (id: string) => apiGet<Alerts>(premisePath(id, "alerts"), 30000);
 /** Storm replay: model estimates + the real Feb 2025 damage on this home's path. */
