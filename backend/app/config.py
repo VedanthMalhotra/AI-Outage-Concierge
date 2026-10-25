@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     aep_chat_model_id: str = "us.amazon.nova-2-lite-v1:0"
     aep_chat_session_ttl_min: int = 30
     aep_chat_max_messages: int = 24
+    # per-visitor chat limit (messages per 10 minutes, per IP) to protect the Bedrock budget
+    aep_chat_rate_per_10min: int = 20
+
+    # Optional: a folder with the built dashboard (web/ + mock/) to serve from this API,
+    # so one server hosts both. Unset in local dev (Vite serves the dashboard).
+    aep_static_dir: Optional[str] = None
 
     @property
     def cors_origin_list(self) -> list[str]:

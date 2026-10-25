@@ -13,6 +13,8 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from . import chat
 from . import topology as topo
@@ -250,3 +252,16 @@ def labor_units():
 @app.get("/reference/labor-adders", response_model=list[LaborAdder], tags=["reference"])
 def labor_adders():
     return topo.labor_adders(get_store())
+
+
+# --------------------------------------------------------------------------
+# hosted mode: serve the built dashboard from the same server (AEP_STATIC_DIR)
+# --------------------------------------------------------------------------
+
+if settings.aep_static_dir:
+    @app.get("/", include_in_schema=False)
+    def site_root():
+        return RedirectResponse("/web/index.html")
+
+    # mounted last so every API route above keeps priority
+    app.mount("/", StaticFiles(directory=settings.aep_static_dir, html=True), name="site")

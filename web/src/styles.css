@@ -377,6 +377,11 @@
   .bubble .tools { @apply block text-aep-muted; margin-top: 0.3rem; font-size: 0.72rem; }
   .bubble--typing { @apply text-aep-muted italic; }
 
+  .prototype-banner {
+    background: #fff4d6; color: #5c4400; border-bottom: 1px solid #f0d58a;
+    font-size: 0.8rem; text-align: center; padding: 0.35rem 1rem;
+  }
+
   .chat-suggestions { @apply flex flex-wrap; gap: 0.35rem; margin: 0.5rem 0; }
   .chat-suggestions button {
     @apply bg-white text-aep-accent-ink cursor-pointer; border: 1px solid theme(colors.aep.accent-ink);
