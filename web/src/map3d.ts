@@ -17,7 +17,7 @@
  * timeline, risk, restoration, chat, etc. are untouched.
  * ========================================================================== */
 
-import { Deck, FlyToInterpolator, type Color, type PickingInfo } from "@deck.gl/core";
+import { Deck, FlyToInterpolator, WebMercatorViewport, type Color, type PickingInfo } from "@deck.gl/core";
 import { TileLayer } from "@deck.gl/geo-layers";
 import {
   BitmapLayer,
@@ -68,6 +68,7 @@ interface ViewState {
 
 /* module state */
 let deck: Deck | null = null;
+let mapEl: HTMLDivElement | null = null; // the map container, for fitting the view
 let heat: RiskHeat | null = null;
 let circuit: GeoJSON.GeoJsonObject | null = null;
 let powerPath: PowerPath | null = null;
@@ -465,7 +466,7 @@ export function initMap(args: InitMapArgs): void {
   };
 
   deck = new Deck({
-    parent: document.getElementById(args.container) as HTMLDivElement,
+    parent: (mapEl = document.getElementById(args.container) as HTMLDivElement),
     initialViewState: viewState,
     controller: { dragRotate: true, touchRotate: true },
     layers: allLayers(),
@@ -555,6 +556,37 @@ export function setPowerPath(pp: PowerPath | null, premiseId: string): void {
 export function setCircuit(c: GeoJSON.GeoJsonObject | null): void {
   circuit = c;
   refresh();
+}
+
+/** Zoom out to show the whole predicted-risk heat map (used when no premise is
+ * selected). Returns false if the heat hasn't loaded yet. */
+export function flyToArea(): boolean {
+  if (!deck || !mapEl || !heat || !heat.cells.length) return false;
+  const lats = heat.cells.map((c) => c.lat);
+  const lons = heat.cells.map((c) => c.lon);
+  const pad = heat.cell_size_deg;
+  const fit = new WebMercatorViewport({
+    width: mapEl.clientWidth || 800,
+    height: mapEl.clientHeight || 500,
+  }).fitBounds(
+    [
+      [Math.min(...lons) - pad, Math.min(...lats) - pad],
+      [Math.max(...lons) + pad, Math.max(...lats) + pad],
+    ],
+    { padding: 24 }
+  );
+  viewState = {
+    ...viewState,
+    longitude: fit.longitude,
+    latitude: fit.latitude,
+    zoom: fit.zoom,
+    pitch: viewMode === "3d" ? TILT_3D : 0,
+    bearing: 0,
+    transitionDuration: 1600,
+    transitionInterpolator: new FlyToInterpolator({ speed: 1.4 }),
+  };
+  deck.setProps({ initialViewState: viewState, layers: allLayers() });
+  return true;
 }
 
 /** Swap in the predicted-risk heat for a new storm severity. */

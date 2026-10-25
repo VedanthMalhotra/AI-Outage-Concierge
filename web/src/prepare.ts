@@ -45,11 +45,23 @@ function tasks(c: PrepContext): Record<Phase, Task[]> {
   const long = c.p50 >= 12;          // most likely half a day or more
   const veryLong = c.p90 > 24;        // could run past a day
   const days = Math.max(1, Math.min(7, Math.ceil(c.p90 / 24)));
-  const high = HIGH.has(c.band ?? "") || c.severity >= 1.5;
+  // general (no premise) has its own list, so the risk-based extras don't double up on it
+  const high = !c.general && (HIGH.has(c.band ?? "") || c.severity >= 1.5);
   const before: Task[] = [
     { id: "charge", text: "Charge phones, power banks and laptops", why: "Your phone is how you'll get updates." },
     { id: "lights", text: "Put flashlights and spare batteries where you can find them (no candles)" },
+    // basics for everyone, with or without a home: they don't depend on risk or outage length
+    { id: "breaker", text: "Find your main breaker so you can switch it off if needed" },
+    { id: "radio", text: "Have a battery or crank radio for news if phones go down" },
   ];
+  if (c.general) {
+    // no premise: steps that make sense for anyone, nothing sized to an outage length
+    before.push(
+      { id: "unplug", text: "Unplug TVs, computers and other sensitive electronics" },
+      { id: "meds", text: "Check you have enough of any medicines" },
+      { id: "buddy", text: "Set up a check-in with a neighbour or family" },
+    );
+  }
   if (c.p50 >= 4) {
     before.push({ id: "water", text: `Store water: 1 gallon per person per day for ${days} day${days > 1 ? "s" : ""}`, why: `Sized to your outage range (up to ${Math.round(c.p90)} h).` });
     before.push({ id: "food", text: "Stock food that needs no cooking or fridge" });
@@ -65,7 +77,7 @@ function tasks(c: PrepContext): Record<Phase, Task[]> {
     before.push({ id: "buddy", text: "Set up a check-in with a neighbour or family" });
   }
   if (c.medical) {
-    before.unshift({ id: "med-batt", text: "Fully charge your medical device and spare batteries", why: `Your outage could last up to ${Math.round(c.p90)} h.` });
+    before.unshift({ id: "med-batt", text: "Fully charge your medical device and spare batteries", why: c.p90 ? `Your outage could last up to ${Math.round(c.p90)} h.` : undefined });
     before.push({ id: "med-plan", text: "Ask your equipment supplier about backup power, and plan where you'd go" });
   }
 
@@ -142,7 +154,7 @@ export function renderPrepare(c: PrepContext): void {
       : `<div class="prep-basis__main">General storm plan</div><div class="prep-basis__sub">We can't estimate an outage for this home.</div>`;
 
   // 2. checklist with tabs + progress
-  const all = tasks(hasRuns ? c : { ...c, p10: 4, p50: 12, p90: 24 });
+  const all = tasks(hasRuns ? c : { ...c, p10: 0, p50: 0, p90: 0 });
   (["before", "during", "after"] as Phase[]).forEach((ph) => {
     const btn = $(`#prep-tab-${ph}`);
     btn.hidden = ui.locked && ui.phase !== ph;
@@ -186,22 +198,12 @@ export function renderPrepare(c: PrepContext): void {
   });
 
   // 3. will it last?
+  // only with a home: the cards compare against that home's outage length, so with no
+  // premise there is nothing to base them on and the section is hidden
+  $("#ttm-section").hidden = !hasRuns;
   const grid = $("#ttm-cards");
   grid.innerHTML = "";
-  if (!hasRuns) {
-    // no home: show how long each lasts so people can plan, without any outage comparison
-    cards().forEach((k) => {
-      const card = el("div", "ttm-card");
-      card.innerHTML =
-        `<div class="ttm-card__top"><span class="ttm-card__icon" aria-hidden="true">${k.icon}</span>` +
-        `<span class="ttm-card__name">${k.name}</span><span class="ttm-pill">Plan ahead</span></div>` +
-        `<div class="ttm-card__lasts">lasts about <strong>${Math.round(k.hours)} h</strong> without power</div>` +
-        (k.control ? `<div class="ttm-card__ctl">${k.control}</div>` : "") +
-        `<div class="ttm-card__tip">${k.tip}</div>`;
-      grid.appendChild(card);
-    });
-    return;
-  }
+  if (!hasRuns) return;
   const max = Math.max(48, c.p90 * 1.1);
   const pct = (h: number) => `${Math.min(100, (h / max) * 100).toFixed(1)}%`;
   cards().forEach((k) => {
@@ -228,7 +230,7 @@ export function prepSnapshot(): Record<string, unknown> | null {
   const c = lastCtx;
   if (!c) return null;
   const hasRuns = !!c.runs && c.runs.length > 0;
-  const all = tasks(hasRuns ? c : { ...c, p10: 4, p50: 12, p90: 24 });
+  const all = tasks(hasRuns ? c : { ...c, p10: 0, p50: 0, p90: 0 });
   const phase = (ph: Phase) => ({
     done: all[ph].filter((t) => ui.done.has(t.id)).map((t) => t.text),
     still_to_do: all[ph].filter((t) => !ui.done.has(t.id)).map((t) => t.text),

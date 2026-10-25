@@ -53,21 +53,21 @@ def _outlook(premise_id: str) -> Optional[dict]:
 
 
 def general_guidance() -> dict:
-    """Storm guidance for anyone, when no home is selected (no personal estimates)."""
+    """Storm guidance for anyone, when no home is selected (no personal estimates). Nothing here
+    depends on an outage length, since there is none to base it on: no freezer or fridge times,
+    no water amounts, no 'if it lasts' plans."""
     return {
-        "note": "General guidance. Without a premise ID we can't estimate this home's outage chance or length.",
+        "note": "General guidance. Without a premise ID we can't estimate this home's outage chance or length, "
+                "so don't give food, freezer or water amounts or outage durations.",
         "safety": [x["text"] for x in SAFETY],
         "before_the_storm": ["Charge phones, power banks and laptops", "Have flashlights and spare batteries ready (no candles)",
-                             "Store water: 1 gallon per person per day for at least 3 days", "Stock food that needs no cooking or fridge",
-                             "Refill prescriptions", "Fill your car's tank and get some cash", "Pick a warm place you could go if it lasts"],
-        "while_the_power_is_out": ["Keep the fridge and freezer closed", "Stay at least 30 ft from downed lines and report them",
-                                   "Run a generator outdoors only, far from windows", "Switch off big appliances; leave one light on",
-                                   "Wear layers and close off unused rooms to hold heat"],
-        "after_power_is_back": ["Throw out fridge food that was above 40°F for over 2 hours",
-                                "Plug appliances back in one at a time", "If neighbours are back on but you're not, report it",
-                                "Restock water, batteries and food"],
-        "how_long_things_last": {"fridge": "about 4 hours closed", "full freezer": "about 48 hours", "half-full freezer": "about 24 hours"},
-        "sources": "USDA / FoodSafety.gov; MVP plan guidance rules",
+                             "Know where your main breaker is"],
+        "while_the_power_is_out": ["Stay at least 30 ft from downed lines and damaged poles, and report them",
+                                   "Run a generator outdoors only, far from windows",
+                                   "Unplug sensitive electronics; leave one light on so you know when power is back"],
+        "after_power_is_back": ["Plug appliances back in one at a time", "If neighbours are back on but you're not, report it",
+                                "Downed lines can still be live: keep away and report them"],
+        "sources": "Electrical safety basics; MVP plan guidance rules",
     }
 
 

@@ -15,9 +15,8 @@ import {
   setPowerPath,
   setRiskHeat,
   setCircuit,
+  flyToArea,
   setPhaseVisuals,
-  setViewMode,
-  getViewMode,
   resizeMap,
 } from "./map3d";
 import type { Color } from "@deck.gl/core";
@@ -114,6 +113,9 @@ let prevRisk: Risk | null = null;
 /* circuit whose outline is on the map, so switching homes only refetches on a new circuit */
 let loadedCircuitId: string | null = null;
 
+/* whether the no-premise view has zoomed out to the whole heat map yet */
+let areaFitted = false;
+
 /* whether the live backend answered at boot (reused for later premise fetches) */
 let apiLive = false;
 
@@ -203,6 +205,8 @@ async function boot(): Promise<void> {
   renderGuidance();
   renderAlerts();
   buildTimelineTrack();
+  // the page opens with no premise ID given (general view)
+  await enterGeneralMode(false);
 }
 
 /* =============================================================================
@@ -213,7 +217,7 @@ function buildPremisePicker(): void {
   sel.innerHTML = "";
   const none = el("option");
   none.value = "";
-  none.textContent = "No premise (general guidance)";
+  none.textContent = "No premise ID given";
   sel.appendChild(none);
   data.lookup!.demo_premises.forEach((p) => {
     const o = el("option");
@@ -262,7 +266,16 @@ const GENERAL_TIMELINE: Timeline = {
   ],
 };
 
-async function enterGeneralMode(): Promise<void> {
+/* a new home (or going back to no home) starts a fresh conversation: clear the chat on
+ * screen and end the server-side session so nothing about the previous home carries over */
+function resetChat(): void {
+  $("#chat-log").innerHTML = "";
+  void endChat();
+  seedChat();
+}
+
+async function enterGeneralMode(announce = true): Promise<void> {
+  if (state.premiseId) resetChat();
   state.premiseId = "";
   $<HTMLSelectElement>("#premise-select").value = "";
   $<HTMLInputElement>("#premise-id-input").value = "";
@@ -274,17 +287,22 @@ async function enterGeneralMode(): Promise<void> {
   data.timeline = GENERAL_TIMELINE;
   data.powerPath = null;
   ttmRuns = null;
+  ++ttmSeq; // ignore outage runs still loading for the previous home
   renderGuidance();
   renderAlerts();
   buildTimelineTrack();
   resetStorm();
+  data.circuit = null;
+  loadedCircuitId = null; // picking a home again refetches its circuit outline
   if (mapReady) {
     setPowerPath(null, "");
     setHomeVisible(false);
+    setCircuit(null); // no home, no circuit boundary
+    areaFitted = flyToArea(); // zoom out to the whole heat map (or once it loads)
   }
   $(".panel--outlook").classList.add("is-general"); // no controls without a home
   renderPathLegend();
-  toast("No premise selected: showing general storm guidance");
+  if (announce) toast("No premise ID given: showing general storm guidance");
 }
 
 async function selectPremise(
@@ -295,6 +313,7 @@ async function selectPremise(
     await enterGeneralMode();
     return;
   }
+  if (id !== state.premiseId) resetChat();
   $(".panel--outlook").classList.remove("is-general");
   if (mapReady) setHomeVisible(true);
   const demo = data.lookup!.demo_premises.find((x) => x.premise_id === id);
@@ -396,6 +415,8 @@ function loadRiskHeat(): void {
       if (sev !== state.severity) return; // slider moved again meanwhile
       data.heat = h;
       if (mapReady) setRiskHeat(h);
+      // no premise: once the heat is in, zoom out to show all of it
+      if (mapReady && !state.premiseId && !areaFitted) areaFitted = flyToArea();
     })
     .catch((err) => console.warn("risk heat fetch failed:", err));
 }
@@ -651,6 +672,7 @@ let ttmSeq = 0;
 async function refreshTtm(): Promise<void> {
   if (!apiLive) return;
   if (!state.premiseId) {
+    ++ttmSeq; // drop any answer still on its way for the previous home
     ttmRuns = null;
     drawTtm();
     return;
@@ -728,9 +750,22 @@ function renderGuidance(): void {
   if (!v) return;
   $("#prep-label").textContent = v.label;
 
+  // "Stay safe" card: one row per safety message, the emergency one first and in red
   const safety = $("#prep-safety");
   safety.innerHTML = "";
-  v.safety.forEach((s) => safety.appendChild(el("span", `safety-chip safety-chip--${s.level}`, s.text)));
+  safety.appendChild(el("div", "safety-card__title", "Stay safe"));
+  const sl = el("ul", "safety-list");
+  [...v.safety]
+    .sort((a, b) => (a.level === "emergency" ? -1 : b.level === "emergency" ? 1 : 0))
+    .forEach((s) => {
+      const li = el("li", `safety-item safety-item--${s.level === "emergency" ? "emergency" : "safety"}`);
+      li.appendChild(el("span", "safety-item__icon", s.level === "emergency" ? "🚨" : "⚠️"));
+      const t = el("span", "safety-item__text");
+      t.textContent = s.text;
+      li.appendChild(t);
+      sl.appendChild(li);
+    });
+  safety.appendChild(sl);
 
   const esc = $("#prep-escalation");
   esc.hidden = !v.escalation || !state.premiseId;
@@ -828,8 +863,9 @@ function applyMapPhase(step: TimelineStep | null): void {
         ? [251, 191, 36]
         : [255, 90, 82];
 
-  // damage heat: hidden before/at the peak, deposited once reports arrive
-  const showHeat = ([...outagePhases, "restored"] as Phase[]).includes(phase);
+  // the heat is the model's PREDICTED risk, so it's the forecast: shown from the
+  // first step (T-24h, before the storm) and kept through the replay
+  const showHeat = true;
 
   // power-path phase: the equipment chain reads as "damaged" through the
   // outage, flips to "restored" at the end, and is risk-coloured otherwise.
@@ -1002,19 +1038,57 @@ interface BubbleOpts {
   emergency?: boolean;
 }
 /** Render **bold** and line breaks from model replies using text nodes only (no innerHTML). */
-function appendFormatted(target: HTMLElement, text: string): void {
-  text.split("\n").forEach((rawLine, i) => {
-    if (i > 0) target.appendChild(document.createElement("br"));
-    const line = rawLine.replace(/^\s*#{1,6}\s*/, ""); // drop markdown heading markers
-    line.split("**").forEach((part, j) => {
-      if (!part) return;
-      if (j % 2 === 1) {
-        const s = document.createElement("strong");
-        s.textContent = part;
-        target.appendChild(s);
-      } else target.appendChild(document.createTextNode(part));
-    });
+/* inline **bold** as <strong>; everything else as text nodes (model text never goes in as HTML) */
+function appendInline(target: HTMLElement, line: string): void {
+  line.split("**").forEach((part, j) => {
+    if (!part) return;
+    if (j % 2 === 1) {
+      const s = document.createElement("strong");
+      s.textContent = part;
+      target.appendChild(s);
+    } else target.appendChild(document.createTextNode(part));
   });
+}
+
+/* Light markdown for chat replies: paragraphs, "- " / "1. " lists, and a line that is
+ * only **bold** (or a # heading) becomes a small heading. Safety headings get a marker. */
+function appendFormatted(target: HTMLElement, text: string): void {
+  let list: HTMLElement | null = null;
+  let para: HTMLElement | null = null;
+  for (const raw of text.split("\n")) {
+    const line = raw.trim();
+    if (!line) {
+      list = null;
+      para = null;
+      continue;
+    }
+    const item = line.match(/^(?:[-*•]|\d+[.)])\s+(.*)$/);
+    const heading = line.match(/^#{1,6}\s*(.+)$/) ?? line.match(/^\*\*([^*]+)\*\*:?$/);
+    if (item) {
+      para = null;
+      if (!list) {
+        list = el(/^\d/.test(line) ? "ol" : "ul", "chat-list");
+        target.appendChild(list);
+      }
+      const li = el("li");
+      appendInline(li, item[1]);
+      list.appendChild(li);
+    } else if (heading) {
+      list = null;
+      para = null;
+      const h = el("div", /safe|emergenc/i.test(heading[1]) ? "chat-heading chat-heading--safety" : "chat-heading");
+      h.textContent = heading[1].replace(/\*\*/g, "").replace(/:$/, "");
+      target.appendChild(h);
+    } else {
+      list = null;
+      if (para) para.appendChild(document.createElement("br"));
+      else {
+        para = el("p", "chat-p");
+        target.appendChild(para);
+      }
+      appendInline(para, line);
+    }
+  }
 }
 
 function addBubble(role: "user" | "bot", text: string, opts: BubbleOpts = {}): HTMLElement {
@@ -1202,16 +1276,9 @@ function wireControls(): void {
   });
   $("#reset-storm").addEventListener("click", resetStorm);
 
-  // 2D / 3D view toggle — one button whose label is the current mode.
-  const viewToggle = $("#view-toggle");
-  viewToggle.addEventListener("click", () => {
-    const next = getViewMode() === "3d" ? "2d" : "3d";
-    if (mapReady) setViewMode(next);
-    viewToggle.textContent = next.toUpperCase();
-    viewToggle.setAttribute(
-      "aria-label",
-      `Map view mode: ${next.toUpperCase()}. Click to switch.`
-    );
+  // map button: zoom out to the whole predicted-risk heat map
+  $("#map-fit").addEventListener("click", () => {
+    if (mapReady && !flyToArea()) toast("The risk map is still loading");
   });
 
   // Chat

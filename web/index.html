@@ -9,24 +9,14 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <div class="prototype-banner" role="note">
-    HackOHI/O 2026 student prototype. Not an official AEP website. Estimates come from our AI model trained on past AEP storm data.
-  </div>
 
   <!-- ===================== HEADER (AEP Ohio style) ===================== -->
   <header class="site-header">
     <!-- top brand bar: logo + utility controls -->
     <div class="site-header__bar">
-      <a class="brand" href="#main" aria-label="Appalachian Power home">
-        <span class="brand__mark" aria-hidden="true">
-          <svg viewBox="0 0 40 28" width="40" height="28" role="img" aria-hidden="true">
-            <polygon points="9,2 38,2 31,26 2,26" fill="none" stroke="currentColor" stroke-width="3.5" />
-          </svg>
-        </span>
-        <span class="brand__words">
-          <span class="brand__name">Appalachian Power</span>
-          <span class="brand__tag">An AEP Company</span>
-        </span>
+      <!-- AEP wordmark (text stand-in until the official logo file is added) -->
+      <a class="brand" href="#main" aria-label="AEP home">
+        <span class="brand__aep">AEP</span>
       </a>
 
       <div class="site-header__controls">
@@ -80,7 +70,14 @@
         <div id="map" role="img" aria-label="Map showing the AI model's predicted chance of losing power, averaged over areas of about 500 m with at least 5 homes, your circuit area, and (once a premise is entered) your home pin and power path. Other customers are never shown."></div>
 
         <!-- 2D / 3D view toggle -->
-        <button type="button" id="view-toggle" class="map-viewtoggle" aria-label="Map view mode: 2D. Click to switch.">2D</button>
+        <!-- zoom out to the whole predicted-risk heat map -->
+        <button type="button" id="map-fit" class="map-fit" title="Show the whole area" aria-label="Zoom out to show the whole area">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <span>Whole area</span>
+        </button>
 
         <!-- Power-path colour legend (populated by main.ts) -->
         <div id="pp-legend-host" class="pp-legend" aria-hidden="true"></div>
@@ -258,17 +255,19 @@
       <p class="alerts-line" id="alerts-line"></p>
 
       <div class="prep-tabs" role="tablist" aria-label="When to do it">
-        <button type="button" class="prep-tab is-active" id="prep-tab-before" role="tab">Before the storm <span class="prep-tab__count"></span></button>
-        <button type="button" class="prep-tab" id="prep-tab-during" role="tab">Power is out <span class="prep-tab__count"></span></button>
-        <button type="button" class="prep-tab" id="prep-tab-after" role="tab">Power is back <span class="prep-tab__count"></span></button>
+        <button type="button" class="prep-tab is-active" id="prep-tab-before" role="tab"><span aria-hidden="true">⛈️</span> Before the storm <span class="prep-tab__count"></span></button>
+        <button type="button" class="prep-tab" id="prep-tab-during" role="tab"><span aria-hidden="true">🔌</span> Power is out <span class="prep-tab__count"></span></button>
+        <button type="button" class="prep-tab" id="prep-tab-after" role="tab"><span aria-hidden="true">💡</span> Power is back <span class="prep-tab__count"></span></button>
       </div>
       <div class="prep-progress"><div class="prep-progress__bar" id="prep-progress-bar"></div></div>
       <p class="muted small prep-progress__text" id="prep-progress-text"></p>
       <ul id="prep-checklist" class="prep-tasks"></ul>
 
-      <h3 class="subhead">Will it last?</h3>
-      <p class="muted small">How long each one lasts without power, against your likely outage (blue).</p>
-      <div id="ttm-cards" class="ttm-grid"></div>
+      <div id="ttm-section">
+        <h3 class="subhead">Will it last?</h3>
+        <p class="muted small">How long each one lasts without power, against your likely outage (blue).</p>
+        <div id="ttm-cards" class="ttm-grid"></div>
+      </div>
 
       <p class="escalation-note" id="prep-escalation" hidden></p>
       <div id="prep-safety" class="safety-strip"></div>

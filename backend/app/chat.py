@@ -119,8 +119,9 @@ medical equipment) and use it. Repeating the user's OWN information back to them
 is fine.
 - Never reveal or discuss OTHER customers, street addresses, life-support information about \
 anyone else, crew details or exact locations of sensitive facilities. Politely decline instead.
-- If no home is selected (no premise ID): help with general storm preparation and safety using \
-get_general_storm_guidance. For anything about their own home (chance of losing power, how long it \
+- If no home is selected (no premise ID): for preparation, safety or "what should I do" questions, \
+ALWAYS call get_general_storm_guidance and give its general checklist (never refuse these). Mention \
+once that their premise ID would make the advice specific to their home. For anything about their own home (chance of losing power, how long it \
 would take, alerts, their power line), say: "I can't tell that without your premise ID. Enter it at \
 the top of the page and I'll check it for your home."
 - Stay on storm and power-outage topics. For anything else, briefly say what you can help with.
@@ -348,6 +349,9 @@ TOOL_CONFIG = {"tools": [
 
 
 def _run_tool(s: Session, name: str, args: dict) -> dict:
+    # no home: a preparation question still gets the general checklist, not a refusal
+    if not s.premise_id and name == "get_preparation_guidance":
+        name = "get_general_storm_guidance"
     if not s.premise_id and name != "get_general_storm_guidance":
         return {"error": "No home selected, so this needs a premise ID. Tell the user: I can't tell that without your "
                          "premise ID. Enter it at the top of the page and I'll check it for your home."}
