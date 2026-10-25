@@ -177,7 +177,11 @@ def power_path(store: DataStore, premise_id: str, severity: float = 1.0) -> Opti
                 "device_type": str(r["device_type"]),
                 "circuit_id": _clean(r.get("circuit_id")),
             }
-            risk = lookup.link_risk(loc, severity)
+            # homes with no fuse/recloser hang off the breaker; their area is scored as BREAKER_<circuit>
+            score_loc = loc
+            if str(r["device_type"]) == "Circuit Breaker" and str(premise.get("zone_id") or "").startswith("BREAKER_"):
+                score_loc = premise["zone_id"]
+            risk = lookup.link_risk(score_loc, severity)
             if risk:
                 link["p_damage"] = risk["p_damage"]
                 link["band"] = risk["band"]

@@ -94,7 +94,16 @@ class LinkRiskLookup:
         return [str(s) for s in data.get("severities", [1.0])]
 
     def link_risk(self, link_loc: Optional[str], severity: float = 1.0) -> Optional[dict]:
-        """Return {p_damage, band, reason} for a link, or None if not covered."""
+        """Return {p_damage, band, reason} for a link, or None if not covered.
+
+        Served by the all-circuit link models in predict.py (110 circuits). The JSON
+        lookup above came from a one-circuit sample (CIR72, 270 links) and is only
+        used if the models can't load."""
+        try:
+            from . import predict
+            return predict.link_detail(link_loc, severity)
+        except Exception as exc:  # noqa: BLE001 - fall back to the JSON lookup
+            log.warning("predict.link_detail failed (%s); using %s", exc, self._path)
         data = self._load()
         if not data or link_loc is None:
             return None

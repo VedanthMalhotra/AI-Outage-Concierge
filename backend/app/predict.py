@@ -236,6 +236,29 @@ def home_risk(premise_id: str, severity: float = 1.0) -> dict:
     }
 
 
+def link_detail(link: Optional[str], severity: float = 1.0) -> Optional[dict]:
+    """{p_damage, band, reason} for one Power Path link (zone or transformer), or None if unscored.
+    Covers every link on all 110 circuits; used by risk_model.py for the map's Power Path."""
+    e = engine()
+    if link is None or link not in e.p_link.index:
+        return None
+    p = float(_scale(e.p_link[link], severity))
+    reason = None
+    if link in e.zones.index:
+        c = e.zone_contrib.loc[link]
+        coef = pd.Series(e.models["zone_risk"][-1].coef_[0], index=c.index)
+        for key in c[c > 0].sort_values(ascending=False).index:
+            table = HIGH if coef[key] > 0 else LOW
+            if key in table:
+                reason = table[key][1](float(e.zones.at[link, key]))
+                break
+    else:
+        x = e.xfs.loc[link]
+        reason = ("A pole-mounted transformer, exposed to wind and falling limbs." if x.xf_overhead
+                  else "A ground-level (pad-mounted) transformer, sheltered from wind.")
+    return {"p_damage": round(p, 4), "band": band(p), "reason": reason}
+
+
 def risk_by_severity(premise_id: str) -> dict[str, dict]:
     return {f"{s:.1f}": home_risk(premise_id, s) for s in SEVERITIES}
 
