@@ -154,6 +154,8 @@ export interface RestorationGrid {
   /* live API only (backend/app/predict.py); the mock grid has none */
   drivers?: RestorationDriver[];
   jobs_ahead_of_you?: RestorationJob[];
+  /* set when this premise is a hospital, fire station or ambulance station */
+  critical_facility?: { type: string; label: string; note: string } | null;
 }
 
 /* ---- guidance.json ---- */

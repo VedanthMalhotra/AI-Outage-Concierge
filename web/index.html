@@ -152,6 +152,7 @@
               <option value="2" label="1.5×"></option>
               <option value="3" label="2.0×"></option>
             </datalist>
+            <div class="slider-ticks" aria-hidden="true"><span>0.5×<br>milder</span><span>1×<br>like Feb 2025</span><span>1.5×<br>severe</span><span>2×<br>extreme</span></div>
           </div>
 
           <h4 class="subhead">Top reasons</h4>
@@ -176,38 +177,41 @@
 
         <p class="range-headline" id="rest-range">—</p>
         <p class="muted" id="rest-confidence"></p>
+        <p class="facility-note" id="rest-facility" hidden></p>
 
         <!-- Scenario controls -->
         <div class="controls">
         <div class="control">
           <label for="crews">Crews on circuit <span class="muted" id="crews-value">2</span></label>
-          <input type="range" id="crews" min="1" max="10" step="1" value="2" />
+          <input type="range" id="crews" min="1" max="10" step="1" value="2" list="crews-ticks" />
+          <datalist id="crews-ticks"><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option><option value="5"></option><option value="6"></option><option value="7"></option><option value="8"></option><option value="9"></option><option value="10"></option></datalist>
+          <div class="slider-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
         </div>
 
         <div class="control">
-          <span class="control__label">Road access</span>
-          <div class="segmented" role="radiogroup" aria-label="Road access">
-            <button type="button" data-access="auto" class="is-active" role="radio" aria-checked="true">Auto (model)</button>
-            <button type="button" data-access="on" role="radio" aria-checked="false">Force on</button>
-            <button type="button" data-access="off" role="radio" aria-checked="false">Force off</button>
+          <span class="control__label">Can crews get to the damage?</span>
+          <div class="segmented" role="radiogroup" aria-label="Can crews get to the damage?">
+            <button type="button" data-access="auto" class="is-active" role="radio" aria-checked="true" title="Some roads blocked by trees or flooding, as in past storms">Usual (some roads blocked)</button>
+            <button type="button" data-access="on" role="radio" aria-checked="false" title="Every repair is slowed by blocked roads">Roads blocked</button>
+            <button type="button" data-access="off" role="radio" aria-checked="false" title="Crews can reach every repair right away">Roads clear</button>
           </div>
         </div>
 
         <div class="control control--row">
           <label class="switch">
             <input type="checkbox" id="switching" checked />
-            <span>Switching available</span>
+            <span>Crews can reroute power around damage</span>
           </label>
           <label class="switch">
             <input type="checkbox" id="critical" checked />
-            <span>Prioritize critical facilities</span>
+            <span>Hospitals and emergency services first</span>
           </label>
         </div>
 
         <div class="control control--row">
           <label class="switch">
             <input type="checkbox" id="failed-fuse" />
-            <span>Upstream fuse failed on your line</span>
+            <span>The fuse that feeds your area has blown</span>
           </label>
         </div>
       </div>
@@ -240,14 +244,17 @@
         <span class="label-chip label-chip--action" id="prep-label">Your action</span>
       </div>
 
-      <label class="switch switch--prominent">
-        <input type="checkbox" id="medical" />
-        <span>I use medical equipment that needs power</span>
-      </label>
-      <p class="muted small">We use this only for this session to tailor your steps and alerts. We never guess it from data.</p>
 
       <div class="prep-basis" id="prep-basis"></div>
       <p class="alerts-line" id="alerts-line"></p>
+
+      <!-- step 1 (a home is selected): what the household has, then build the AI checklist -->
+      <div class="prep-start" id="prep-start" hidden>
+        <div class="prep-start__title">What do you have at home?</div>
+        <p class="muted small prep-start__sub">Tick everything that applies. Your checklist uses these plus your home's risk, how long an outage could last and your line.</p>
+        <div id="ttm-picker" class="ttm-picker" role="group" aria-label="Appliances you have"></div>
+        <button type="button" class="btn prep-make" id="prep-make">✦ Make my personalised checklist</button>
+      </div>
 
       <div class="prep-tabs" role="tablist" aria-label="When to do it">
         <button type="button" class="prep-tab is-active" id="prep-tab-before" role="tab"><span aria-hidden="true">⛈️</span> Before the storm <span class="prep-tab__count"></span></button>
@@ -260,7 +267,7 @@
 
       <div id="ttm-section">
         <h3 class="subhead">Will it last?</h3>
-        <p class="muted small">How long each one lasts without power, against your likely outage (blue).</p>
+        <p class="muted small">For what you ticked above: how long each lasts without power, against your likely outage (blue).</p>
         <div id="ttm-cards" class="ttm-grid"></div>
       </div>
 

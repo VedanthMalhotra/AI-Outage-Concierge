@@ -426,6 +426,27 @@ def _damage_inputs(premise_id: str) -> dict:
             "circuit": d.loc[circuit].sum()[DAMAGE_TYPES].values}
 
 
+FACILITY_LABEL = {"hospital": "hospital", "fire_station": "fire station", "ambulance": "ambulance (EMS) station"}
+FACILITY_MATCH_M = 100  # a premise this close to a facility's location is that facility's service
+
+
+@lru_cache(maxsize=4096)
+def critical_facility(premise_id: str) -> Optional[dict]:
+    """{type, label} if this premise is a hospital, fire station or ambulance station (from the
+    public priority-location data: its nearest premise within ~100 m), else None. No schools:
+    the data package has none."""
+    p = topo.find_premise(get_store(), premise_id)
+    if not p or p.get("lat") is None:
+        return None
+    f = get_store().get("facility").dropna(subset=["lat", "lon"])
+    lat, lon = float(p["lat"]), float(p["lon"])
+    d_m = np.hypot((f["lat"] - lat) * 111_000, (f["lon"] - lon) * 111_000 * np.cos(np.radians(lat)))
+    if not len(d_m) or float(d_m.min()) > FACILITY_MATCH_M:
+        return None
+    t = str(f.iloc[int(np.argmin(d_m.values))]["type"])
+    return {"type": t, "label": FACILITY_LABEL.get(t, t.replace("_", " "))}
+
+
 def simulate(premise_id: str, crews: int = 2, storm_severity: float = 1.0, access: str = "auto",
              switching_available: bool = True, failed_upstream_device: Optional[str] = None,
              prioritize_critical: bool = True, start_delay_h: float = 6.0, seed: int = 0,
@@ -474,6 +495,11 @@ def simulate(premise_id: str, crews: int = 2, storm_severity: float = 1.0, acces
     h_path = h_own + (np.where(h_up > 0, 1.0, 0.0) if switching_available else h_up)
     n_path = own.sum(1) + (0 if switching_available else up.sum(1))
     h_ahead = crew_hours(ahead) + (crew_hours(crit) if prioritize_critical else 0)
+    # a hospital / fire / EMS site is itself first in line when critical facilities go first:
+    # it doesn't wait for other jobs, and crews staged for critical sites start on it sooner
+    if prioritize_critical and critical_facility(str(premise_id)):
+        h_ahead = np.zeros(n)
+        delay = delay * 0.5
     t = delay + h_ahead / crews + h_path / np.clip(np.minimum(crews, n_path), 1, None)
     p10, p50, p90 = np.percentile(t, [10, 50, 90])
     sev = storm_severity
@@ -527,7 +553,14 @@ def restoration_grid(premise_id: str) -> dict:
         {"order": 3, "what": f"Repairs on your own line (most likely: {likely})",
          "crew_hours": hrs(inp["own"] + inp["up"]), "status": "expected", "on_your_line": True},
     ]
+    fac = critical_facility(str(premise_id))
+    if fac:
+        jobs = [j for j in jobs if j.get("on_your_line")]  # first in line: nothing ahead of it
     return {"premise_id": str(premise_id), "start_delay_h": 6, "results": rows, "drivers": drivers,
+            "critical_facility": fac and fac | {
+                "note": f"This premise is a {fac['label']}, a critical facility. When hospitals and emergency "
+                        f"services go first, crews start on it sooner and repair its line before other jobs, so its restoration "
+                        f"is faster. Untick that option to see the estimate without priority."},
             "jobs_ahead_of_you": jobs, "label": "Model estimate", "confidence": "Medium",
             "assumptions": [
                 "Expected damage comes from the damage-count model trained on Feb 2025, scaled by storm severity.",

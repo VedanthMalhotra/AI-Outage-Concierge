@@ -192,40 +192,28 @@
   .privacy-note { @apply text-aep-muted; margin-top: 0.5rem; font-size: 0.78rem; }
   .leaflet-container { background: #2b3440; }
 
-  /* storm weather tint overlay */
-  .storm-fx {
-    position: absolute; inset: 0; z-index: 400; pointer-events: none;
-    opacity: 0; transition: opacity 1.1s ease, background 1.1s ease;
-    background: radial-gradient(120% 90% at 50% -10%, rgba(40,52,74,0), rgba(20,28,44,0));
-    mix-blend-mode: multiply;
+  /* storm effect: falling rain over the map (no dark tint, so the map stays readable).
+   * Two layers of streaks at different sizes and speeds; each layer is thin vertical lines
+   * cut into short dashes by a mask, and the mask scrolls down to make the drops fall. */
+  .storm-fx { position: absolute; inset: 0; z-index: 400; pointer-events: none; overflow: hidden;
+    transition: background 1s ease; }
+  .map-wrap[data-phase="storm"] .storm-fx,
+  .map-wrap[data-phase="outage"] .storm-fx { background: rgba(30, 60, 95, 0.10); }
+  .storm-fx::before, .storm-fx::after {
+    content: ""; position: absolute; inset: -30%; opacity: 0; transform: rotate(12deg);
+    transition: opacity 0.8s ease;
+    background-image: repeating-linear-gradient(90deg, transparent 0 var(--gap),
+      rgba(225, 238, 255, 0.8) var(--gap) calc(var(--gap) + 1.5px), transparent calc(var(--gap) + 1.5px) calc(var(--gap) * 2));
+    -webkit-mask-image: repeating-linear-gradient(180deg, #000 0 var(--len), transparent var(--len) var(--period));
+    mask-image: repeating-linear-gradient(180deg, #000 0 var(--len), transparent var(--len) var(--period));
   }
-  .map-wrap[data-phase="pre_storm"] .storm-fx {
-    opacity: 0.35; background: linear-gradient(180deg, rgba(90,104,130,0.55), rgba(120,132,156,0.15));
-  }
-  .map-wrap[data-phase="storm"] .storm-fx {
-    opacity: 0.72; background: linear-gradient(180deg, rgba(38,48,70,0.80), rgba(60,72,98,0.45));
-  }
-  .map-wrap[data-phase="outage"] .storm-fx {
-    opacity: 0.66; background: linear-gradient(180deg, rgba(44,54,76,0.72), rgba(70,60,70,0.45));
-  }
-  .map-wrap[data-phase="assessing"] .storm-fx {
-    opacity: 0.5; background: linear-gradient(180deg, rgba(58,66,86,0.55), rgba(90,84,86,0.30));
-  }
-  .map-wrap[data-phase="repairing"] .storm-fx {
-    opacity: 0.3; background: linear-gradient(180deg, rgba(90,96,112,0.4), rgba(120,122,120,0.18));
-  }
-  .map-wrap[data-phase="restored"] .storm-fx {
-    opacity: 0.22; background: linear-gradient(180deg, rgba(34,128,61,0.28), rgba(34,128,61,0.08));
-  }
-  .storm-fx::after {
-    content: ""; position: absolute; inset: -20% 0; opacity: 0;
-    background-image: repeating-linear-gradient(
-      115deg, rgba(255,255,255,0) 0 8px,
-      rgba(210,220,235,0.18) 8px 9px, rgba(255,255,255,0) 9px 18px);
-    transition: opacity 0.9s ease;
-  }
-  .map-wrap[data-phase="storm"] .storm-fx::after,
-  .map-wrap[data-phase="outage"] .storm-fx::after { opacity: 1; animation: rain 0.5s linear infinite; }
+  .storm-fx::before { --gap: 23px; --len: 16px; --period: 70px; animation: rain-a 0.55s linear infinite; }
+  .storm-fx::after { --gap: 37px; --len: 26px; --period: 110px; animation: rain-b 0.4s linear infinite; }
+  .map-wrap[data-phase="storm"] .storm-fx::before, .map-wrap[data-phase="storm"] .storm-fx::after,
+  .map-wrap[data-phase="outage"] .storm-fx::before, .map-wrap[data-phase="outage"] .storm-fx::after { opacity: 1; }
+  .map-wrap[data-phase="assessing"] .storm-fx::before { opacity: 0.45; } /* drizzle as it eases off */
+  @keyframes rain-a { to { -webkit-mask-position: 0 70px; mask-position: 0 70px; } }
+  @keyframes rain-b { to { -webkit-mask-position: 0 110px; mask-position: 0 110px; } }
 
   .map-phase {
     @apply absolute z-[500] text-white flex items-center gap-2 font-semibold shadow-aep;
@@ -647,23 +635,23 @@ html { scroll-behavior:smooth; scroll-padding-top:110px; } body { background:#f3
 .hero-description { margin:10px 0 0; color:#6c7d7e; font-size:14px; } .page-title__sub { font-size:12px; background:white; padding:10px 15px; border:1px solid var(--line); border-radius:30px; }
 .dashboard-nav { display:flex; gap:30px; max-width:1608px; margin:0 36px; border-bottom:1px solid var(--line); }
 .dashboard-nav a { padding:12px 0 15px; font-size:13px; color:#6c7d7e; font-weight:600; text-decoration:none; } .dashboard-nav a:hover,.dashboard-nav a.is-active { color:var(--teal); border-bottom:2px solid var(--teal); } .dashboard-nav a:last-child { margin-left:auto; }
-.layout { max-width:1680px; padding:24px 36px; gap:24px; grid-template-columns:minmax(0,1fr) 350px; }
+.layout { max-width:1680px; padding:24px 36px; gap:24px; grid-template-columns:minmax(0,1fr) 460px; } /* wider concierge */
 .panel { border:1px solid var(--line); border-radius:18px; padding:24px; box-shadow:0 4px 20px #173a3204; }
 .panel__head { border-bottom:0; padding-bottom:0; margin-bottom:20px; } .panel__head h2 { font-size:18px; color:var(--ink); font-weight:600; letter-spacing:-.025em; }
 .panel--map { height:800px; min-height:560px; padding:22px 22px 12px; grid-row:1; } /* bigger map */
 .map-wrap,#map,#map canvas { border-radius:12px; } .map-legend { max-width:255px; font-size:10px; flex-wrap:wrap; gap:5px; } .privacy-note { font-size:10px; color:#7b8b89; margin-top:10px; }
-.map-location { position:absolute; z-index:5; top:16px; left:16px; padding:12px 16px; background:#ffffffed; border-radius:11px; font-size:13px; font-weight:600; box-shadow:0 5px 20px #102c3020; pointer-events:none; }
+.map-location { position:absolute; z-index:5; top:104px; left:16px; padding:12px 16px; background:#ffffffed; border-radius:11px; font-size:13px; font-weight:600; box-shadow:0 5px 20px #102c3020; pointer-events:none; }
 .map-location small { display:block; color:#6a7f7b; font-size:10px; font-weight:400; margin:3px 0 0 13px; } .map-location__dot { display:inline-block; width:6px; height:6px; background:#157c6c; border-radius:100%; margin-right:6px; }
 .map-viewtoggle { top:16px; right:16px; border:0; border-radius:10px; width:42px; height:42px; background:#fff; color:var(--ink); font-size:12px; box-shadow:0 4px 18px #102c3020; }
 .map-tools { position:absolute; z-index:6; right:16px; top:68px; display:grid; gap:6px; } .map-tools button { width:42px; height:40px; border-radius:10px; background:white; border:1px solid #dce5e3; color:#254842; font-size:24px; } .map-tools button:hover { background:#e9f4ef; }
 .map-attribution { position:absolute; z-index:5; right:4px; bottom:2px; background:#ffffffd9; color:#435c56; font-size:8px; padding:1px 5px; }
-.map-timeline { bottom:22px; left:14px; right:14px; border:1px solid #ffffff60; border-radius:12px; background:#fffffff0; backdrop-filter:blur(12px); box-shadow:0 4px 24px #16363220; } .map-timeline__now { font-size:11px; color:#38534d; }
+.map-timeline { top:14px; bottom:auto; left:14px; right:70px; /* Step bar at the top; right edge clears the 3D / tool buttons */ border:1px solid #ffffff60; border-radius:12px; background:#fffffff0; backdrop-filter:blur(12px); box-shadow:0 4px 24px #16363220; } .map-timeline__now { font-size:11px; color:#38534d; }
 .panel--chat { grid-column:2; grid-row:1 / span 3; top:calc(var(--masthead-h,90px) + 20px); height:min(760px,calc(100vh - var(--masthead-h,90px) - 40px)); min-height:530px; }
 .assistant-mark { display:grid; place-items:center; width:40px; height:40px; border-radius:13px; background:#e8f2ed; color:var(--teal); font-size:26px; }
-.concierge-intro { font-size:12px; line-height:1.7; color:#7a8c86; padding-bottom:18px; border-bottom:1px solid var(--line); margin:0; }
-.chat-log { padding:16px 0; } .bubble { border-radius:13px; font-size:13px; line-height:1.7; } .bubble--bot { background:#f0f5f1; border-color:#e3ece5; color:#304d43; } .bubble--user { background:#e4efee; border-color:#d4e4e1; }
-.chat-suggestions button { text-align:left; border-color:var(--line); border-radius:9px; font-size:11px; padding:9px 11px; color:#48665b; background:#fff; }
-.chat-form input { border-radius:9px; min-width:0; font-size:12px; border-color:var(--line); background:#f6f8f6; }
+.concierge-intro { font-size:13px; line-height:1.7; color:#7a8c86; padding-bottom:18px; border-bottom:1px solid var(--line); margin:0; }
+.chat-log { padding:16px 0; } .bubble { border-radius:13px; font-size:14px; line-height:1.65; } .bubble--bot { background:#f0f5f1; border-color:#e3ece5; color:#304d43; } .bubble--user { background:#126b63; border-color:#126b63; color:#fff; } /* solid teal so your own messages stand out */
+.chat-suggestions button { text-align:left; border-color:var(--line); border-radius:9px; font-size:12.5px; padding:9px 12px; color:#48665b; background:#fff; }
+.chat-form input { border-radius:9px; min-width:0; font-size:13.5px; border-color:var(--line); background:#f6f8f6; }
 .btn { background:var(--teal); border-color:var(--teal); border-radius:8px; font-size:12px; } .btn:hover { background:#0e514b; border-color:#0e514b; } .btn--ghost { color:#47655b; background:#f5f8f5; border-color:var(--line); } .btn--ghost:hover { color:white; }
 .panel--outlook { grid-row:2; } .panel--prepare { grid-row:3; } .label-chip { background:#f1f5ee; color:#59714f; border-color:#dce5d6; font-size:10px; }
 .risk-prob { font-size:38px; letter-spacing:-.05em; color:var(--ink); } .range-headline { font-size:30px; letter-spacing:-.04em; color:var(--ink); }
@@ -671,11 +659,11 @@ input[type=range],input[type=checkbox] { accent-color:var(--teal); } .segmented 
 .app-footer { max-width:1608px; margin:0 auto; color:#7b8d85; border-top:1px solid var(--line); }
 button,a,input,select { transition:background-color .18s,box-shadow .18s,border-color .18s; } :focus-visible { outline:3px solid #3c9a86; outline-offset:4px; }
 @media(min-width:1680px) { .dashboard-nav { margin-left:auto; margin-right:auto; } }
-@media(max-width:1100px) { .layout { padding:20px; grid-template-columns:minmax(0,1fr) 310px; gap:18px; } .panel { padding:18px; } .premise-picker select { max-width:150px; } }
+@media(max-width:1100px) { .layout { padding:20px; grid-template-columns:minmax(0,1fr) 380px; gap:18px; } .panel { padding:18px; } .premise-picker select { max-width:150px; } }
 @media(max-width:900px) { .layout { grid-template-columns:1fr; } .panel--map { grid-column:1; grid-row:1; height:640px; } .panel--outlook { grid-column:1; grid-row:2; } .panel--prepare { grid-column:1; grid-row:3; } .panel--chat { grid-column:1; grid-row:4; position:static; height:600px; } .mock-badge { display:none; } }
 @media(max-width:600px) { .site-header { position:relative; } .site-header__bar { padding:16px; gap:18px; } .site-header__controls,.premise-lookup { width:100%; } .premise-picker { display:none; } .premise-lookup input { flex:1; min-width:0; } .page-title__inner { padding:24px 16px 16px; gap:15px; } .page-title__sub { font-size:10px; } .dashboard-nav { margin:0 16px; gap:18px; overflow-x:auto; } .dashboard-nav a { font-size:11px; white-space:nowrap; } .dashboard-nav a:last-child { display:none; } .layout { padding:16px; gap:16px; } .panel { padding:16px; border-radius:14px; } .panel--map { height:500px; } .map-legend { display:none; } .panel__head h2 { font-size:16px; } .map-timeline__top { flex-wrap:wrap; gap:8px; } .app-footer { margin:0 16px; } }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
-.map-timeline { top:auto; height:auto; }
+.map-timeline { top:14px; height:auto; } /* Step bar sits at the top of the map */
 .map-viewtoggle { bottom:auto; }
 #pp-legend-host { bottom:110px; max-width:65%; font-size:10px; }
 @media(min-width:900px) {
@@ -692,3 +680,59 @@ button,a,input,select { transition:background-color .18s,box-shadow .18s,border-
 #map .maplibregl-ctrl-attrib { font-size:9px; }
 #map .maplibregl-popup-content { white-space:pre-line; font:12px/1.6 system-ui; border-radius:10px; padding:12px; max-width:260px; }
 .map-attribution { bottom:19px; pointer-events:none; }
+
+/* TomTom map: one-letter equipment labels on the power path (T, F, R, B, S) */
+.tt-node-label { width:20px; height:20px; display:grid; place-items:center; pointer-events:auto; cursor:default;
+  font:700 11px/1 system-ui, sans-serif; color:#0f172a; text-shadow:0 0 2px #fff, 0 0 2px #fff; }
+
+/* why a hospital / fire / EMS premise restores faster (under the restoration range) */
+.facility-note { margin:0.4rem 0 0.6rem; padding:0.55rem 0.75rem; border-radius:10px; background:#eef6ff;
+  border:1px solid #c7dcfb; color:#1e3a5f; font-size:0.85rem; line-height:1.45; }
+.facility-note[hidden] { display:none; }
+
+/* labelled tick marks under the sliders (crews 1-10, storm 0.5x-2x): each label sits over its
+ * stop; the 8px side padding lines the first/last label up with the thumb's centre */
+.slider-ticks { display:flex; justify-content:space-between; padding:0 2px; margin-top:2px;
+  font-size:0.68rem; line-height:1.2; color:#64748b; text-align:center; }
+.slider-ticks span { position:relative; width:0; display:flex; justify-content:center; white-space:nowrap; padding-top:7px; }
+.slider-ticks span::before { content:""; position:absolute; top:0; left:50%; width:1px; height:5px; background:#94a3b8; }
+.slider-ticks span:first-child { justify-content:flex-start; }
+.slider-ticks span:last-child { justify-content:flex-end; }
+.slider-ticks span:first-child::before { left:0; }
+.slider-ticks span:last-child::before { left:auto; right:0; }
+.prep-basis__ai { margin-top:0.35rem; font-size:0.74rem; color:#126b63; font-weight:600; }
+
+/* "Will it last?" appliance picker chips */
+.ttm-picker { display:flex; flex-wrap:wrap; gap:0.4rem; margin:0.5rem 0 0.7rem; }
+.ttm-chip { border:1px solid #cbd5e1; background:#fff; color:#334155; border-radius:999px;
+  padding:0.3rem 0.75rem; font-size:0.82rem; cursor:pointer; transition:background .15s, border-color .15s; }
+.ttm-chip:hover { border-color:#94a3b8; }
+.ttm-chip.is-on { background:#e7f4ef; border-color:#126b63; color:#0f4f49; font-weight:600; }
+.ttm-chip.is-on::after { content:" ✓"; }
+
+/* "Building your personalised checklist" animation: each factor spins, then ticks, in turn */
+.ai-building { margin-top:0.55rem; padding:0.6rem 0.75rem; border-radius:10px; background:#fff; border:1px dashed #9ec9bf; }
+.ai-building__title { font-size:0.85rem; font-weight:700; color:#126b63; margin-bottom:0.35rem;
+  animation:ai-pulse 1.4s ease-in-out infinite; }
+.ai-building__steps { list-style:none; margin:0; padding:0; display:grid; gap:0.25rem; }
+.ai-step { display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:#334155; opacity:0;
+  animation:ai-in .3s ease forwards; animation-delay:var(--d); }
+.ai-step__spin { width:12px; height:12px; flex:0 0 12px; border-radius:50%; border:2px solid #b7d9d1; border-top-color:#126b63;
+  animation:ai-spin .7s linear infinite, ai-gone 0s linear forwards; animation-delay:0s, calc(var(--d) + .45s); }
+.ai-step__tick { width:0; overflow:hidden; color:#16a34a; font-weight:700; opacity:0;
+  animation:ai-tick .2s ease forwards; animation-delay:calc(var(--d) + .45s); }
+@keyframes ai-in { to { opacity:1; } }
+@keyframes ai-spin { to { transform:rotate(360deg); } }
+@keyframes ai-gone { to { width:0; flex-basis:0; border-width:0; opacity:0; } }
+@keyframes ai-tick { to { width:12px; opacity:1; } }
+@keyframes ai-pulse { 50% { opacity:.55; } }
+
+/* step 1 of the Prepare panel (a home is selected): appliances, then build the checklist */
+.prep-start { margin:0.6rem 0 0.8rem; padding:0.75rem 0.9rem; border:1px solid #d7e6e2; border-radius:12px; background:#f7fbfa; }
+.prep-start[hidden] { display:none; }
+.prep-start__title { font-weight:700; font-size:0.95rem; color:#0f3d38; }
+.prep-start__sub { margin:0.15rem 0 0.2rem; }
+.prep-make { margin-top:0.2rem; background:#126b63; color:#fff; border:0; border-radius:9px; padding:0.55rem 1rem;
+  font-weight:600; font-size:0.9rem; cursor:pointer; }
+.prep-make:hover { background:#0f5a53; }
+.prep-make:disabled { background:#8fb8b2; cursor:progress; }

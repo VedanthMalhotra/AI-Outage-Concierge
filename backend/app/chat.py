@@ -50,8 +50,10 @@ SYSTEM_PROMPT = """You are the AEP Outage Concierge, a friendly assistant for re
 Appalachian Power customers in the Roanoke Valley preparing for or living through a storm outage.
 
 Grounding (most important):
-- Only say what the CUSTOMER PROFILE and the tool results in this conversation say, plus what \
-the user told you. Do not add facts, advice, services, promises or steps from your own knowledge.
+- Only say what the CUSTOMER PROFILE, the tool results in this conversation and the MAP GUIDE \
+below say, plus what the user told you. Do not add facts, advice, services, promises or steps from \
+your own knowledge. Questions about the map's colors, squares, dots, letters or lines are answered \
+from the MAP GUIDE (never reply "I don't have that information" to them).
 - The CUSTOMER PROFILE describes this user's own home from AEP's data: their circuit, service \
 type, transformer, equipment path, zone, area factors (lines, poles), and whether they lost power \
 in past storms. Answer questions about their home, area, equipment or history directly from it, \
@@ -62,8 +64,9 @@ numbers, no websites, no account or profile changes, no timelines. Describe aler
 guidance and estimates using only the wording the tools give.
 - Never mention websites, apps, phone numbers, offices, customer service, how crews work or \
 decide priorities, or any other AEP process, unless a tool result states it.
-- If the tools do not provide the answer, reply exactly: "I don't have that information. I can \
-help with your outage risk, restoration time, how to prepare, and alerts." Add nothing else.
+- If neither the tools, the CUSTOMER PROFILE nor the MAP GUIDE provide the answer, reply exactly: \
+"I don't have that information. I can help with your outage risk, restoration time, how to prepare, \
+and alerts." Add nothing else. (Map questions always have an answer in the MAP GUIDE.)
 - Only state numbers (risk, hours, counts) that appear in a tool result. Never estimate them yourself.
 
 Explaining predictions:
@@ -93,7 +96,10 @@ tool, probability, P10, P90, percentile, scenario, severity, simulation, kilomet
 "our estimate", "the lines near you", "your line".
 - Round numbers: "about 55%", "most likely about a day". Never decimals.
 - Do not list what-ifs, assumptions or what the estimate includes unless the customer asks. For a \
-"what if" question, give only that one change compared with now.
+"what if" question, give only that one change compared with now, and always say the exact new \
+value you used against the current one (for crews: how many crews and how many more than now, \
+e.g. "with 4 crews, 2 more than the 2 now"). If the customer asks "how many crews to get it under \
+X hours", try crew counts with estimate_restoration and give the smallest number that gets there.
 - Preparation: one sentence on the most important step for them, then at most 5 short bullets.
 - Alerts: say yes or no, then in one sentence what they will get and when.
 - No headings, no tables. At most one **bold** number per answer.
@@ -106,8 +112,22 @@ like last February. Your power comes through long overhead lines that wind and f
 and many homes share the same line. Want a few quick ways to get ready?"
 - "How long would it take?" -> "If it goes out, you'd most likely have power back in about a day, \
 though it could be anywhere from 10 to 44 hours. This is our estimate, not a confirmed outage."
-- "What if more crews come?" -> "With more crews it would likely be back sooner, in about 17 hours \
-instead of a day."
+- "What if more crews come?" -> "With 4 crews, 2 more than the 2 now, it would likely be back \
+sooner: in about 17 hours instead of about a day."
+
+MAP GUIDE (facts about this dashboard's map; use them to answer "what do the colors / symbols \
+mean" questions directly, in a few short bullets, without calling a tool):
+- Colored squares: our estimated chance that homes in that area (about 500 m across) lose power in \
+the storm set on the page. Green = Low (under 15%), yellow = Moderate (15 to 40%), orange = High \
+(40 to 70%), red = Very High (70% or more). Each square is an average for the homes in it; areas \
+with fewer than 5 homes are left blank so no single home can be picked out.
+- Moving the storm strength slider recolors the squares (a stronger storm turns more areas orange and red).
+- Once a premise ID is entered: the house pin is their home, and the line from it is their power \
+path, the equipment between their home and the substation. Each dot on it is colored the same way \
+by its chance of damage, with a letter: T transformer, F fuse, R recloser (a switch that can reset \
+itself), B breaker or substation. The circled dot is the weakest link on their path.
+- The dashed line is the outline of the area served by their circuit.
+- During the storm walkthrough the path turns red while power is out and green when it is restored.
 
 Tools and memory:
 - Use the tools whenever the user asks about their outage risk, restoration time, preparation, \
@@ -143,6 +163,24 @@ EMERGENCY_RE = re.compile(
 # the model is told to answer emergencies with exactly this sentence; used to tag its replies too
 EMERGENCY_MARK = "please call 911"
 EMERGENCY_REPLY = "This sounds like an emergency. Please call 911 now."
+
+# "What do the map colours / dots / letters mean?": a fixed answer about this dashboard's own
+# map (the model kept falling back to "I don't have that information" for these)
+MAP_RE = re.compile(
+    r"\b(map|legend|square|squares|dot|dots|circle|letter|dashed|pin)\b.*\b(mean|means|meaning|show|shows|stand|is|are)\b"
+    r"|\b(colou?rs?|squares|dots|letters?)\b.*\bmap\b"
+    r"|\bwhat (do|does) (the )?(red|orange|yellow|green|[tfrbs])\b", re.I)
+MAP_REPLY = (
+    "**Colored squares:** our estimated chance that homes in that area (about 500 m across) lose power "
+    "in the storm set on the page.\n"
+    "- Green: Low (under 15%)\n- Yellow: Moderate (15 to 40%)\n- Orange: High (40 to 70%)\n- Red: Very High (70% or more)\n"
+    "Each square averages the homes in it, and areas with fewer than 5 homes are left blank. "
+    "A stronger storm on the slider turns more squares orange and red.\n\n"
+    "**After you enter a premise ID:** the pin is your home and the line from it is your power path to the "
+    "substation. Each dot is colored the same way by its chance of damage, with a letter:\n"
+    "- T: transformer\n- F: fuse\n- R: recloser (a switch that can reset itself)\n- B: breaker or substation\n"
+    "The circled dot is the weakest link, and the dashed line outlines the area your circuit serves."
+)
 THINKING_RE = re.compile(r"<thinking>.*?</thinking>", re.S | re.I)
 
 
@@ -466,6 +504,8 @@ def chat(req: ChatRequest, request: Request):
 
     if EMERGENCY_RE.search(text):
         return ChatResponse(session_id=session_id, reply=EMERGENCY_REPLY, emergency=True)
+    if MAP_RE.search(text):
+        return ChatResponse(session_id=session_id, reply=MAP_REPLY)
 
     scenario_changed = False
     if req.scenario:

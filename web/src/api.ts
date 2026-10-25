@@ -335,6 +335,11 @@ const premisePath = (id: string, what: string) => `/premise/${encodeURIComponent
 
 /** Preparation checklist + safety from the home's risk and expected outage length. */
 export const fetchGuidance = (id: string) => apiGet<Guidance>(premisePath(id, "guidance"), 30000);
+/** Before / during / after checklist written by the chatbot's model for this home (null if unavailable). */
+export const fetchAiChecklist = (id: string, severity: number, crews: number, medical: boolean, appliances: string[] = []) =>
+  apiGet<import("./prepare").AiChecklist | null>(
+    `${premisePath(id, "ai-checklist")}?severity=${severity}&crews=${crews}&medical=${medical}` +
+      `&appliances=${encodeURIComponent(appliances.join(","))}`, 45000);
 /** Alert eligibility, channels and escalations. */
 export const fetchAlerts = (id: string) => apiGet<Alerts>(premisePath(id, "alerts"), 30000);
 /** Storm replay: model estimates + the real Feb 2025 damage on this home's path. */

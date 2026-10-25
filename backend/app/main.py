@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
+from . import ai_checklist
 from . import chat
 from . import concierge
 from . import predict
@@ -211,6 +212,20 @@ def get_restoration_grid(premise_id: str):
 def _known(premise_id: str) -> None:
     if not topo.find_premise(get_store(), premise_id):
         raise HTTPException(status_code=404, detail=f"premise '{premise_id}' not found")
+
+
+@app.get("/premise/{premise_id}/ai-checklist", tags=["models"])
+def get_ai_checklist(premise_id: str, severity: float = Query(default=1.0, ge=0.5, le=2.0),
+                     crews: int = Query(default=2, ge=1, le=10), medical: bool = False,
+                     appliances: str = Query(default="", max_length=100,
+                                             description="comma list: fridge,freezer,heat,phone,medical,sump,well")):
+    """Before / during / after checklist written by the chatbot's model from this home's risk
+    factors and the appliances the household has. null when the model is unavailable (the
+    dashboard then uses its rule-based list)."""
+    _known(premise_id)
+    sev = min(predict.SEVERITIES, key=lambda s: abs(s - severity))
+    have = tuple(sorted({a for a in appliances.split(",") if a in ai_checklist.APPLIANCE_HOURS}))
+    return ai_checklist.checklist(premise_id, sev, crews, medical, have)
 
 
 @app.get("/premise/{premise_id}/guidance", tags=["models"])

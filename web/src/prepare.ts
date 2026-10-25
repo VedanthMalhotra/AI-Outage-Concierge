@@ -37,11 +37,82 @@ const ui = {
   done: new Set<string>(),        // checked task ids, this session only
   freezer: "full" as "full" | "half",
   home: "1970to2000" as "pre1970" | "1970to2000" | "post2000",
+  // "Will it last?": the appliances this person said they have, and their settings
+  have: new Set<string>(),       // nothing ticked until the person picks
+  phone: "phone" as "phone" | "bank",
+  medBattery: "8" as "4" | "8" | "12" | "24",
+  sump: "none" as "none" | "battery",
 };
 
 const HIGH = new Set(["High", "Very High"]);
 
+/* AI-written checklist for the selected home (backend /ai-checklist); null = use the rules below */
+export interface AiChecklist {
+  before: { text: string; why?: string }[];
+  during: { text: string; why?: string }[];
+  after: { text: string; why?: string }[];
+  source: string;
+}
+let ai: AiChecklist | null = null;
+export function setAiChecklist(list: AiChecklist | null): void {
+  ai = list;
+  if (lastCtx) renderPrepare(lastCtx);
+}
+
+/* the appliance keys this household ticked (sent with the AI checklist request) */
+export function getAppliances(): string[] {
+  return [...ui.have];
+}
+let onMake: (() => void) | null = null;
+let onAppliancesChange: ((have: string[]) => void) | null = null;
+/* told whenever the ticked appliances change (main.ts maps "medical" to declared medical needs) */
+export function setOnAppliancesChange(fn: (have: string[]) => void): void {
+  onAppliancesChange = fn;
+}
+/* "Clear my data": untick everything */
+export function clearAppliances(): void {
+  ui.have.clear();
+  onAppliancesChange?.([]);
+  if (lastCtx) renderPrepare(lastCtx);
+}
+export function setOnMake(fn: () => void): void {
+  onMake = fn;
+}
+
+/* While the AI writes the checklist: the factors it is using, shown as an animated list
+ * (each one "checks off" in turn). null = not building. */
+let aiBuilding: string[] | null = null;
+export function setAiBuilding(factors: string[] | null): void {
+  aiBuilding = factors;
+  if (lastCtx) renderPrepare(lastCtx);
+}
+
+function buildingBlock(factors: string[]): HTMLElement {
+  const box = el("div", "ai-building");
+  box.setAttribute("role", "status");
+  box.appendChild(el("div", "ai-building__title", "✦ Building your personalised checklist…"));
+  const ul = el("ul", "ai-building__steps");
+  factors.forEach((f, i) => {
+    const li = el("li", "ai-step");
+    li.style.setProperty("--d", `${i * 0.45}s`);
+    li.appendChild(el("span", "ai-step__spin"));
+    li.appendChild(el("span", "ai-step__tick", "✓"));
+    const t = el("span", "ai-step__text");
+    t.textContent = f;
+    li.appendChild(t);
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  return box;
+}
+
 function tasks(c: PrepContext): Record<Phase, Task[]> {
+  // a home is selected and the AI list is in: use it (no premise keeps the general rules)
+  if (ai && !c.general) {
+    const conv = (ph: Phase, list: AiChecklist[Phase]) =>
+      list.map((t, i) => ({ id: `ai-${ph}-${i}`, text: t.text, why: t.why || undefined }));
+    return { before: conv("before", ai.before), during: conv("during", ai.during), after: conv("after", ai.after) };
+  }
   const long = c.p50 >= 12;          // most likely half a day or more
   const veryLong = c.p90 > 24;        // could run past a day
   const days = Math.max(1, Math.min(7, Math.ceil(c.p90 / 24)));
@@ -110,24 +181,49 @@ const HEAT = { pre1970: 8, "1970to2000": 23, post2000: 45 } as const;
 
 interface Card { key: string; icon: string; name: string; hours: number; tip: string; control?: string }
 
-function cards(): Card[] {
-  const list: Card[] = [
+/* a <select data-k=key> for a card setting (static options only) */
+function sel(key: string, current: string, options: [string, string][]): string {
+  return `<select data-k="${key}">` +
+    options.map(([v, label]) => `<option value="${v}"${v === current ? " selected" : ""}>${label}</option>`).join("") +
+    `</select>`;
+}
+
+/* Everything a person can pick, with how long it keeps working without power. Food times are
+ * USDA guidance; the rest are typical values the person can adjust on the card. */
+function allCards(): Card[] {
+  return [
     { key: "fridge", icon: "🧊", name: "Fridge", hours: 4, tip: "Move milk, meat and cold medicines to a cooler with ice." },
     { key: "freezer", icon: "❄️", name: "Freezer", hours: ui.freezer === "full" ? 48 : 24,
       tip: "Keep it shut; fill gaps with ice.",
-      control: `<select data-k="freezer"><option value="full"${ui.freezer === "full" ? " selected" : ""}>full</option><option value="half"${ui.freezer === "half" ? " selected" : ""}>half full</option></select>` },
+      control: sel("freezer", ui.freezer, [["full", "full"], ["half", "half full"]]) },
     { key: "heat", icon: "🔥", name: "Home heat", hours: HEAT[ui.home],
       tip: "Plan a warm place to go before it gets cold.",
-      control: `<select data-k="home"><option value="pre1970"${ui.home === "pre1970" ? " selected" : ""}>built before 1970</option><option value="1970to2000"${ui.home === "1970to2000" ? " selected" : ""}>built 1970–2000</option><option value="post2000"${ui.home === "post2000" ? " selected" : ""}>built after 2000</option></select>` },
+      control: sel("home", ui.home, [["pre1970", "built before 1970"], ["1970to2000", "built 1970–2000"], ["post2000", "built after 2000"]]) },
+    { key: "phone", icon: "📱", name: "Phone", hours: ui.phone === "bank" ? 36 : 12,
+      tip: "Use low-power mode, and charge from the car if you can.",
+      control: sel("phone", ui.phone, [["phone", "phone battery only"], ["bank", "with a power bank"]]) },
+    { key: "medical", icon: "🩺", name: "Medical device", hours: Number(ui.medBattery),
+      tip: "Plan now where you'd go to plug it in before the battery runs out.",
+      control: sel("medBattery", ui.medBattery, [["4", "4 h battery"], ["8", "8 h battery"], ["12", "12 h battery"], ["24", "24 h battery"]]) },
+    { key: "sump", icon: "💧", name: "Sump pump", hours: ui.sump === "battery" ? 6 : 0,
+      tip: "Without power it stops: move valuables off the basement floor.",
+      control: sel("sump", ui.sump, [["none", "no battery backup"], ["battery", "battery backup"]]) },
+    { key: "well", icon: "🚰", name: "Well water pump", hours: 0,
+      tip: "No running water until power is back: fill jugs and the bathtub before the storm." },
   ];
-  return list;
+}
+
+/* only the cards for appliances this person picked */
+function cards(): Card[] {
+  return allCards().filter((k) => ui.have.has(k.key));
 }
 
 function chance(runs: number[], h: number): number {
   return runs.length ? runs.filter((x) => x > h).length / runs.length : 0;
 }
 
-function verdict(p: number): { cls: string; text: string } {
+function verdict(p: number, hours = 1): { cls: string; text: string } {
+  if (hours <= 0) return { cls: "risk", text: "Stops right away" };
   if (p > 0.5) return { cls: "risk", text: "Likely to run out" };
   if (p >= 0.2) return { cls: "watch", text: "Might run out" };
   return { cls: "ok", text: "Should be fine" };
@@ -152,6 +248,12 @@ export function renderPrepare(c: PrepContext): void {
       ? `<div class="prep-basis__main">General storm plan</div><div class="prep-basis__sub">No premise ID entered, so these steps aren't tailored to a home. ` +
         `Enter a premise ID at the top to see that home's chance of an outage and how long it could last.</div>`
       : `<div class="prep-basis__main">General storm plan</div><div class="prep-basis__sub">We can't estimate an outage for this home.</div>`;
+  if (aiBuilding && !c.general) basis.appendChild(buildingBlock(aiBuilding));
+  else if (ai && !c.general) {
+    const tag = el("div", "prep-basis__ai");
+    tag.textContent = `✦ ${ai.source}`;
+    basis.appendChild(tag);
+  }
 
   // 2. checklist with tabs + progress
   const all = tasks(hasRuns ? c : { ...c, p10: 0, p50: 0, p90: 0 });
@@ -164,14 +266,37 @@ export function renderPrepare(c: PrepContext): void {
     btn.querySelector(".prep-tab__count")!.textContent = left ? String(left) : "✓";
   });
   // the checklist appears once the storm walkthrough starts (Step); before that, a hint
-  const started = ui.locked;
+  // (or, for a selected home, once its personalised checklist has been made)
+  // A selected home shows NO checklist until its personalised one has been made (not even
+  // during the storm walkthrough); with no premise, the general list shows during the walkthrough
+  const started = c.general ? ui.locked : !!ai;
   $(".prep-tabs").hidden = !started;
   $(".prep-progress").hidden = !started;
   $("#prep-checklist").hidden = !started;
   if (!started) {
-    $("#prep-progress-text").textContent =
-      "Press Step on the map to see what to do before, during and after the storm.";
+    $("#prep-progress-text").textContent = c.general
+      ? "Press Step on the map to see what to do before, during and after the storm."
+      : aiBuilding
+        ? ""
+        : ui.locked
+          ? "Make your personalised checklist above to see what to do at each step of the storm."
+          : "Tick what you have above, then press “Make my personalised checklist”.";
   }
+
+  // step 1 for a selected home: appliance picker + make button
+  $("#prep-start").hidden = !!c.general;
+  const picker = $("#ttm-picker");
+  picker.innerHTML = "";
+  allCards().forEach((k) => {
+    const b = el("button", "ttm-chip" + (ui.have.has(k.key) ? " is-on" : ""), `${k.icon} ${k.name}`);
+    b.setAttribute("type", "button");
+    b.dataset.have = k.key;
+    b.setAttribute("aria-pressed", String(ui.have.has(k.key)));
+    picker.appendChild(b);
+  });
+  const make = $<HTMLButtonElement>("#prep-make");
+  make.disabled = !!aiBuilding;
+  make.textContent = aiBuilding ? "Building your checklist…" : ai ? "↻ Update my checklist" : "✦ Make my personalised checklist";
   const list = all[ui.phase];
   const doneN = list.filter((t) => ui.done.has(t.id)).length;
   $("#prep-progress-bar").style.width = `${list.length ? (doneN / list.length) * 100 : 0}%`;
@@ -191,7 +316,11 @@ export function renderPrepare(c: PrepContext): void {
     label.appendChild(box);
     const txt = el("span", "prep-task__text");
     txt.textContent = t.text;
-    if (t.why) txt.appendChild(el("span", "prep-task__why", t.why));
+    if (t.why) {
+      const why = el("span", "prep-task__why");
+      why.textContent = t.why; // text, not HTML: this can be AI-written
+      txt.appendChild(why);
+    }
     label.appendChild(txt);
     li.appendChild(label);
     ul.appendChild(li);
@@ -204,17 +333,22 @@ export function renderPrepare(c: PrepContext): void {
   const grid = $("#ttm-cards");
   grid.innerHTML = "";
   if (!hasRuns) return;
+  if (!ui.have.size) {
+    grid.appendChild(el("p", "muted small", "Tick the appliances you have under “What do you have at home?” to see how long each would last."));
+  }
   const max = Math.max(48, c.p90 * 1.1);
   const pct = (h: number) => `${Math.min(100, (h / max) * 100).toFixed(1)}%`;
   cards().forEach((k) => {
-    const p = chance(c.runs!, k.hours);
-    const v = verdict(p);
+    const p = k.hours <= 0 ? 1 : chance(c.runs!, k.hours);
+    const v = verdict(p, k.hours);
     const card = el("div", `ttm-card ttm-card--${v.cls}`);
     card.innerHTML =
       `<div class="ttm-card__top"><span class="ttm-card__icon" aria-hidden="true">${k.icon}</span>` +
       `<span class="ttm-card__name">${k.name}</span><span class="ttm-pill ttm-pill--${v.cls}">${v.text}</span></div>` +
-      `<div class="ttm-card__lasts">lasts about <strong>${Math.round(k.hours)} h</strong>` +
-      (p >= 0.2 ? ` · ${Math.round(p * 100)}% chance the outage is longer` : "") + `</div>` +
+      (k.hours <= 0
+        ? `<div class="ttm-card__lasts">stops <strong>as soon as the power goes out</strong></div>`
+        : `<div class="ttm-card__lasts">lasts about <strong>${Math.round(k.hours)} h</strong>` +
+          (p >= 0.2 ? ` · ${Math.round(p * 100)}% chance the outage is longer` : "") + `</div>`) +
       `<div class="ttm-mini" title="Blue: your likely outage (${Math.round(c.p10)}–${Math.round(c.p90)} h). Line: when it runs out.">` +
       `<span class="ttm-mini__band" style="left:${pct(c.p10)};width:calc(${pct(c.p90)} - ${pct(c.p10)})"></span>` +
       `<span class="ttm-mini__mark" style="left:${pct(k.hours)}"></span></div>` +
@@ -242,11 +376,12 @@ export function prepSnapshot(): Record<string, unknown> | null {
     power_is_back: phase("after"),
     will_it_last: hasRuns
       ? cards().map((k) => {
-          const p = chance(c.runs!, k.hours);
-          return { item: k.name, lasts_about_hours: Math.round(k.hours), verdict: verdict(p).text,
+          const p = k.hours <= 0 ? 1 : chance(c.runs!, k.hours);
+          return { item: k.name, lasts_about_hours: Math.round(k.hours), verdict: verdict(p, k.hours).text,
                    chance_outage_is_longer_pct: Math.round(p * 100) };
         })
       : [],
+    appliances_picked: [...ui.have],
     freezer: ui.freezer,
     home_built: ui.home,
   };
@@ -273,7 +408,20 @@ export function wirePrepare(): void {
     if (!k || !lastCtx) return;
     if (k === "freezer") ui.freezer = t.value as typeof ui.freezer;
     if (k === "home") ui.home = t.value as typeof ui.home;
+    if (k === "phone") ui.phone = t.value as typeof ui.phone;
+    if (k === "medBattery") ui.medBattery = t.value as typeof ui.medBattery;
+    if (k === "sump") ui.sump = t.value as typeof ui.sump;
     renderPrepare(lastCtx);
   };
   $("#ttm-cards").addEventListener("change", onCtl);
+  $("#prep-make").addEventListener("click", () => onMake?.());
+  // appliance picker chips: toggle an appliance on or off
+  $("#ttm-picker").addEventListener("click", (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>("[data-have]");
+    if (!b || !lastCtx) return;
+    const key = b.dataset.have!;
+    if (ui.have.has(key)) ui.have.delete(key); else ui.have.add(key);
+    onAppliancesChange?.([...ui.have]);
+    renderPrepare(lastCtx);
+  });
 }

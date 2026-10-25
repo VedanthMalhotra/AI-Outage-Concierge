@@ -23,7 +23,10 @@ import {
 } from "./mapEngine";
 import type { Color } from "@deck.gl/core";
 import { $, el, toast } from "./dom";
-import { prepSnapshot, renderPrepare, setPrepPhase, wirePrepare } from "./prepare";
+import {
+  clearAppliances, getAppliances, prepSnapshot, renderPrepare, setAiBuilding, setAiChecklist,
+  setOnAppliancesChange, setOnMake, setPrepPhase, wirePrepare,
+} from "./prepare";
 import {
   DEFAULT_PREMISE_ID,
   apiHealthy,
@@ -32,6 +35,7 @@ import {
   fetchAssumptions,
   fetchCircuitOutline,
   fetchGuidance,
+  fetchAiChecklist,
   fetchOutageHours,
   fetchPowerPath,
   fetchPremiseLookup,
@@ -279,6 +283,8 @@ function resetChat(): void {
 async function enterGeneralMode(announce = true): Promise<void> {
   if (state.premiseId) resetChat();
   state.premiseId = "";
+  aiMade = false;
+  loadAiChecklist(); // clears it: no premise uses the general checklist
   $<HTMLSelectElement>("#premise-select").value = "";
   $<HTMLInputElement>("#premise-id-input").value = "";
   $("#area-label").textContent = "No premise selected · general guidance";
@@ -361,9 +367,18 @@ async function selectPremise(
     data.lookup!.lon = coords.lon;
   }
 
-  // a different home: stop any storm replay and don't compare against the old home
-  stopPlay();
+  // a different home: reset the storm walkthrough to the start right away (not after the
+  // new home's data loads) and don't compare against the old home
+  resetStormSteps();
   prevRisk = null;
+
+  // fly to the home straight away; its estimates and power path fill in as they load
+  if (coords && mapReady) {
+    flyToPremise(coords.lat, coords.lon, state.premiseId, {
+      label: data.lookup!.area_label,
+      service: data.lookup!.service_type,
+    });
+  }
 
   // circuit outline follows the home (only refetched when the circuit changes)
   const circuitId = data.lookup!.circuit_id;
@@ -389,15 +404,8 @@ async function selectPremise(
   if (mapReady) setPowerPath(pp, state.premiseId);
   renderPathLegend();
 
-  // Fly the 3D camera down from the overview hex field to this home. The pin
-  // and power path are revealed as the heat fades back.
-  if (coords && mapReady) {
-    flyToPremise(coords.lat, coords.lon, state.premiseId, {
-      label: data.lookup!.area_label,
-      service: data.lookup!.service_type,
-    });
-  }
-
+  aiMade = false;
+  loadAiChecklist(); // clears the old home's list; the new one is made from the button
   toast(`Showing premise ${id}`);
 }
 
@@ -409,6 +417,51 @@ async function selectPremise(
  * ========================================================================== */
 /* (Re)load the predicted-risk heat for the current storm severity. Live backend
  * only; offline the map simply shows no heat. */
+/* (Re)load the AI-written checklist for the selected home and current settings. Until it
+ * arrives (or if the model is unavailable) the rule-based checklist shows. No premise:
+ * cleared, so the general checklist shows. */
+let aiSeq = 0;
+let aiMade = false; // the person pressed "Make my personalised checklist" for this home
+function loadAiChecklist(): void {
+  const seq = ++aiSeq;
+  setAiChecklist(null);
+  setAiBuilding(null);
+  if (!apiLive || !state.premiseId || !aiMade) return;
+  // medical needs: "Medical device" ticked in the appliances
+  const medical = state.declaredNeeds.includes("medical_equipment");
+  setAiBuilding(aiFactors(medical));
+  // show the "building" animation for at least ~2.5 s so it can be followed
+  const minShow = new Promise((r) => setTimeout(r, 2600));
+  Promise.all([fetchAiChecklist(state.premiseId, state.severity, state.scenario.crews, medical, getAppliances()), minShow])
+    .then(([list]) => { if (seq === aiSeq) { setAiBuilding(null); setAiChecklist(list); } })
+    .catch((err) => {
+      if (seq === aiSeq) setAiBuilding(null); // falls back to the rule-based checklist
+      console.warn("AI checklist unavailable:", err);
+    });
+}
+
+const APPLIANCE_NAME: Record<string, string> = { fridge: "fridge", freezer: "freezer", heat: "home heat",
+  phone: "phone", medical: "medical device", sump: "sump pump", well: "well pump" };
+
+/* the factors the AI checklist is built from, in plain words, for the animation */
+function aiFactors(medical: boolean): string[] {
+  const r = data.riskBySeverity?.[state.severity.toFixed(1)];
+  const row = data.grid?.results?.length ? findGridRow(state.scenario) : undefined;
+  const fac = data.grid?.critical_facility;
+  return [
+    r && !r.fallback ? `Your chance of losing power: about ${Math.round(r.probability * 100)}% (${r.band})` : "Your chance of losing power",
+    row ? `How long it could last: most likely about ${Math.round(row.p50)} hours` : "How long an outage could last",
+    `Your line: ${data.lookup?.service_type ?? "unknown"}`,
+    r && !r.fallback && r.top_factors?.length ? `What raises your risk: ${r.top_factors[0].label.toLowerCase()}` : "What raises your risk",
+    medical ? "Medical equipment: yes, battery plan first" : "Medical equipment: none declared",
+    ...(fac ? [`Critical facility: ${fac.label}`] : []),
+    `Storm strength: ${SEVERITY_LABELS[state.severity] ?? `${state.severity}×`}`,
+    getAppliances().length
+      ? `Your appliances: ${getAppliances().map((a) => APPLIANCE_NAME[a] ?? a).join(", ")}`
+      : "Your appliances: none ticked",
+  ];
+}
+
 function loadRiskHeat(): void {
   if (!apiLive) return;
   const sev = state.severity;
@@ -591,6 +644,16 @@ function renderRestoration({ silent = false, changeLabel = null }: RenderRestora
   const row = findGridRow(sc);
 
   const rangeEl = $("#rest-range");
+  // hospital / fire / EMS premise: explain why its restoration is faster (only while
+  // "Hospitals and emergency services first" is on, since that's what makes it faster)
+  const fac = state.premiseId ? data.grid?.critical_facility : null;
+  const facEl = $("#rest-facility");
+  facEl.hidden = !fac;
+  facEl.textContent = fac
+    ? sc.prioritize_critical
+      ? `🏥 ${fac.note}`
+      : `🏥 This premise is a ${fac.label}. Turn on "Hospitals and emergency services first" to see the faster estimate it gets.`
+    : "";
   if (!row) {
     rangeEl.textContent = state.premiseId
       ? "No estimate for this combination."
@@ -640,7 +703,7 @@ function whyFor(
       ? "Fewer crews means jobs ahead of you run one after another."
       : "The jobs ahead of you in the queue can now run at the same time.";
   }
-  if (changeLabel.startsWith("Access")) {
+  if (changeLabel.startsWith("Getting to the damage")) {
     return grew
       ? "Every repair job now includes extra time for restricted access."
       : "Repair jobs no longer carry the access delay.";
@@ -994,19 +1057,24 @@ function stopPlay(): void {
   if (state.playTimer) clearInterval(state.playTimer);
   state.playTimer = null;
 }
-function resetStorm(): void {
+/* Back to before step 1: map, messages, popups and checklist tabs (no data reload). */
+function resetStormSteps(): void {
   stopPlay();
   state.timelineStep = -1;
   updateTimelineTrack();
   $("#timeline-now").textContent = "Press Step to walk through the storm: before, during and after.";
   $("#msg-stack").innerHTML = "";
   applyMapPhase(null);
-  renderRisk();
-  renderRestoration({ silent: true });
   prepGroup = null;
   $("#safety-alert").hidden = true;
   $("#prep-nudge").hidden = true;
   setPrepPhase("before"); // back to normal tabs
+}
+
+function resetStorm(): void {
+  resetStormSteps();
+  renderRisk();
+  renderRestoration({ silent: true });
 }
 
 /* =============================================================================
@@ -1199,6 +1267,7 @@ function wireControls(): void {
         renderPathLegend();
       });
       loadRiskHeat(); // area risk changes with storm strength too
+      if (aiMade) loadAiChecklist();
     }
   });
 
@@ -1211,6 +1280,7 @@ function wireControls(): void {
     const old = state.scenario.crews;
     state.scenario.crews = Number(crews.value);
     renderRestoration({ changeLabel: `Crews: ${old} → ${crews.value}` });
+    if (aiMade) loadAiChecklist(); // outage length changed, so the checklist is re-sized
   });
 
   // Access segmented control
@@ -1225,7 +1295,7 @@ function wireControls(): void {
       const old = state.scenario.access;
       const next = (btn.dataset.access || "auto") as Scenario["access"];
       state.scenario.access = next;
-      renderRestoration({ changeLabel: `Access: ${labelAccess(old)} → ${labelAccess(next)}` });
+      renderRestoration({ changeLabel: `Getting to the damage: ${labelAccess(old)} → ${labelAccess(next)}` });
     });
   });
 
@@ -1254,17 +1324,24 @@ function wireControls(): void {
   // Reset scenario
   $("#reset-scenario").addEventListener("click", resetScenario);
 
-  // Prepare — medical toggle
-  $<HTMLInputElement>("#medical").addEventListener("change", (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
+  // Prepare: ticking "Medical device" in the appliances declares medical needs (the person
+  // says so; it's never guessed from data) and updates guidance + alerts
+  setOnAppliancesChange((have) => {
+    const checked = have.includes("medical");
+    if (checked === state.declaredNeeds.includes("medical_equipment")) return;
     state.declaredNeeds = checked ? ["medical_equipment"] : [];
     renderGuidance();
     renderAlerts();
     drawTtm();
-    toast(checked ? "Medical needs on — guidance & alerts updated" : "Medical needs cleared");
+    toast(checked ? "Medical device added: guidance and alerts updated" : "Medical device removed");
   });
 
   wirePrepare();
+  // "Make my personalised checklist": build it from the ticked appliances + this home's factors
+  setOnMake(() => {
+    aiMade = true;
+    loadAiChecklist();
+  });
   $("#safety-alert-x").addEventListener("click", closeSafetyAlert);
   $("#safety-alert-ok").addEventListener("click", closeSafetyAlert);
   document.addEventListener("keydown", (e) => {
@@ -1325,7 +1402,7 @@ function wireControls(): void {
 }
 
 function labelAccess(a: Scenario["access"]): string {
-  return a === "auto" ? "Auto" : a === "on" ? "Force on" : "Force off";
+  return a === "auto" ? "usual (some roads blocked)" : a === "on" ? "roads blocked" : "roads clear";
 }
 
 function resetScenario(): void {
@@ -1366,7 +1443,7 @@ function clearMyData(): void {
   stopPlay();
   state.declaredNeeds = [];
   state.history = [];
-  $<HTMLInputElement>("#medical").checked = false;
+  clearAppliances();
   pushHistory();
   resetScenario();
   resetStorm();

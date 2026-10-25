@@ -407,9 +407,16 @@ function powerPathLayers() {
 function allLayers() {
   const overlays = [
     circuitLayer(), heatLayer(), ...pinLayers(), ...powerPathLayers(),
-  ].filter(Boolean).map(layer => layer!.clone({
-    extensions: viewMode === "3d" && !terrainFailed ? [new TerrainExtension()] : [],
-  }));
+  ].filter(Boolean).map((layer) => {
+    const onTerrain = viewMode === "3d" && !terrainFailed;
+    // deck.gl won't rebuild a layer when only its extensions change, so switching 2D/3D
+    // under the same id left the overlays blank in 2D: give each mode its own id
+    // (cast: the layers are different types, so TS can't type the shared clone props)
+    return (layer as unknown as { clone: (p: object) => typeof layer }).clone({
+      id: `${layer!.id}${onTerrain ? "--terrain" : ""}`,
+      extensions: onTerrain ? [new TerrainExtension()] : [],
+    });
+  });
   return [
     ...basemapLayers(),
     ...overlays,
@@ -426,7 +433,8 @@ let currentPremiseId: string | null = null;
 
 function tooltip({ object, layer }: PickingInfo): { html: string } | null {
   if (!object || !layer) return null;
-  if (layer.id === "risk-heat") {
+  const id = layer.id.replace(/--terrain$/, ""); // same layer in 2D or 3D
+  if (id === "risk-heat") {
     const c = object as RiskHeatCell;
     return {
       html:
@@ -435,7 +443,7 @@ function tooltip({ object, layer }: PickingInfo): { html: string } | null {
         `<br><span style="opacity:.8">Model estimate for a ${heat?.storm_severity ?? 1}× Feb 2025 storm</span>`,
     };
   }
-  if (layer.id === "pp-nodes") {
+  if (id === "pp-nodes") {
     const l = (object as { link: PowerPathLink; weak: boolean }).link;
     const weak = (object as { weak: boolean }).weak;
     const pct =
@@ -447,7 +455,7 @@ function tooltip({ object, layer }: PickingInfo): { html: string } | null {
         (l.reason ? `<br><span style="opacity:.8">${l.reason}</span>` : ""),
     };
   }
-  if (layer.id === "home-pin" && home) {
+  if (id === "home-pin" && home) {
     return {
       html: `<strong>${home.label}</strong><br>Service: ${home.service}`,
     };
