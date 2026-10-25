@@ -199,6 +199,34 @@ export function renderPrepare(c: PrepContext): void {
   });
 }
 
+/** What the prepare panel shows right now, for the chatbot: ticked / open tasks per phase and
+ *  the "Will it last?" verdicts. */
+export function prepSnapshot(): Record<string, unknown> | null {
+  const c = lastCtx;
+  if (!c) return null;
+  const hasRuns = !!c.runs && c.runs.length > 0;
+  const all = tasks(hasRuns ? c : { ...c, p10: 4, p50: 12, p90: 24 });
+  const phase = (ph: Phase) => ({
+    done: all[ph].filter((t) => ui.done.has(t.id)).map((t) => t.text),
+    still_to_do: all[ph].filter((t) => !ui.done.has(t.id)).map((t) => t.text),
+  });
+  return {
+    checklist_tab_showing: ui.phase,
+    before_the_storm: phase("before"),
+    power_is_out: phase("during"),
+    power_is_back: phase("after"),
+    will_it_last: hasRuns
+      ? cards().map((k) => {
+          const p = chance(c.runs!, k.hours);
+          return { item: k.name, lasts_about_hours: Math.round(k.hours), verdict: verdict(p).text,
+                   chance_outage_is_longer_pct: Math.round(p * 100) };
+        })
+      : [],
+    freezer: ui.freezer,
+    home_built: ui.home,
+  };
+}
+
 /** Switch the checklist tab. The storm replay passes lock=true so only that phase shows. */
 export function setPrepPhase(ph: Phase, lock = false): void {
   ui.phase = ph;

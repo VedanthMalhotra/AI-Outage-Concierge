@@ -18,6 +18,36 @@ def _nearest(value: float, options: list[float]) -> float:
     return min(options, key=lambda o: abs(o - value))
 
 
+# the same reasons in everyday words, for the chatbot (no equipment names, counts or distances)
+PLAIN = {
+    ("transformers", "raises"): "your line serves a lot of homes and equipment, so there are more places a storm can break it",
+    ("customers", "raises"): "many homes share the same line, so trouble anywhere along it can reach you",
+    ("primary_overhead_km", "raises"): "your power comes through long overhead lines that wind and falling trees can hit",
+    ("secondary_overhead_km", "raises"): "the wires near your home are overhead, where branches and ice can bring them down",
+    ("poles", "raises"): "your line runs on a lot of poles, and any one of them can be knocked down",
+    ("poles_per_oh_km", "raises"): "your line runs on a lot of poles, and any one of them can be knocked down",
+    ("pole_wood_share", "raises"): "most poles near you are wood, which can break in high wind",
+    ("pole_height_mean", "raises"): "the poles near you are tall, so they catch more wind and branches",
+    ("oh_transformer_share", "raises"): "most equipment near you sits up on poles, out in the weather",
+    ("depth", "raises"): "your power travels a long way to reach you, so damage further up the line can cut you off",
+    ("history_damage", "raises"): "your line was damaged in earlier storms",
+    ("breaker_only", "raises"): "your line has no local safety switch, so a problem anywhere on the main line reaches you",
+    ("is_recloser", "raises"): "you're on a bigger section of line, so more can go wrong on it",
+    ("primary_underground_km", "raises"): "almost none of your line is underground",
+    ("secondary_underground_km", "raises"): "almost none of your line is underground",
+    ("customers_per_km", "raises"): "homes near you are spread out, so the lines are long and pass a lot of trees",
+    ("customers_per_km", "lowers"): "homes near you are close together, so the lines are short",
+    ("primary_underground_km", "lowers"): "much of your line is underground, away from wind and trees",
+    ("secondary_underground_km", "lowers"): "much of your line is underground, away from wind and trees",
+    ("depth", "lowers"): "your power doesn't travel far to reach you",
+    ("primary_overhead_km", "lowers"): "there's not much overhead line near you",
+    ("transformers", "lowers"): "your line serves only a little equipment",
+    ("poles", "lowers"): "your line runs on only a few poles",
+    ("oh_transformer_share", "lowers"): "most equipment near you is on the ground, out of the wind",
+    ("is_recloser", "lowers"): "your line has its own safety switch",
+}
+
+
 def predict_risk(premise_id: str, storm_severity: float = 1.0) -> dict:
     """Risk band, probability, confidence and top reasons for a storm of this severity."""
     sev = _nearest(float(storm_severity), SEVERITIES)
@@ -27,7 +57,10 @@ def predict_risk(premise_id: str, storm_severity: float = 1.0) -> dict:
     return {
         "storm_severity": sev, "risk_band": r["band"], "probability": r["probability"],
         "confidence": r["confidence"], "confidence_reason": r["confidence_reason"],
-        "top_reasons": [(f["evidence"] + " " if f.get("evidence") else "") + f["detail"] for f in r["top_factors"]],
+        "reasons_in_plain_words": [PLAIN[(f["key"], f["direction"])] for f in r["top_factors"]
+                                   if (f["key"], f["direction"]) in PLAIN],
+        "details_only_if_customer_asks_for_more": [(f["evidence"] + " " if f.get("evidence") else "") + f["detail"]
+                                                   for f in r["top_factors"]],
         "label": "Model estimate", "source": "trained outage-risk model (Feb 2025, tested on Sep 2024)",
     }
 

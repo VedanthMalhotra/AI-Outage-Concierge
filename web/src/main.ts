@@ -21,7 +21,7 @@ import {
 } from "./map3d";
 import type { Color } from "@deck.gl/core";
 import { $, el, toast } from "./dom";
-import { renderPrepare, setPrepPhase, wirePrepare } from "./prepare";
+import { prepSnapshot, renderPrepare, setPrepPhase, wirePrepare } from "./prepare";
 import {
   DEFAULT_PREMISE_ID,
   apiHealthy,
@@ -1009,6 +1009,37 @@ function addBubble(role: "user" | "bot", text: string, opts: BubbleOpts = {}): H
   return b;
 }
 
+/* Everything the customer can see or has done on the page, so the chatbot answers
+ * about the same storm step, numbers and checklist they're looking at. */
+function dashboardContext(): Record<string, unknown> {
+  const r = data.riskBySeverity?.[state.severity.toFixed(1)];
+  const row = data.grid ? findGridRow(state.scenario) : undefined;
+  const steps = data.timeline?.steps ?? [];
+  const step = state.timelineStep >= 0 ? steps[state.timelineStep] : null;
+  return {
+    risk_card: r && !r.fallback
+      ? { band: r.band, chance_pct: Math.round(r.probability * 100), storm_setting: SEVERITY_LABELS[state.severity] }
+      : { note: "no reliable estimate for this home" },
+    restoration_card: row ? { likely_hours: [Math.round(row.p10), Math.round(row.p90)], most_likely_hours: Math.round(row.p50) } : null,
+    storm_replay: step
+      ? {
+          step: `${state.timelineStep + 1} of ${steps.length}`,
+          time: step.t,
+          what_is_happening: step.title,
+          confirmed_on_their_line: step.confirmed_event?.text ?? null,
+          estimate_at_this_step: step.restoration
+            ? { likely_hours: [Math.round(step.restoration.p10), Math.round(step.restoration.p90)], most_likely_hours: Math.round(step.restoration.p50) }
+            : null,
+          alerts_received_so_far: steps.slice(0, state.timelineStep + 1)
+            .flatMap((st) => st.messages ?? (st.message ? [st.message] : []))
+            .map((m) => m.text),
+        }
+      : { status: "not started: the storm hasn't been played yet" },
+    declared_medical_equipment: state.declaredNeeds.includes("medical_equipment"),
+    prepare_panel: prepSnapshot(),
+  };
+}
+
 let chatBusy = false;
 
 async function handleChat(q: string): Promise<void> {
@@ -1027,7 +1058,7 @@ async function handleChat(q: string): Promise<void> {
       access: sc.access,
       switching_available: sc.switching_available,
       prioritize_critical: sc.prioritize_critical,
-    });
+    }, dashboardContext());
     typing.remove();
     addBubble("bot", r.reply, { tools: r.tools_used, emergency: r.emergency });
   } catch {

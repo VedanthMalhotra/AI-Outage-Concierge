@@ -210,7 +210,8 @@ export interface ChatScenario {
 export async function sendChat(
   message: string,
   premiseId: string,
-  scenario?: ChatScenario
+  scenario?: ChatScenario,
+  dashboard?: Record<string, unknown>
 ): Promise<ChatReply> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 45000);
@@ -218,7 +219,7 @@ export async function sendChat(
     const res = await fetch(`${API_BASE}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, premise_id: premiseId, session_id: readChatSession(), scenario }),
+      body: JSON.stringify({ message, premise_id: premiseId, session_id: readChatSession(), scenario, dashboard }),
       signal: ctrl.signal,
     });
     if (!res.ok) throw new Error(`/chat -> ${res.status}`);
