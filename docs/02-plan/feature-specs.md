@@ -124,7 +124,7 @@ The customer texts a single keyword to an AEP number. The same engine tools answ
 | `PREP` | "Fridge food is at risk after 4h. Move meds and milk to a cooler. Never run a generator indoors." | Time That Matters |
 | `MED` | "Your device battery may run out before power returns. Reply CALL for a callback, or 911 if urgent." | Alert escalation E1 |
 | `OUT` | "Thanks, we've logged that you're still out." | Restoration-complete follow-up |
-| anything else | Claude answers in one SMS using only tool outputs, or replies "Sorry, try WHEN, WHY, PREP or MED." | Chat tools + guardrails |
+| anything else | The LLM answers in one SMS using only tool outputs, or replies "Sorry, try WHEN, WHY, PREP or MED." | Chat tools + guardrails |
 
 **Design rules:** every reply under 160 characters · always says "estimate" or "confirmed" · safety words in capitals (NEVER, 911) · **send the most important info early** (before the storm and right when the outage starts), because towers may fail later.
 

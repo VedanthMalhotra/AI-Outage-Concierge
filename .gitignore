@@ -34,3 +34,8 @@ data/raw/
 .pitch-build/
 web/preview*.log
 web/dashboard-preview.png
+
+# local editor state
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+.presentation-review/

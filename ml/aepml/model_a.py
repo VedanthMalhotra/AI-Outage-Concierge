@@ -3,7 +3,7 @@
 An explainable logistic regression over the link features (features.py), fit
 pooled over all three events with an **event intercept** so the fitted event
 effects become data-driven severity presets instead of guessed multipliers
-(docs/ideas/model-targets.md section 2). Features are standardised; coefficients
+(docs/02-plan/model-targets.md section 2). Features are standardised; coefficients
 are reported back in standardised space with their plain-language labels so the
 A-to-home card can say *why* a link is risky.
 

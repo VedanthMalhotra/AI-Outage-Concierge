@@ -1,6 +1,6 @@
-# Project context: AEP "AI Outage Concierge" (HackOHI/O 2026)
+# Technical summary: AEP "AI Outage Concierge" (HackOHI/O 2026)
 
-Paste this into another assistant to bring it up to speed. Current as of the night before the 10 AM submission.
+How the finished build works, current as of submission.
 
 ## The challenge
 AEP challenge brief: an AI assistant for **residential Appalachian Power customers in the Roanoke Valley (VA)** during major storms. Required (minimum demo):
@@ -38,7 +38,7 @@ Judged on analytics quality, explainability, customer journey clarity, and respo
 ## Architecture
 - **Backend**: FastAPI (`backend/app/`). Key files: `main.py` (routes), `predict.py` (models, risk, simulator, `/risk/heat`), `concierge.py` (guidance, alerts, storm timeline, assumptions, circuit outline), `chat.py` (chatbot), `profile.py` (per-home profile for the chatbot), `predictions.py` (chatbot wrapper over predict.py), `topology.py`, `data.py` (S3/local parquet loader).
 - Key routes: `/premise/lookup`, `/premise/{id}/power-path`, `/premise/{id}/risk`, `/premise/{id}/restoration-grid`, `/premise/{id}/guidance`, `/alerts`, `/timeline`, `/assumptions`, `/circuits/{id}/outline`, `/risk/heat?severity=`, `/chat` (POST), `/chat/{session_id}` (DELETE).
-- **Chatbot**: Amazon Bedrock Converse API, model `us.amazon.nova-2-lite-v1:0` (Claude models are blocked in the sandbox by an AWS Marketplace permission; Nova Pro tested worse). Tool use: `get_outage_risk`, `estimate_restoration`, `get_preparation_guidance`, `check_alerts`. Backend computes facts; the LLM only explains. Private per-session memory (random session id, in memory, 30 min TTL, deleted on "Clear my data"). Grounding rules, temperature 0, exact "I don't have that information" fallback, emergency regex + model check → "This sounds like an emergency. Please call 911 now." Rate limit 20 msgs / 10 min / IP. The dashboard now sends its current sliders (severity, crews, access, switching, prioritize critical) with each message, and tools default to them.
+- **Chatbot**: Amazon Bedrock Converse API, model `us.amazon.nova-2-lite-v1:0` (Nova Pro tested worse). Tool use: `get_outage_risk`, `estimate_restoration`, `get_preparation_guidance`, `check_alerts`. Backend computes facts; the LLM only explains. Private per-session memory (random session id, in memory, 30 min TTL, deleted on "Clear my data"). Grounding rules, temperature 0, exact "I don't have that information" fallback, emergency regex + model check → "This sounds like an emergency. Please call 911 now." Rate limit 20 msgs / 10 min / IP. The dashboard now sends its current sliders (severity, crews, access, switching, prioritize critical) with each message, and tools default to them.
 - **Dashboard**: Vite + TypeScript + Tailwind + deck.gl (`web/`). Map: satellite basemap, circuit outline, **predicted-risk heat** (flat ~500 m squares, average model P(out), cells with < 5 homes hidden), home pin, power path colored by link risk, 2D/3D toggle (3D = tilted camera). Panels: risk card, restoration with scenario controls, guidance, alerts, storm replay timeline, chat.
 - **Demo dropdown** (six homes, different circuits, picked from model scores): Salem CIR31 overhead Very High ~80% (default, `400797248`); Roanoke CIR14 overhead High ~55% (`823929604`); Boones Mill CIR18 underground High ~50% (`399053172`); Vinton CIR40 overhead Moderate ~28% (`100862103`); Cloverdale CIR73 underground Moderate ~22% (`655649579`); Blue Ridge CIR61 underground Low ~5% (`151197223`).
 

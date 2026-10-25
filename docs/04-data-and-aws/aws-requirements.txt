@@ -26,7 +26,7 @@ Owner:   DATA = data owner   ML = ML teammate   DASH = dashboard teammate   ALL 
     - Cost: free (console)
 
 [REQUIRED] One AWS Region for everything
-    - Pick one region where Claude Opus 5.5 is available on Amazon Bedrock
+    - Pick one region where the chatbot model is available on Amazon Bedrock
       (check the Bedrock model list in the console before choosing).
       Use the same region for S3, SageMaker, EC2.
     - Tag every resource:  project=aep-outage-concierge
@@ -102,7 +102,7 @@ Owner:   DATA = data owner   ML = ML teammate   DASH = dashboard teammate   ALL 
 ----------------------------------------------------------------------
 4. AI CHATBOT  (owner: backend builder, default DATA after hour 8)
 ----------------------------------------------------------------------
-[REQUIRED] Amazon Bedrock - Claude Opus 5.5
+[REQUIRED] Amazon Bedrock - Amazon Nova 2 Lite
     - Request model access in the Bedrock console on day 1 (can take time).
     - Called from the backend with tool use. The chatbot only calls our
       risk / restoration / guidance / alert functions.
@@ -110,9 +110,7 @@ Owner:   DATA = data owner   ML = ML teammate   DASH = dashboard teammate   ALL 
       for the fixed system prompt + tool definitions, max turns per session.
       Rehearse in offline mode (free).
     - Cost: ~$20-60 (a few cents per chat turn)
-    - CHECK FIRST: confirm your AWS credits cover Claude on Bedrock. If not,
-      use the Anthropic API directly (outside AWS) and keep the AWS credits
-      for everything else.
+    - CHECK FIRST: confirm your AWS credits cover Bedrock.
 
 [OPTIONAL] Amazon Bedrock Guardrails
     - Extra PII filter on chat input/output on top of our own privacy filter.
@@ -135,8 +133,7 @@ Owner:   DATA = data owner   ML = ML teammate   DASH = dashboard teammate   ALL 
     - Fallback: the whole app also runs on a laptop for the demo (offline mode).
 
 [OPTIONAL] AWS Systems Manager Parameter Store (or AWS Secrets Manager)
-    - Store config (bucket name, model paths, Anthropic API key if not using
-      Bedrock).
+    - Store config (bucket name, model paths).
     - Cost: Parameter Store standard = free; Secrets Manager ~$0.40/secret/month
 
 [OPTIONAL] Amazon CloudWatch Logs
@@ -171,7 +168,7 @@ Owner:   DATA = data owner   ML = ML teammate   DASH = dashboard teammate   ALL 
     S3 storage ............................ < $1
     SageMaker Studio (cleaning + ML) ....... ~$10-20
     SageMaker endpoint (optional) .......... ~$0-5
-    Bedrock Claude (chat testing + demo) ... ~$20-60
+    Bedrock Nova (chat testing + demo) ..... ~$20-60
     EC2 backend + dashboard ................ ~$2-10
     CloudWatch / SNS / Parameter Store ..... ~$0-2
     ---------------------------------------------
@@ -190,8 +187,7 @@ SageMaker - data cleaning (DATA):
 SageMaker - modelling (ML):
     pandas, numpy, pyarrow, scikit-learn, joblib, boto3
 EC2 - backend + chatbot:
-    fastapi, uvicorn, pandas, numpy, scikit-learn, joblib, boto3,
-    anthropic  (official Anthropic Python SDK; also supports Bedrock)
+    fastapi, uvicorn, pandas, numpy, scikit-learn, joblib, boto3
 Dashboard (no Python):
     HTML + JavaScript + Leaflet (loaded from a CDN)
 
@@ -200,12 +196,12 @@ Dashboard (no Python):
 9. DAY-1 CHECKLIST
 ----------------------------------------------------------------------
 [ ] Confirm with mentors: OK to upload challenge data to our AWS account?
-[ ] Confirm credits cover Amazon Bedrock (Claude)
-[ ] Choose region (Claude Opus 5.5 available on Bedrock there)
+[ ] Confirm credits cover Amazon Bedrock
+[ ] Choose region (chatbot model available on Bedrock there)
 [ ] IAM logins for 3 teammates + CPU-only instance policy
 [ ] AWS Budgets alerts at $50 / $100 / $200
 [ ] S3 bucket with Block Public Access + encryption + lifecycle rule
 [ ] Upload raw/ files
 [ ] SageMaker Studio domain + JupyterLab spaces with idle shutdown
-[ ] Request Bedrock model access for Claude Opus 5.5
+[ ] Request Bedrock model access for the chatbot model
 [ ] (Later) EC2 instance with IAM role for S3 read + Bedrock invoke

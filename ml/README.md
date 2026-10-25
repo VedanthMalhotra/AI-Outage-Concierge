@@ -1,7 +1,7 @@
 # aepml — the Power Path model (Model A)
 
 Implements the "powerlines idea" from
-[`docs/ideas/model-targets.md`](../docs/ideas/model-targets.md): outage risk
+[`docs/02-plan/model-targets.md`](../docs/02-plan/model-targets.md): outage risk
 lives on the **links of the power path**, not at the house. We model the
 probability that each network link is damaged in a storm, then combine the links
 on a home's chain into a per-home outage probability.

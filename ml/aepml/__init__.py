@@ -1,6 +1,6 @@
 """aepml: Power Path outage-risk models for the AEP Outage Concierge.
 
-The "powerlines idea" (docs/ideas/model-targets.md, Model A): outage risk lives
+The "powerlines idea" (docs/02-plan/model-targets.md, Model A): outage risk lives
 on the *links* of the power path, not at the house. We model the probability
 that each network link (a zone fuse/recloser area, or a transformer) is damaged
 in a storm, then combine the links on a home's chain into a per-home outage

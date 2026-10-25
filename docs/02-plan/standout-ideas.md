@@ -13,7 +13,7 @@ Each idea lists the gap it fills (from [existing-solutions.md](../03-research/ex
 **What we build:** a two-way SMS-style concierge (simulated phone screen in the demo). Customers reply with one word: `WHY`, `WHEN`, `PREP`, `MED`, `OUT`. Answers fit in 160 characters. A "low-battery mode" toggle in the web app switches to a text-only page under 20 KB.
 
 - **Gap filled:** utility alerts are one-way; chatbots need an app or a website.
-- **Data:** same engine tools; Claude compresses answers to SMS length, with templates as fallback.
+- **Data:** same engine tools; the LLM compresses answers to SMS length, with templates as fallback.
 - **Effort:** about 3 to 4 h (UI mock and short-answer mode on the existing tools).
 - **Rubric:** Innovation (challenges the dashboard norm), Impact (real user need), Curiosity ("what does the customer actually have during an outage?").
 

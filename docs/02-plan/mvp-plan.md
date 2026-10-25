@@ -56,7 +56,7 @@ Every number on screen carries one of three labels: **Model estimate**, **Confir
            │                              │ same functions exposed as tools
            ▼                              ▼
  ┌──────────────────┐           ┌─────────────────────────┐
- │ 3. REST API      │◄──────────│ 4. AI assistant (Claude)│
+ │ 3. REST API      │◄──────────│ 4. AI assistant (LLM)   │
  │  (FastAPI)       │  /chat    │  tool use + guardrails  │
  └────────┬─────────┘           └─────────────────────────┘
           ▼
@@ -288,7 +288,7 @@ These are challenge assumptions. Replace them with AEP's rules if the mentors pr
 
 ### 5.5 Proactive messages (Req 4)
 
-Four message types are generated from structured outputs. Claude rewrites them in plain language, with a **fixed template fallback** so the demo works without the API. Examples (SMS-length):
+Four message types are generated from structured outputs. The LLM rewrites them in plain language, with a **fixed template fallback** so the demo works without the API. Examples (SMS-length):
 
 - **Pre-storm:** "AEP: A strong storm may affect your area tomorrow. Your outage risk is HIGH. If you lose power, restoration may take 10–26 hrs (estimate). Charge devices tonight. Stay away from downed lines."
 - **Outage confirmed:** "AEP: We've confirmed an outage affecting your home. Crews will assess damage after winds ease. Next update by 2 PM."
@@ -308,8 +308,8 @@ At each step the risk and estimate update, events are labelled **Confirmed (simu
 
 | Item | Plan |
 |---|---|
-| Model | **Claude Opus 5.5** (`claude-opus-5-5`) via the Anthropic Python SDK, with adaptive thinking and low/medium effort for chat responsiveness. Server-side refusal fallback enabled. |
-| Pattern | **Tool use**: the SDK tool runner (or a manual tool loop). Claude picks the tool. No forced tool choice (that's unsupported on this model). |
+| Model | **Amazon Nova 2 Lite** (`us.amazon.nova-2-lite-v1:0`) via the Amazon Bedrock Converse API, temperature 0. |
+| Pattern | **Tool use** through the Converse API with a manual tool loop. The model picks the tool. |
 | Tools | `get_my_context(premise_id)` → circuit area, service type, data-coverage level<br>`get_outage_risk(premise_id, storm_severity)` → band, probability, confidence, top factors<br>`estimate_restoration(premise_id, crews, storm_severity, start_delay_h, access_issues, extra_damage, switching_available, failed_upstream_device, prioritize_critical)` → P10/P50/P90, drivers, assumptions<br>`compare_scenarios(premise_id, baseline, changed)` → before/after range and the main reason for the difference (answers "what if…?" and "what changed?")<br>`get_preparation_guidance(premise_id, declared_needs)` → checklist + safety items<br>`check_alert_eligibility(premise_id, declared_needs)` → rules met, channel, timing, escalations<br>`draft_message(premise_id, message_type)` → message text<br>`explain_assumptions()` → assumptions and limitations list |
 | System prompt rules | Plain language at about an 8th-grade reading level · **only state numbers that came from a tool** · always label estimates and give the range plus confidence · name the main reasons · never reveal other customers, addresses, Life Support flags, crew data or exact sensitive-facility locations · emergency / downed line → 911 and stop · if a tool returns a fallback, say so honestly · stay on topic (storm outages) |
 | Scope of chat | The four brief questions plus "why?", "what if more crews?" and "what changed?". Scenario questions call the tool with new parameters, so the chat and the sliders stay consistent. |
@@ -398,7 +398,7 @@ At each step the risk and estimate update, events are labelled **Confirmed (simu
 | Scenario settings (sliders, change history) | Browser memory + server session | Same as the session |
 | Chat messages | Server memory for the conversation | Same as the session. Personal details stripped before any logging. |
 | Audit log | Local JSON-lines file | Personal details removed (§6). Auto-deleted after 7 days or right after judging. |
-| Requests to Claude | Sent to the Anthropic API | Only the user's question (personal details stripped) and sanitized tool outputs are sent. Covered by Anthropic's API data-retention policy. |
+| Requests to the LLM | Sent to Amazon Bedrock in our AWS account | Only the user's question (personal details stripped) and sanitized tool outputs are sent. |
 
 **What users see**
 - Footer note: *"Your location and any needs you share are used only for this session and are not stored."*
@@ -411,9 +411,9 @@ At each step the risk and estimate update, events are labelled **Confirmed (simu
 
 ## 10. Tech stack and repo layout
 
-- **Python 3.12 virtual environment recommended.** The machine has Python 3.14, which some geospatial packages may not support yet. Packages: pandas, numpy, geopandas + shapely (or pyshp), scikit-learn, FastAPI + uvicorn, anthropic.
+- **Python 3.12 virtual environment recommended.** The machine has Python 3.14, which some geospatial packages may not support yet. Packages: pandas, numpy, geopandas + shapely (or pyshp), scikit-learn, FastAPI + uvicorn, boto3.
 - **Frontend:** a single HTML page + vanilla JS + Leaflet (no build step). Switch to React only if a teammate is fastest in it.
-- **Secrets:** `ANTHROPIC_API_KEY` from the environment, never committed.
+- **Secrets:** AWS credentials from SSO or the EC2 instance role, never committed.
 
 ```
 prep/          data prep scripts → data/processed/ (gitignored)
@@ -460,7 +460,7 @@ docs/          scope, data usage, this plan, demo script
 | Serving | **The app downloads the model files from S3 and predicts locally.** No always-on SageMaker endpoint: cheaper, faster, and the demo still works if AWS is slow. A live endpoint is an optional stretch to show off. |
 | Hand-off contract to the app | Agree on day 1: a `predict_risk(features) → {probability, band, top_factors}` style interface, plus the same for expected damage and access probability |
 
-**Claude for the chatbot (open decision):** the same Python SDK works either directly against the Anthropic API or through **Amazon Bedrock** (Claude Opus 5.5 is on Bedrock; only the client setup differs). Bedrock keeps everything in one AWS account.
+**Chatbot model:** Amazon Nova 2 Lite through **Amazon Bedrock**, which keeps everything in one AWS account.
 
 **Rules**
 - **Check first** that the organizers allow uploading the challenge data to a cloud account. Add this to the mentor questions.

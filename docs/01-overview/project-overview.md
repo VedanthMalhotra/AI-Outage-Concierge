@@ -40,7 +40,7 @@ Judges can change **damage, crews, access or network options** and see the time 
 
 ### The chatbot
 
-Claude (on Amazon Bedrock) **only explains results from the tools above**. It never invents numbers and never sees raw customer data. It gets the customer's location from the dashboard and answers in plain language with labels: *Model estimate*, *Confirmed*, *Your action*.
+The chatbot (Amazon Nova 2 Lite on Bedrock) **only explains results from the tools above**. It never invents numbers and never sees raw customer data. It gets the customer's location from the dashboard and answers in plain language with labels: *Model estimate*, *Confirmed*, *Your action*.
 
 ### The dashboard
 
@@ -58,7 +58,7 @@ Cleaned tables in S3 (15 files: network, damage + labels, poles + lines, labor t
    │
    ├─► ML teammate: features per zone → train 3 models → model files in S3 (models/)
    │
-   ├─► Backend: restoration simulator + guidance/alert rules + Claude chatbot (tools)
+   ├─► Backend: restoration simulator + guidance/alert rules + LLM chatbot (tools)
    │        uses the model files + Batch 4 tables (labor, repair bundles, facilities)
    │
    └─► Dashboard: map, risk card, restoration sliders, alerts, chat
@@ -99,7 +99,7 @@ Cleaned tables in S3 (15 files: network, damage + labels, poles + lines, labor t
 | Region | **us-east-2 (Ohio)** |
 | S3 bucket | `sagemaker-aep-outage-indiansassemble` (`raw/`, `processed/`, later `features/`, `models/`) |
 | SageMaker | Domain `QuickSetupDomain-20261024T142267`, one user profile per person, JupyterLab on **ml.t3.medium** |
-| Chatbot model | **Claude Sonnet 4.6** (`us.anthropic.claude-sonnet-4-6`) works in the sandbox. Claude Opus 5.5 is blocked for this account (asked organizers). |
+| Chatbot model | **Amazon Nova 2 Lite** (`us.amazon.nova-2-lite-v1:0`) on Bedrock, through the Converse API. |
 | Budget | Plan for **$100** (lease page shows $300, the template name says $100). Cost data shows up about a day late. **Stop spaces when idle.** |
 
 Full service list and costs: [aws-requirements.txt](../04-data-and-aws/aws-requirements.txt).

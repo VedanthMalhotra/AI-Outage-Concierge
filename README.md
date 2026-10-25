@@ -90,20 +90,29 @@ powershell -ExecutionPolicy Bypass -File .\deploy.ps1
 
 Builds the dashboard, uploads the package to S3 and restarts the EC2 server through SSM (about 2 minutes). Stop / start and teardown steps are in [hosting.md](docs/04-data-and-aws/hosting.md).
 
-## Repo map
+## Repo structure
 
 ```
-backend/app/    FastAPI: predict.py (models + simulator), concierge.py (guidance, alerts, timeline),
-                chat.py (chatbot), ai_checklist.py (AI checklist), profile.py, topology.py, data.py
-web/src/        dashboard: main.ts, prepare.ts (checklist, Will it last?), tomtomMap.ts + map3d.ts
-                (maps, chosen by mapEngine.ts), api.ts, styles.css
-modelling/      SageMaker notebooks: cleaning, feature engineering, model training
-docs/           overview, plan, research, data + AWS, judging (see docs/README.md)
-deploy.ps1      publish to the live site · dev.ps1: run locally
+AEPHack/
+├── backend/          FastAPI service (runs on EC2)
+│   └── app/          predict.py (models + simulator), concierge.py (guidance, alerts, timeline),
+│                     chat.py (chatbot), ai_checklist.py (AI checklist), profile.py, topology.py, data.py
+├── web/              Dashboard (TypeScript, Tailwind, Vite)
+│   └── src/          main.ts, prepare.ts (checklist, Will it last?), tomtomMap.ts + map3d.ts
+│                     (maps, chosen by mapEngine.ts), api.ts, styles.css
+├── ml/               Outage-risk model package (aepml/) and trained artifacts (artifacts/model_a/)
+├── modelling/        SageMaker notebooks: cleaning, feature engineering, model training
+├── data/             Cleaned parquet tables (processed/), feature tables (features/), small CSV sample
+├── mock/             Mock API JSON used while the backend was being built
+├── docs/             Overview, plan, research, data + AWS, judging (index: docs/README.md)
+├── outputs/pitch/    Pitch deck
+├── video-demo/       Presenter mode for the recorded demo
+├── dev.ps1           Run backend + dashboard locally
+└── deploy.ps1        Publish to the live site
 ```
 
 ## Known limits
 - Storm strength is a scenario input (no weather data). Restoration is a simulator, not a validated forecast.
-- The chatbot uses Amazon Nova 2 Lite; Claude models are blocked in the sandbox AWS account (Marketplace permission).
+- The chatbot uses Amazon Nova 2 Lite on Amazon Bedrock.
 - The priority-location data has hospitals, fire and ambulance stations but no schools.
 - Prototype for HackOHI/O 2026, not an official AEP service.

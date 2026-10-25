@@ -1,6 +1,6 @@
 # Model targets and feature engineering (proposal)
 
-Proposal for what the ML side predicts and which features to build from the cleaned tables in `s3://sagemaker-aep-outage-indiansassemble/processed/`. Builds on [mvp-plan.md](../mvp-plan.md) §5 and [feature-specs.md](feature-specs.md). No code yet.
+Proposal for what the ML side predicts and which features to build from the cleaned tables in `s3://sagemaker-aep-outage-indiansassemble/processed/`. Builds on [mvp-plan.md](mvp-plan.md) §5 and [feature-specs.md](feature-specs.md). No code yet.
 
 ---
 

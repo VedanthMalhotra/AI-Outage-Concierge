@@ -14,7 +14,7 @@ equipment, history), and label each link as damaged-or-not in each event from
 ``damage.outage_loc``.
 
 Features deliberately avoid raw lat/lon (which would memorise a single storm's
-footprint, docs/ideas/model-targets.md section 3). History features are
+footprint, docs/02-plan/model-targets.md section 3). History features are
 leave-one-event-out to avoid leaking the label.
 """
 
