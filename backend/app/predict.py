@@ -155,27 +155,48 @@ def _round10(n: float) -> int:
 # plain-language reasons: shown for features that raise this home's risk, phrased by
 # whether the value is above average (positive coefficient) or below (negative coefficient)
 HIGH = {
-    "primary_overhead_km": ("Overhead power line", lambda v: f"About {v:.1f} km of overhead high-voltage line runs through your branch, exposed to wind, ice and trees."),
-    "secondary_overhead_km": ("Overhead wires near you", lambda v: f"About {v:.1f} km of overhead low-voltage wire serves your branch."),
-    "poles": ("Many poles on your branch", lambda v: f"Your branch has about {int(v)} poles that a storm can damage."),
-    "poles_per_oh_km": ("Dense poles", lambda v: f"About {v:.0f} poles per km of overhead line."),
-    "pole_wood_share": ("Wood poles", lambda v: f"{v:.0%} of the poles on your branch are wood."),
-    "pole_height_mean": ("Tall poles", lambda v: f"Poles on your branch average {v:.0f} ft."),
-    "customers": ("Large branch", lambda v: f"About {_round10(v)} homes share the fuse or recloser that protects your branch."),
-    "transformers": ("Many transformers", lambda v: f"Your branch has {int(v)} transformers."),
-    "oh_transformer_share": ("Pole-mounted transformers", lambda v: f"{v:.0%} of transformers on your branch sit on poles."),
-    "depth": ("Far from the substation", lambda v: f"{int(v)} other fuse or recloser areas sit between your branch and the substation."),
-    "history_damage": ("Storm damage before", lambda v: f"Your branch had {int(v)} damage report(s) in earlier storms."),
-    "breaker_only": ("No branch fuse", lambda v: "No fuse or recloser sits between your home and the substation breaker."),
-    "is_recloser": ("Recloser on your branch", lambda v: "Your branch is protected by a recloser."),
+    "primary_overhead_km": ("Long overhead lines", lambda v: f"About {v:.1f} km of overhead power line runs near you, exposed to wind, ice and trees."),
+    "secondary_overhead_km": ("Overhead wires", lambda v: f"About {v:.1f} km of overhead wire serves the homes on your line."),
+    "poles": ("Many poles", lambda v: f"Your line runs on about {int(v)} poles, and each one can be damaged in a storm."),
+    "poles_per_oh_km": ("Many poles", lambda v: f"Your line has many poles close together (about {v:.0f} per km)."),
+    "pole_wood_share": ("Wood poles", lambda v: f"{v:.0%} of the poles on your line are wood."),
+    "pole_height_mean": ("Tall poles", lambda v: f"The poles on your line are tall (about {v:.0f} ft), so they catch more wind."),
+    "customers": ("Shared line", lambda v: f"About {_round10(v)} homes share the safety switch that protects your line."),
+    "transformers": ("Lots of equipment", lambda v: f"Your line feeds a lot of neighborhood equipment ({int(v)} transformers), so there's more that can break."),
+    "oh_transformer_share": ("Equipment on poles", lambda v: f"{v:.0%} of the equipment on your line sits up on poles."),
+    "depth": ("Far from the substation", lambda v: f"Power reaches you through {int(v) + 1} protected sections, so damage further up the line can also cut you off."),
+    "history_damage": ("Storm damage before", lambda v: f"Your line had {int(v)} damage report(s) in earlier storms."),
+    "breaker_only": ("No local safety switch", lambda v: "There's no local safety switch between your home and the substation, so a fault anywhere on the line can cut you off."),
+    "is_recloser": ("Part of a bigger section", lambda v: "Your home is on a larger section of line that shares one automatic safety switch."),
 }
 LOW = {
-    "primary_underground_km": ("Little underground line", lambda v: "Almost none of the high-voltage line on your branch is underground."),
-    "secondary_underground_km": ("Little underground wire", lambda v: "Almost none of the low-voltage wire on your branch is underground."),
-    "customers_per_km": ("Rural area", lambda v: f"About {v:.0f} homes per km of line, so lines run long distances between homes."),
-    "is_recloser": ("Fuse, not recloser", lambda v: "Your branch is protected by a fuse, which can't reset itself after a brief fault."),
-    "pole_height_mean": ("Shorter poles", lambda v: f"Poles on your branch average {v:.0f} ft."),
-    "customers": ("Small branch", lambda v: f"Only about {_round10(v)} homes share the device that protects your branch."),
+    "primary_underground_km": ("Few buried lines", lambda v: "Almost none of the power line near you is underground."),
+    "secondary_underground_km": ("Few buried wires", lambda v: "Almost none of the wire serving your line is underground."),
+    "customers_per_km": ("Rural area", lambda v: f"Homes near you are spread out (about {v:.0f} per km of line), so the lines are long."),
+    "is_recloser": ("Basic safety switch", lambda v: "Your line is protected by a fuse, which can't reset itself after a brief fault."),
+    "pole_height_mean": ("Shorter poles", lambda v: f"The poles on your line average about {v:.0f} ft."),
+    "customers": ("Small line", lambda v: f"Only about {_round10(v)} homes share the safety switch that protects your line."),
+}
+
+
+# reasons a home's risk is LOW: features that pull its risk down, phrased the same two ways
+LOWERS_BELOW = {  # positive coefficient, value below average
+    "primary_overhead_km": ("Short overhead lines", lambda v: f"Only a short stretch of overhead power line (about {v:.1f} km) runs near you."),
+    "secondary_overhead_km": ("Little overhead wire", lambda v: "Little overhead wire serves the homes on your line."),
+    "poles": ("Few poles", lambda v: f"Your line runs on only about {int(v)} poles."),
+    "transformers": ("Little equipment", lambda v: "Your line feeds only a little neighborhood equipment."),
+    "oh_transformer_share": ("Equipment on the ground", lambda v: "Most equipment on your line sits on the ground, not up on poles."),
+    "customers": ("Small line", lambda v: f"Only about {_round10(v)} homes share the safety switch that protects your line."),
+    "pole_wood_share": ("Sturdier poles", lambda v: f"Only {v:.0%} of the poles on your line are wood."),
+    "depth": ("Close to the substation", lambda v: "Power reaches you through few protected sections, so less damage elsewhere can cut you off."),
+    "is_recloser": ("Own safety switch", lambda v: "Your line has its own fuse, so faults on other lines are cut off before they reach you."),
+}
+LOWERS_ABOVE = {  # negative coefficient, value above average
+    "primary_underground_km": ("Buried power line", lambda v: f"Much of the power line near you (about {v:.1f} km) is underground, safe from wind and trees."),
+    "secondary_underground_km": ("Buried wires", lambda v: "Much of the wire serving your line is underground, safe from wind and trees."),
+    "customers_per_km": ("Homes close together", lambda v: "Homes near you are close together, so the power lines are short."),
+    "is_recloser": ("Automatic safety switch", lambda v: "An automatic switch protects your line and can reset itself after brief faults."),
+    "customers": ("Larger, sturdier line", lambda v: f"About {_round10(v)} homes share your line, which tends to be built sturdier."),
 }
 
 
@@ -218,12 +239,18 @@ def home_risk(premise_id: str, severity: float = 1.0) -> dict:
         weakest = max(zone_links, key=lambda l: e.p_link.get(l, 0))
         c = e.zone_contrib.loc[weakest]
         coef = pd.Series(e.models["zone_risk"][-1].coef_[0], index=c.index)
-        for key in c[c > 0].sort_values(ascending=False).index:
-            table = HIGH if coef[key] > 0 else LOW
+        # a low-risk home is explained by what keeps its risk down; otherwise by what raises it
+        low = prob < 0.15
+        ranked = c[c < 0].sort_values() if low else c[c > 0].sort_values(ascending=False)
+        for key in ranked.index:
+            if low:
+                table = LOWERS_BELOW if coef[key] > 0 else LOWERS_ABOVE
+            else:
+                table = HIGH if coef[key] > 0 else LOW
             if key in table and len(factors) < 3:
                 label, detail = table[key]
                 factors.append({"key": key, "label": label, "detail": detail(float(e.zones.at[weakest, key])),
-                                "direction": "raises", "weight": round(float(c[key]), 2)})
+                                "direction": "lowers" if low else "raises", "weight": round(float(c[key]), 2)})
 
     coverage = topo.data_coverage(p)
     return base | {
