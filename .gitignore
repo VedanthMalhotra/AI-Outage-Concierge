@@ -30,3 +30,7 @@ node_modules/
 # local data copies (never commit data)
 data/models/
 data/raw/
+
+.pitch-build/
+web/preview*.log
+web/dashboard-preview.png

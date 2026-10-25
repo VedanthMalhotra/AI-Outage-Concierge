@@ -17,6 +17,13 @@ const repoRoot = resolve(__dirname, "..");
 
 export default defineConfig({
   root: repoRoot,
+  envDir: __dirname,
+  resolve: { alias: [
+    { find: /^@tomtom-org\/maps-sdk\/map$/, replacement: resolve(__dirname, "node_modules/@tomtom-org/maps-sdk/map/dist/map.es.js") },
+    { find: /^maplibre-gl$/, replacement: resolve(__dirname, "node_modules/maplibre-gl/dist/maplibre-gl.mjs") },
+  ] },
+  optimizeDeps: { include: ["@tomtom-org/maps-sdk/map", "maplibre-gl"] },
+  worker: { format: "es" },
   base: "./",
   publicDir: false,
   css: {

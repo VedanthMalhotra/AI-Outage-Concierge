@@ -16,9 +16,11 @@ import {
   setRiskHeat,
   setCircuit,
   flyToArea,
+  setViewMode,
+  getViewMode,
   setPhaseVisuals,
   resizeMap,
-} from "./map3d";
+} from "./mapEngine";
 import type { Color } from "@deck.gl/core";
 import { $, el, toast } from "./dom";
 import { prepSnapshot, renderPrepare, setPrepPhase, wirePrepare } from "./prepare";
@@ -1023,7 +1025,7 @@ function buildChatSuggestions(): void {
     "How long would it take to get power back?",
     "What if more crews come?",
     "What should I do to prepare?",
-    "Who else on my street has life support equipment?",
+    "What do the map colors mean?",
   ];
   prompts.forEach((p) => {
     const b = el("button", null, p);
@@ -1276,9 +1278,25 @@ function wireControls(): void {
   });
   $("#reset-storm").addEventListener("click", resetStorm);
 
-  // map button: zoom out to the whole predicted-risk heat map
-  $("#map-fit").addEventListener("click", () => {
-    if (mapReady && !flyToArea()) toast("The risk map is still loading");
+  // overview button: zoom out to the whole predicted-risk heat map
+  $("#map-overview").addEventListener("click", () => {
+    if (mapReady && !flyToArea()) flyToOverview();
+  });
+  $("#map-home").addEventListener("click", () => {
+    const p = data.lookup?.demo_premises.find(p => p.premise_id === state.premiseId);
+    if (mapReady && p) flyToPremise(p.lat, p.lon, p.premise_id);
+    else if (mapReady) flyToOverview();
+  });
+  // 2D / 3D view toggle — one button whose label is the current mode.
+  const viewToggle = $("#view-toggle");
+  viewToggle.addEventListener("click", () => {
+    const next = getViewMode() === "3d" ? "2d" : "3d";
+    if (mapReady) setViewMode(next);
+    viewToggle.textContent = next.toUpperCase();
+    viewToggle.setAttribute(
+      "aria-label",
+      `Map view mode: ${next.toUpperCase()}. Click to switch.`
+    );
   });
 
   // Chat

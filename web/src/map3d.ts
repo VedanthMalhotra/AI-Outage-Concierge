@@ -18,7 +18,8 @@
  * ========================================================================== */
 
 import { Deck, FlyToInterpolator, WebMercatorViewport, type Color, type PickingInfo } from "@deck.gl/core";
-import { TileLayer } from "@deck.gl/geo-layers";
+import { TileLayer, TerrainLayer } from "@deck.gl/geo-layers";
+import { _TerrainExtension as TerrainExtension } from "@deck.gl/extensions";
 import {
   BitmapLayer,
   GeoJsonLayer,
@@ -30,9 +31,9 @@ import {
 import type { Band, PowerPath, PowerPathLink, RiskHeat, RiskHeatCell } from "./types";
 
 /* ---- camera framing --------------------------------------------------- */
-const OVERVIEW_PITCH = 0; // flat, top-down map (2D, the default)
-const TILT_3D = 45; // camera tilt when the user switches to 3D
-const PREMISE_ZOOM = 16.5; // close-up zoom when a premise is selected
+const OVERVIEW_PITCH = 52;
+const TILT_3D = 52;
+const PREMISE_ZOOM = 14.5;
 
 /* ---- palette (matches the risk badge bands in main.ts) ---------------- */
 const BAND_COLOR: Record<Band, Color> = {
@@ -75,7 +76,8 @@ let powerPath: PowerPath | null = null;
 let home: { lat: number; lon: number; label: string; service: string } | null = null;
 
 let heatVisible = true; // storm timeline toggles this
-let viewMode: "2d" | "3d" = "2d"; // user-facing 2D/3D toggle: 3D only tilts the camera
+let viewMode: "2d" | "3d" = "3d";
+let terrainFailed = false;
 let pinState: PinState = "normal";
 let circuitPhaseColor: Color = [255, 90, 82];
 
@@ -102,6 +104,22 @@ let viewState: ViewState = {
  * transport + place-name reference overlays, mirroring the old Leaflet stack.
  * ========================================================================== */
 function basemapLayers() {
+  if (viewMode === "3d" && !terrainFailed) {
+    return [new TerrainLayer({
+      id: "roanoke-terrain",
+      elevationData: "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+      texture: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      elevationDecoder: { rScaler: 256, gScaler: 1, bScaler: 1 / 256, offset: -32768 },
+      minZoom: 0, maxZoom: 14, tileSize: 256, meshMaxError: 8,
+      operation: "terrain+draw", strategy: "no-overlap",
+      onTileError: () => {
+        terrainFailed = true;
+        const status = document.getElementById("map-status");
+        if (status) status.textContent = "Terrain unavailable · satellite view";
+        refresh();
+      },
+    })];
+  }
   const make = (id: string, url: string, opacity = 1) =>
     new TileLayer({
       id,
@@ -387,12 +405,14 @@ function powerPathLayers() {
  * Compose + render.
  * ========================================================================== */
 function allLayers() {
+  const overlays = [
+    circuitLayer(), heatLayer(), ...pinLayers(), ...powerPathLayers(),
+  ].filter(Boolean).map(layer => layer!.clone({
+    extensions: viewMode === "3d" && !terrainFailed ? [new TerrainExtension()] : [],
+  }));
   return [
     ...basemapLayers(),
-    circuitLayer(),
-    heatLayer(),
-    ...pinLayers(),
-    ...powerPathLayers(),
+    ...overlays,
   ].filter(Boolean);
 }
 
@@ -468,7 +488,8 @@ export function initMap(args: InitMapArgs): void {
   deck = new Deck({
     parent: (mapEl = document.getElementById(args.container) as HTMLDivElement),
     initialViewState: viewState,
-    controller: { dragRotate: true, touchRotate: true },
+    controller: { dragRotate: true, touchRotate: true, inertia: 250 },
+    useDevicePixels: Math.min(window.devicePixelRatio, 2),
     layers: allLayers(),
     getTooltip: tooltip,
     onViewStateChange: ({ viewState: vs }) => {
@@ -531,6 +552,8 @@ export function flyToOverview(): void {
 export function setViewMode(mode: "2d" | "3d"): void {
   if (!deck || mode === viewMode) return;
   viewMode = mode;
+  const status = document.getElementById("map-status");
+  if (status) status.textContent = mode === "3d" && !terrainFailed ? "3D terrain · satellite imagery" : "Satellite view";
   viewState = {
     ...viewState,
     pitch: mode === "3d" ? TILT_3D : 0,
@@ -615,3 +638,4 @@ export function setPhaseVisuals(opts: {
 export function resizeMap(): void {
   if (deck) deck.redraw();
 }
+

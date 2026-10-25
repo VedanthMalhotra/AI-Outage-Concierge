@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "AI Outage Concierge dashboard (AEP HackOHI/O 2026) — TypeScript + Tailwind build on mock data.",
+  "description": "AI Outage Concierge dashboard for the Roanoke Valley - TypeScript, TomTom 3D maps and FastAPI",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -13,13 +13,16 @@
   "dependencies": {
     "@deck.gl/aggregation-layers": "^9.4.0",
     "@deck.gl/core": "^9.4.0",
+    "@deck.gl/extensions": "^9.4.0",
     "@deck.gl/geo-layers": "^9.4.0",
     "@deck.gl/layers": "^9.4.0",
     "@deck.gl/mesh-layers": "^9.4.0",
     "@loaders.gl/core": "^4.5.4",
+    "@tomtom-org/maps-sdk": "^1.0.0-rc.5",
     "@types/leaflet.heat": "0.2.5",
     "leaflet": "^1.9.4",
-    "leaflet.heat": "0.2.0"
+    "leaflet.heat": "0.2.0",
+    "maplibre-gl": "^6.15.0"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.12",
