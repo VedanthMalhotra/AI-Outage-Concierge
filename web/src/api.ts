@@ -157,6 +157,67 @@ export async function fetchPremiseLookup(
 }
 
 /* ---------------------------------------------------------------------------
+ * chat — Amazon Nova via POST /chat. The backend keeps each conversation in
+ * memory under a random session id; we hold that id in sessionStorage so it
+ * survives a page refresh but stays private to this browser tab.
+ * ------------------------------------------------------------------------- */
+const CHAT_SESSION_KEY = "aep_chat_session";
+
+function readChatSession(): string | null {
+  try {
+    return sessionStorage.getItem(CHAT_SESSION_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export interface ChatReply {
+  session_id: string;
+  reply: string;
+  tools_used: string[];
+  emergency: boolean;
+}
+
+export async function sendChat(message: string, premiseId: string): Promise<ChatReply> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 45000);
+  try {
+    const res = await fetch(`${API_BASE}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, premise_id: premiseId, session_id: readChatSession() }),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error(`/chat -> ${res.status}`);
+    const r = (await res.json()) as ChatReply;
+    try {
+      sessionStorage.setItem(CHAT_SESSION_KEY, r.session_id);
+    } catch {
+      /* storage blocked: the conversation just won't survive a refresh */
+    }
+    return r;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Forget this tab's conversation on the server and locally ("Clear my data"). */
+export async function endChat(): Promise<void> {
+  const sid = readChatSession();
+  try {
+    sessionStorage.removeItem(CHAT_SESSION_KEY);
+  } catch {
+    /* ignore */
+  }
+  if (!sid) return;
+  try {
+    await fetch(`${API_BASE}/chat/${encodeURIComponent(sid)}`, { method: "DELETE" });
+  } catch {
+    /* backend down: the server copy expires on its own */
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * damage heat — the backend already aggregates into ~1 km cells.
  * ------------------------------------------------------------------------- */
 export async function fetchDamageHeat(
