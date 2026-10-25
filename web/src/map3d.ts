@@ -223,8 +223,6 @@ function gradientData(): HeatPoint[] {
   return pts;
 }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 /* All-red gradient: light red at the faint edges -> deep red at the core. No
  * orange or yellow. deck.gl spaces these six evenly across 0..1. */
 const GRADIENT_COLORS: Color[] = [
@@ -234,23 +232,6 @@ const GRADIENT_COLORS: Color[] = [
   [239, 68, 68],
   [185, 28, 28],
   [127, 15, 15], // deep red core
-=======
-=======
->>>>>>> Stashed changes
-/* Matches the old L.heatLayer gradient stops (pale yellow -> deep red). deck.gl
- * spaces colorRange entries evenly, so these six map onto 0, 0.2, 0.4, 0.6,
- * 0.8, 1.0 — close to the original 0 / .25 / .45 / .65 / .85 / 1 stops. */
-const GRADIENT_COLORS: Color[] = [
-  [254, 178, 76], // warm orange (faint edges read red/orange, not white)
-  [253, 141, 60],
-  [252, 78, 42],
-  [227, 26, 28],
-  [189, 0, 38],
-  [128, 0, 24], // deep red core
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 ];
 
 function gradientLayer() {
